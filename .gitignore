@@ -1,0 +1,4 @@
+./data/*
+./outputs/*
+./.git/*
+./.ipynb_checkpoints/*
