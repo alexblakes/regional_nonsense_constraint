@@ -1,0 +1,8 @@
+# Git does not track empty directories by default.
+# However, we want the data/ directory to always be accesible.
+
+#Ignore everything in this directory
+*
+
+# Except for the .gitignore file itself
+!.gitignore
