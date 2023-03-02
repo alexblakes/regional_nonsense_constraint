@@ -4,7 +4,7 @@
 
 # Change these variables for each batch of jobs
 JOB_NAME="*fail*original*230226*"
-RERUN="rerun1"
+RERUN="rerun2"
 
 # No need to change these variables
 JOB_ID_FILE="failed_jobs.txt"
@@ -17,6 +17,7 @@ dx find jobs \
     --state failed \
     --brief \
     --name "${JOB_NAME}" \
+    --tag "rerun1" \
     -n 1000 >\
     "${JOB_ID_FILE}"
 
