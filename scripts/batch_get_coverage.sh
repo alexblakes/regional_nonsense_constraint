@@ -2,6 +2,10 @@
 
 # This script submit batch jobs to extract coverage statistics from the UKB exomes VCFs
 
+# Identifier variables for job tags
+DATE="$(date +"%y%m%d")"
+TIME="$(date +"%H%M")"
+
 # Create local directories
 rm -rf split_paths
 mkdir split_paths
@@ -49,11 +53,16 @@ do
     --destination="${project}:/outputs/gnomad_coverage/output_notebooks/" \
     --priority="low" \
     --cost-limit 1.00 \
+    --tag "${DATE}" \
+    --tag "${TIME}" \
     --tag "test" \
     --tag "mem3_ssd1_v2_x2" \
     --tag "n_jobs=5" \
     --tag "n_vcfs=500" \
     -y
 done
+
+# Clean up
+rm -rf split_paths/ gnomad_exome_file_paths.txt test_file_paths.txt
 
 # "jupyter nbconvert --to notebook --inplace --execute get_coverage.ipynb"
