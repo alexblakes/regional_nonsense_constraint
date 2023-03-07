@@ -6,3 +6,6 @@
 
 # Except for the .gitignore file itself
 !.gitignore
+
+# Other files not to ignore
+!mutational_model_stats.tsv
