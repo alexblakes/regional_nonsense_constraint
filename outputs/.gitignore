@@ -9,4 +9,5 @@
 
 # Other files not to ignore
 !mutational_model_stats.tsv
-!expected_variants_stats.tsv
+!expected_variants_stats*.tsv
+!
