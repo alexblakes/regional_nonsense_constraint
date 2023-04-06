@@ -64,7 +64,7 @@ do
     --tag "mem3_ssd1_v2_x2" \
     --tag "n_jobs=5" \
     --tag "n_vcfs=50" \
-    -y
+    -y \
     --brief
 done
 
