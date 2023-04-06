@@ -16,11 +16,16 @@ dx mkdir -p outputs/gnomad_coverage/split_coverage
 dx mkdir outputs/gnomad_coverage/output_notebooks
 
 # Get file paths
-find "/mnt/project/Bulk/Exome sequences_Alternative exome processing/Exome variant call files (gnomAD) (VCFs)/" |\
-grep ".vcf.gz" |\
-grep -v ".tbi" |\
-sort >\
-gnomad_exome_file_paths.txt
+f=./gnomad_exome_file_paths.txt
+if test -f "${f}"; then
+    echo "${f} already exists."
+else
+    find "/mnt/project/Bulk/Exome sequences_Alternative exome processing/Exome variant call files (gnomAD) (VCFs)/" |\
+    grep ".vcf.gz" |\
+    grep -v ".tbi" |\
+    sort >\
+    gnomad_exome_file_paths.txt
+fi
 
 # Header file for testing purposes
 head -n 50 gnomad_exome_file_paths.txt > test_file_paths.txt
@@ -43,7 +48,7 @@ for LOCAL_FILE_PATH in split_paths/*;
 do
     FILE_NAME="$(basename "${LOCAL_FILE_PATH}")"
     dx run dxjupyterlab_spark_cluster \
-    -iin="${project}:/get_coverage.ipynb" \
+    -iin="${project}:/scripts/get_coverage.ipynb" \
     -iin="${project}:/outputs/gnomad_coverage/split_paths/${FILE_NAME}" \
     -icmd="papermill get_coverage.ipynb ${FILE_NAME}_out.ipynb" \
     -ifeature=HAIL-0.2.78 \
@@ -63,4 +68,4 @@ do
 done
 
 # Clean up
-rm -rf split_paths/ gnomad_exome_file_paths.txt test_file_paths.txt
+#rm -rf split_paths/ gnomad_exome_file_paths.txt test_file_paths.txt
