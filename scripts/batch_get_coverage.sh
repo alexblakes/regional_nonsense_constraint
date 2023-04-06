@@ -54,7 +54,7 @@ do
     -ifeature=HAIL-0.2.78 \
     --name="get_coverage_test_230406_${FILE_NAME}" \
     --instance-type=mem3_ssd1_v2_x2 \
-    --instance-count=1 \
+    --instance-count=4 \
     --destination="${project}:/outputs/gnomad_coverage/output_notebooks/" \
     --priority="low" \
     --cost-limit 1.00 \
