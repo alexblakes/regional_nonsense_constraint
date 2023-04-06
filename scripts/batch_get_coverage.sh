@@ -23,7 +23,7 @@ sort >\
 gnomad_exome_file_paths.txt
 
 # Header file for testing purposes
-head -n 500 gnomad_exome_file_paths.txt > test_file_paths.txt
+head -n 50 gnomad_exome_file_paths.txt > test_file_paths.txt
 
 # Create variable for the filename containing all VCF file paths
 ALL_PATHS="test_file_paths.txt"
@@ -32,7 +32,7 @@ ALL_PATHS="test_file_paths.txt"
 dx upload --destination /outputs/gnomad_coverage/ "${ALL_PATHS}"
 
 # Split ALL_PATHS into N VCFs per file
-N=100
+N=10
 split -l "${N}" "${ALL_PATHS}" split_paths/split_paths_
 
 # Upload split files to UKB RAP
@@ -47,7 +47,7 @@ do
     -iin="${project}:/outputs/gnomad_coverage/split_paths/${FILE_NAME}" \
     -icmd="papermill get_coverage.ipynb ${FILE_NAME}_out.ipynb" \
     -ifeature=HAIL-0.2.78 \
-    --name="get_coverage_test_230227_${FILE_NAME}" \
+    --name="get_coverage_test_230406_${FILE_NAME}" \
     --instance-type=mem3_ssd1_v2_x2 \
     --instance-count=1 \
     --destination="${project}:/outputs/gnomad_coverage/output_notebooks/" \
@@ -55,14 +55,12 @@ do
     --cost-limit 1.00 \
     --tag "${DATE}" \
     --tag "${TIME}" \
-    --tag "test" \
+    --tag "test_01" \
     --tag "mem3_ssd1_v2_x2" \
     --tag "n_jobs=5" \
-    --tag "n_vcfs=500" \
+    --tag "n_vcfs=50" \
     -y
 done
 
 # Clean up
 rm -rf split_paths/ gnomad_exome_file_paths.txt test_file_paths.txt
-
-# "jupyter nbconvert --to notebook --inplace --execute get_coverage.ipynb"
