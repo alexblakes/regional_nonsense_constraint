@@ -60,8 +60,9 @@ do
     --cost-limit 1.00 \
     --tag "${DATE}" \
     --tag "${TIME}" \
-    --tag "test_01" \
+    --tag "test_02" \
     --tag "mem3_ssd1_v2_x2" \
+    --tag "instances=4" \
     --tag "n_jobs=5" \
     --tag "n_vcfs=50" \
     -y \
