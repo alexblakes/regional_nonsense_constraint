@@ -65,7 +65,8 @@ do
     --tag "n_jobs=5" \
     --tag "n_vcfs=50" \
     -y
+    --brief
 done
 
 # Clean up
-#rm -rf split_paths/ gnomad_exome_file_paths.txt test_file_paths.txt
+rm -rf split_paths/ gnomad_exome_file_paths.txt test_file_paths.txt
