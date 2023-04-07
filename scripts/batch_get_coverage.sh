@@ -4,7 +4,7 @@
 
 # Variables for the job submission script
 run_type="test" # "test" or "production"
-tag_name="test_05"
+tag_name="test_06"
 n_vcfs=20
 n_jobs=5
 files_in_test=100 # n_vcfs * n_jobs
