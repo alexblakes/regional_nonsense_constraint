@@ -15,6 +15,7 @@ DATE="$(date +"%y%m%d")"
 TIME="$(date +"%H%M")"
 
 # Do the work in a temporary directory
+rm -rf tmp
 mkdir tmp
 cd tmp
 
