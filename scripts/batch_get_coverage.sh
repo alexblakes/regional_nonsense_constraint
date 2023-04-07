@@ -55,8 +55,8 @@ fi
 split -l "${n_vcfs}" "${FILE_PATHS}" split_paths/split_paths_
 
 # Upload VCF file paths and split files to UKB RAP
-dx upload --destination /outputs/gnomad_coverage/ "${FILE_PATHS}"
-dx upload -r --destination /outputs/gnomad_coverage/ split_paths
+dx upload --destination /outputs/gnomad_coverage/ "${FILE_PATHS}" --brief
+dx upload -r --destination /outputs/gnomad_coverage/ split_paths --brief
 
 # Submit batch jobs
 for LOCAL_FILE_PATH in split_paths/*;
