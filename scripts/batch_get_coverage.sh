@@ -2,6 +2,10 @@
 
 # This script submit batch jobs to extract coverage statistics from the UKB exomes VCFs
 
+# Do the work in a temporary directory
+mkdir tmp
+cd tmp
+
 # Identifier variables for job tags
 DATE="$(date +"%y%m%d")"
 TIME="$(date +"%H%M")"
@@ -52,7 +56,7 @@ do
     -iin="${project}:/outputs/gnomad_coverage/split_paths/${FILE_NAME}" \
     -icmd="papermill get_coverage.ipynb ${FILE_NAME}_out.ipynb" \
     -ifeature=HAIL-0.2.78 \
-    --name="get_coverage_test_230406_${FILE_NAME}" \
+    --name="get_coverage_test_230407_${FILE_NAME}" \
     --instance-type=mem3_ssd1_v2_x2 \
     --instance-count=4 \
     --destination="${project}:/outputs/gnomad_coverage/output_notebooks/" \
@@ -60,7 +64,7 @@ do
     --cost-limit 1.00 \
     --tag "${DATE}" \
     --tag "${TIME}" \
-    --tag "test_02" \
+    --tag "test_03" \
     --tag "mem3_ssd1_v2_x2" \
     --tag "instances=4" \
     --tag "n_jobs=5" \
@@ -70,4 +74,5 @@ do
 done
 
 # Clean up
-rm -rf split_paths/ gnomad_exome_file_paths.txt test_file_paths.txt
+cd ..
+rm -r tmp
