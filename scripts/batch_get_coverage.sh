@@ -2,13 +2,21 @@
 
 # This script submit batch jobs to extract coverage statistics from the UKB exomes VCFs
 
+# Variables for the job submission script
+run_type="test" # "test" or "production"
+tag_name="test_04"
+n_vcfs=10
+n_jobs=5
+files_in_test=50 # n_vcfs * n_jobs
+instance_type="mem3_ssd1_v2_x2"
+instances=4
+priority="low"
+DATE="$(date +"%y%m%d")"
+TIME="$(date +"%H%M")"
+
 # Do the work in a temporary directory
 mkdir tmp
 cd tmp
-
-# Identifier variables for job tags
-DATE="$(date +"%y%m%d")"
-TIME="$(date +"%H%M")"
 
 # Create local directories
 rm -rf split_paths
@@ -20,31 +28,33 @@ dx mkdir -p outputs/gnomad_coverage/split_coverage
 dx mkdir outputs/gnomad_coverage/output_notebooks
 
 # Get file paths
-f=./gnomad_exome_file_paths.txt
-if test -f "${f}"; then
-    echo "${f} already exists."
+FILE_PATHS="gnomad_exome_file_paths.txt"
+
+if test -f "${FILE_PATHS}"; then
+    echo "${FILE_PATHS} already exists."
 else
-    find "/mnt/project/Bulk/Exome sequences_Alternative exome processing/Exome variant call files (gnomAD) (VCFs)/" |\
+    dx_path="Bulk/Exome sequences_Alternative exome processing/Exome variant call files (gnomAD) (VCFs)/"
+    prefix="/mnt/project/"
+    
+    dx find data --path "${dx_path}" |\
+    cut -d \/ -f 5 | cut -d ' ' -f 1 |\
+    while read line; do echo "${prefix}${dx_path}${line}"; done |\
     grep ".vcf.gz" |\
     grep -v ".tbi" |\
     sort >\
     gnomad_exome_file_paths.txt
 fi
 
-# Header file for testing purposes
-head -n 50 gnomad_exome_file_paths.txt > test_file_paths.txt
+# In testing, only run on a few VCFs:
+if test "${run_type}" == "test"; then
+    head -n "${files_in_test}" "${FILE_PATHS}" | sponge "${FILE_PATHS}"
+fi
 
-# Create variable for the filename containing all VCF file paths
-ALL_PATHS="test_file_paths.txt"
+# Split FILE_PATHS into n_vcfs per file
+split -l "${n_vcfs}" "${FILE_PATHS}" split_paths/split_paths_
 
-# Upload all VCF file paths to UKB RAP
-dx upload --destination /outputs/gnomad_coverage/ "${ALL_PATHS}"
-
-# Split ALL_PATHS into N VCFs per file
-N=10
-split -l "${N}" "${ALL_PATHS}" split_paths/split_paths_
-
-# Upload split files to UKB RAP
+# Upload VCF file paths and split files to UKB RAP
+dx upload --destination /outputs/gnomad_coverage/ "${FILE_PATHS}"
 dx upload -r --destination /outputs/gnomad_coverage/ split_paths
 
 # Submit batch jobs
@@ -56,19 +66,19 @@ do
     -iin="${project}:/outputs/gnomad_coverage/split_paths/${FILE_NAME}" \
     -icmd="papermill get_coverage.ipynb ${FILE_NAME}_out.ipynb" \
     -ifeature=HAIL-0.2.78 \
-    --name="get_coverage_test_230407_${FILE_NAME}" \
-    --instance-type=mem3_ssd1_v2_x2 \
-    --instance-count=4 \
+    --name="get_coverage_${run_type}_${DATE}_${FILE_NAME}" \
+    --instance-type="${instance_type}" \
+    --instance-count="${instances}" \
     --destination="${project}:/outputs/gnomad_coverage/output_notebooks/" \
-    --priority="low" \
+    --priority="${priority}" \
     --cost-limit 1.00 \
     --tag "${DATE}" \
     --tag "${TIME}" \
-    --tag "test_03" \
-    --tag "mem3_ssd1_v2_x2" \
-    --tag "instances=4" \
-    --tag "n_jobs=5" \
-    --tag "n_vcfs=50" \
+    --tag "${tag_name}" \
+    --tag "${instance_type}" \
+    --tag "instances=${instances}" \
+    --tag "n_jobs=${n_jobs}" \
+    --tag "n_vcfs=${n_vcfs}" \
     -y \
     --brief
 done
