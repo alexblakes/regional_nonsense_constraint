@@ -4,12 +4,12 @@
 
 # Variables for the job submission script
 run_type="test" # "test" or "production"
-tag_name="test_04"
-n_vcfs=10
+tag_name="test_05"
+n_vcfs=20
 n_jobs=5
-files_in_test=50 # n_vcfs * n_jobs
+files_in_test=100 # n_vcfs * n_jobs
 instance_type="mem3_ssd1_v2_x2"
-instances=4
+instances=8
 priority="low"
 DATE="$(date +"%y%m%d")"
 TIME="$(date +"%H%M")"
