@@ -4,10 +4,10 @@
 
 # Variables for the job submission script
 run_type="test" # "test" or "production"
-tag_name="test_07"
-n_vcfs=20
-n_jobs=100
-files_in_test=2000 # n_vcfs * n_jobs
+tag_name="test_09"
+n_vcfs=80
+n_jobs=5
+files_in_test=400 # n_vcfs * n_jobs
 instance_type="mem3_ssd1_v2_x2"
 instances=8
 priority="low"
@@ -72,7 +72,7 @@ do
     --instance-count="${instances}" \
     --destination="${project}:/outputs/gnomad_coverage/output_notebooks/" \
     --priority="${priority}" \
-    --cost-limit 1.00 \
+    --cost-limit 0.40 \
     --tag "${DATE}" \
     --tag "${TIME}" \
     --tag "${tag_name}" \
