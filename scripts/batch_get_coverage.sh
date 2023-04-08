@@ -4,10 +4,10 @@
 
 # Variables for the job submission script
 run_type="test" # "test" or "production"
-tag_name="test_06"
+tag_name="test_07"
 n_vcfs=20
-n_jobs=5
-files_in_test=100 # n_vcfs * n_jobs
+n_jobs=100
+files_in_test=2000 # n_vcfs * n_jobs
 instance_type="mem3_ssd1_v2_x2"
 instances=8
 priority="low"
