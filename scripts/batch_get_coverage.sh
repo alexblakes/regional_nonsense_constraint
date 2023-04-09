@@ -3,11 +3,11 @@
 # This script submit batch jobs to extract coverage statistics from the UKB exomes VCFs
 
 # Variables for the job submission script
-run_type="test" # "test" or "production"
-tag_name="test_09"
+run_type="production" # "test" or "production"
+tag_name="original_01"
 n_vcfs=80
-n_jobs=5
-files_in_test=400 # n_vcfs * n_jobs
+n_jobs=1
+files_in_test=1 # n_vcfs * n_jobs
 instance_type="mem3_ssd1_v2_x2"
 instances=8
 priority="low"
@@ -43,7 +43,7 @@ else
     grep ".vcf.gz" |\
     grep -v ".tbi" |\
     sort >\
-    gnomad_exome_file_paths.txt
+    ${FILE_PATHS}
 fi
 
 # In testing, only run on a few VCFs:
