@@ -10,6 +10,7 @@ n_jobs=1
 files_in_test=1 # n_vcfs * n_jobs
 instance_type="mem3_ssd1_v2_x2"
 instances=8
+cost_limit=0.40
 priority="low"
 DATE="$(date +"%y%m%d")"
 TIME="$(date +"%H%M")"
@@ -72,7 +73,7 @@ do
     --instance-count="${instances}" \
     --destination="${project}:/outputs/gnomad_coverage/output_notebooks/" \
     --priority="${priority}" \
-    --cost-limit 0.40 \
+    --cost-limit="${cost_limit}" \
     --tag "${DATE}" \
     --tag "${TIME}" \
     --tag "${tag_name}" \
