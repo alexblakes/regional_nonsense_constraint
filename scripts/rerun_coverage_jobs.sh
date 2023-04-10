@@ -17,7 +17,7 @@ TIME="$(date +"%H%M")"
 
 # Get IDs of failed jobs
 dx find jobs \
-    --project project-GKK5xq0J7yj8yZZ863Jgg51x \
+    --project project-GQFJfPjJvP02pk9yZpqJ0yjJ \
     --state failed \
     --brief \
     --name "${JOB_NAME}" \
