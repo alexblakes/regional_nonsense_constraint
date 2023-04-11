@@ -8,12 +8,12 @@ mkdir ../data/split_coverage
 
 # Download the split_coverage files
 dx find data --path outputs/gnomad_coverage/split_coverage |\
-tr -s ' ' | cut -d ' ' -f 6 | head -n 100 |\
-xargs -P 20 -I % dx download -o data/split_coverage/ %
+tr -s ' ' | cut -d ' ' -f 6 |\
+xargs -P 20 -I % dx download -o ../data/split_coverage/ %
 
 # Concatenate the individual files containing the coverage data
 # The number of files is too great for cat, so passing to xargs is required
-cat ../data/split_coverage/*.tsv | sort -n -t t -k 1,2 > ../data/coverage.tsv
+cat ../data/split_coverage/*.tsv | sort -k1,1 -k2,2n > ../data/coverage.tsv
 
 # Upload the combined data
 dx rm -f outputs/coverage.tsv
