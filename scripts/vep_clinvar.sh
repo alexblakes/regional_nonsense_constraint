@@ -16,8 +16,11 @@ vep \
     --buffer_size 10000 \
     --force_overwrite \
     --format vcf \
-    --tab \
+    --vcf \
     --no_stats \
+    --minimal \
+    --allele_number \
+    --show_ref_allele \
     --pick \
     --pick_order mane,canonical \
     --coding_only
