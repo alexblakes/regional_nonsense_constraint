@@ -22,5 +22,4 @@ vep \
     --allele_number \
     --show_ref_allele \
     --pick \
-    --pick_order mane,canonical \
-    --coding_only
+    --pick_order mane,canonical
