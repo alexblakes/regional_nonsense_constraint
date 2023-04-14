@@ -5,7 +5,7 @@
 
 vep \
     --input_file ../outputs/clinvar_variants_selected.vcf \
-    --output_file ../outputs/clinvar_variants_vep.tsv \
+    --output_file ../outputs/clinvar_variants_vep.vcf \
     --species homo_sapiens \
     --assembly GRCh38 \
     --dir ~/.vep \
@@ -20,6 +20,5 @@ vep \
     --no_stats \
     --minimal \
     --allele_number \
-    --show_ref_allele \
     --pick \
     --pick_order mane,canonical
