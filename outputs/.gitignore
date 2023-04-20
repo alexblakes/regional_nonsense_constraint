@@ -8,8 +8,8 @@
 !.gitignore
 
 # Other files not to ignore
-!mutational_model_stats.tsv
 !expected_variants_stats*.tsv
 !observed_variants_stats*.tsv
 !constrained_transcripts*.tsv
 !panel_app_gms_rare_disease_genes.tsv
+
