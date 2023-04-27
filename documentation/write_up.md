@@ -57,7 +57,7 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
 
 ## Results
 ### 38.7% of the coding exome is potentially subject to NMD escape
-
+<img src="../plots/230327 Transcript diagram.png" alt="" style="height: 350px;"/>
 > Figure: NMD regions diagram
 
 ### NNN canonical transcripts are highly intolerant to nonsense variants
@@ -79,6 +79,10 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
 ### Limitations
 ## References
 ## Supplementary information
+### Building the expectation model
+### Comparison with other constraint statistics
+### Selecting interesting transcript sets
+
 examined the relationship between the mutability of each variant context and the proportion of possible synonymous variants which were observed in the cohort. Synonymous variants were chosen as a class of coding variants which are generally neutral to selection.  
 
 [^REF]: Reference
