@@ -56,12 +56,25 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
 > Write up later. The current approach is a rough draft.
 
 ## Results
+### 38.7% of the coding exome is potentially subject to NMD escape
+
+> Figure: NMD regions diagram
+
 ### NNN canonical transcripts are highly intolerant to nonsense variants
 
-> Of which, how many have a pLI / LOEUF annotation
+> Figure: Global Z-score distribution
+> Supplementary data: Constraint summary statistics  
+> Of which, how many have a pLI / LOEUF annotation, and how many are new?  
+> - Small genes  
 
 ### NNN canonical transcripts exhibit regional nonsense constraint
-> Of which, how many have a pLI / LOEUF annotation
+
+> Figure: Regional Z-score distributions  
+> How many show both global and regional nonsense constraint?
+> - NMD is damaging
+> - NMD-escape is damaging
+> - Both NMD and NMD-escape are damaging
+
 
 ### Limitations
 ## References
