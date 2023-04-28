@@ -13,14 +13,6 @@ For each transcript, the following NMD regions were annotated with custom Python
 
 "Last exon" and "50nt rule" annotations were unified into one category: "Distal". Positions with multiple NMD annotations were assigned one definitive annotation, with this priority: 
 start proximal > distal > long exon. 
-|NMD region|Number of positions|
-|----------|------------------:|
-|NMD target|20,963,322|
-|Distal|7,518,656|
-|Start proximal|2,989,495|
-|Long exon|2,706,498|
-|Total|34,177,971|
-> Note that some of these positions are duplicated across different transcripts.
 
 ### Variant identification
 Variants were identified from coding exome sequencing (CES)[^REF] data in the UK Biobank (UKB)[^REF]. The sequencing methods have been previously described[^REF]. Variants were filtered through the gnomAD sample and variant quality control (QC) pipeline[^REF]. Single nucleotide variants (SNVs) in our transcripts of interest, which passed all variant filters (FILTER="PASS") and had a minimum allele count of 1, were extracted from the 421,212 samples which passed sample-level QC. In total, 10,836,767 SNVs meeting these criteria were identified.
@@ -57,8 +49,24 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
 
 ## Results
 ### 38.7% of the coding exome is potentially subject to NMD escape
-<img src="../plots/230327 Transcript diagram.png" alt="" style="height: 350px;"/>
-> Figure: NMD regions diagram
+We identified coding positions in which a premature termination codon (PTC) may evade NMD in 19,982 canonical human transcripts. We annotated positions which were start-proximal (<150nt downstream of the translation start codon), at the 5' end of long exons (>400nt upstream of a splice donor site), subject to the 50nt rule (within the most 3' 50nt of the penultimate exon) or in the final exon of the transcript. (Positions in the later two groups are collectively refered to as "distal NMD escape" positions). In total, 13,214,649 coding positions (38.7% of the coding exome) are subject to one or more of these NMD escape rules ([Table 1](#nmd_table), [Figure 1](nmd_figure))
+
+### Table 1 <a name="nmd_table"></a> 
+|NMD region|Number of positions|% of coding genome|
+|----------|------------------:|---:|
+|NMD target|20,963,322|61.3%|
+|Distal|7,518,656|23.2%|
+|Start proximal|2,989,495|8.8%|
+|Long exon|2,706,498|8.7%|
+|**Total**|**34,177,971**|**100%**|
+
+**Table 1:** The number of coding positions in each NMD region. Note that some positions are duplicated because they overlap with more than one transcript.
+
+### Figure 1 <a name="nmd_figure"></a>
+<img src="../plots/230327 Transcript diagram.png" style="height: 350px;"/>
+
+**Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.  
+
 
 ### NNN canonical transcripts are highly intolerant to nonsense variants
 
