@@ -51,7 +51,7 @@ Every possible coding SNV in our transcripts of interest were annotated with the
 To model the expected number of variants in any arbitrary sequence in this cohort, we constructed a weighted least-squares regression model describing the relationship between mutability and the proportion of possible synonymous variants observed for each variant context. The model was weighted by the number of possible synonymous variants in each variant context. CpG transitions (accounting for ~3% of all possible synonymous variants) were excluded from this model and from the remainder of the constraint analysis.
 
 <div class="alert alert-block alert-info">
-    More discussion on this will be given in the supplementary information.
+    More discussion on this will be given in the supplementary information. I think a sensible approach would be to build separate models for non-CpG and CpG variants, and to apply them separately to each transcript.
 </div>
 
 To calculate the expected number of variants in each transcript and region, we summed the mutability of every possible variant context for each transcript and NMD region (described above). We then applied our model to predict the expected number of synonymous, missense, and nonsense variants per transcript and NMD region. 
@@ -68,7 +68,8 @@ Transcripts and regions which are poorly covered may appear depleted of nonsense
 After correcting for multiple testing with the Benjamini-Hochberg (false discovery rate (FDR)) method, we defined constrained transcripts and regions as those with fewer nonsense variants than expected (one-tailed Z test, P < 0.001), or those with 0 nonsense variants observed and P < 0.01. This second group represents transcripts at the limit of our power to detect constraint. To acheive a significance level of P < 0.01 or P < 0.001 (prior to FDR correction), a minimum of ~5 or ~9 expected nonsense variants are required, respectively. To exclude very large transcripts with modest constraint but highly significant P-values, we excluded transcripts and regions where the ratio of observed : expected variants (O/E) was larger than 0.35. 
 
 <div class="alert alert-block alert-info">
-    I still need to apply FDR correction, and decide on appropriate significance cutoffs.
+    I still need to apply FDR correction, and decide on appropriate significance cutoffs.  
+    Should I apply the O/E cutoff prior to FDR correction?
 </div>
 
 ### Constrained transcripts in ClinVar
@@ -83,7 +84,7 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
 
 ## Results
 ### 38.7% of the coding exome is potentially subject to NMD escape
-We identified coding positions in which a premature termination codon (PTC) may evade NMD in 19,982 canonical human transcripts. Using NMD escape annotations which have been previously described [^REF],  We annotated positions which were start-proximal (<150nt downstream of the translation start codon), at the 5' end of long exons (>400nt upstream of a splice donor site), subject to the 50nt rule (within the most 3' 50nt of the penultimate exon) or in the final exon of the transcript. (Positions in the later two groups are collectively refered to as "distal NMD escape" positions). In total, 13,214,649 coding positions (38.7% of the coding exome) are subject to one or more of these NMD escape rules ([Table 1](#nmd_table), [Figure 1](#nmd_figure))
+We identified coding positions in which a premature termination codon (PTC) may evade NMD in 19,982 canonical human transcripts. Using four previously-described NMD escape rules [^REF], we annotated positions which were start-proximal (<150nt downstream of the translation start codon), at the 5' end of long exons (>400nt upstream of a splice donor site), subject to the 50nt rule (within the most 3' 50nt of the penultimate exon) or in the final exon of the transcript. Positions in the latter two groups are collectively refered to as "distal NMD escape" positions. In total, 13,214,649 coding positions (38.7% of the coding exome) are subject to one or more of these NMD escape rules ([Table 1](#nmd_table), [Figure 1](#nmd_figure))
 
 #### Table 1 <a name="nmd_table"></a>
 
@@ -103,6 +104,16 @@ We identified coding positions in which a premature termination codon (PTC) may 
 > **Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.  
 
 ### NNN canonical transcripts are highly intolerant to nonsense variants
+To examine selective constraint against nonsense variants at the transcript level, we trained a variant expectation model [^REF] on coding exome sequencing data from 421,212 individuals in the UK Biobank [^REF]. The model, based on the mutation rate of SNVs in different trinucleotide contexts, explains **[95.9%]** of the variance in the proportion of observed rare synonymous variants exome-wide [^SF].
+
+We applied this model to predict the number of synonymous, missense, and nonsense variants expected in this cohort in each canonical transcript. We used a one-sided Z test to test the difference between the proportion of observed and expected variants for each transcript and variant consequence (see Methods).
+
+#### Figure 2 <a name="constraint_z_in_transcripts_by_csq"></a>
+<img src="../plots/constraint_z_in_transcripts_by_csq.svg" style="height: 300px;"/>
+
+> **Figure 2:** Distribution of constraint Z scores for 19,623 canonical transcripts, stratified by variant consequence. A negative Z score indicates that the proportion of variants observed is lower than expected. Vertical red lines represent different P value thresholds for a one-sided Z test (prior to FDR correction).
+
+Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.  
 
 > Figure: Global Z score distribution  
 > Figure: Nonsense Z scores by region  
@@ -128,5 +139,7 @@ We identified coding positions in which a premature termination codon (PTC) may 
 
 examined the relationship between the mutability of each variant context and the proportion of possible synonymous variants which were observed in the cohort. Synonymous variants were chosen as a class of coding variants which are generally neutral to selection.  
 
+
 [^REF]: Reference
+[^SF]: Supplementary_figure
 
