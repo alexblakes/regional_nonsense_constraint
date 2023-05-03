@@ -86,7 +86,7 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
 ### 38.7% of the coding exome is potentially subject to NMD escape
 We identified coding positions in which a premature termination codon (PTC) may evade NMD in 19,982 canonical human transcripts. Using four previously-described NMD escape rules [^REF], we annotated positions which were start-proximal (<150nt downstream of the translation start codon), at the 5' end of long exons (>400nt upstream of a splice donor site), subject to the 50nt rule (within the most 3' 50nt of the penultimate exon) or in the final exon of the transcript. Positions in the latter two groups are collectively refered to as "distal NMD escape" positions. In total, 13,214,649 coding positions (38.7% of the coding exome) are subject to one or more of these NMD escape rules ([Table 1](#nmd_table), [Figure 1](#nmd_figure))
 
-#### Table 1 <a name="nmd_table"></a>
+<a name="nmd_table"></a>
 
 |NMD region|Number of positions|% of coding genome|
 |----------|------------------:|---:|
@@ -98,7 +98,8 @@ We identified coding positions in which a premature termination codon (PTC) may 
 
 > **Table 1:** The number of coding positions in each NMD region. Note that some positions are duplicated because they overlap with more than one transcript.
 
-#### Figure 1 <a name="nmd_figure"></a>
+<a name="nmd_figure"></a>
+
 <img src="../plots/230327 Transcript diagram.png" style="height: 350px;"/>
 
 > **Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.  
@@ -109,7 +110,8 @@ To examine selective constraint against nonsense variants at the transcript leve
 We applied this model to predict the number of synonymous, missense, and nonsense variants expected in this cohort in each canonical transcript. We used a one-sided Z test to test the difference between the proportion of observed and expected variants for each transcript and variant consequence (see Methods).
 
 #### Figure 2 <a name="constraint_z_in_transcripts_by_csq"></a>
-<img src="../plots/constraint_z_in_transcripts_by_csq.svg" style="height: 300px;"/>
+
+<img src="../plots/constraint_in_transcripts_by_csq_combined.svg" style="height: 600px;"/>
 
 > **Figure 2:** Distribution of constraint Z scores for 19,623 canonical transcripts, stratified by variant consequence. A negative Z score indicates that the proportion of variants observed is lower than expected. Vertical red lines represent different P value thresholds for a one-sided Z test (prior to FDR correction).
 
