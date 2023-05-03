@@ -74,6 +74,9 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
     Should I apply the O/E cutoff prior to FDR correction?
 </div>
 
+### Other statistics
+The correlation between transcript Z score and LOEUF was calculated as the Spearman's rank correlation coefficient.
+
 ### Constrained transcripts in ClinVar
 <div class="alert alert-block alert-info">
     Write up later. The current approach is a rough draft.
