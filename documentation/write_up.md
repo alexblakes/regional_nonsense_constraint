@@ -105,14 +105,14 @@ We identified coding positions in which a premature termination codon (PTC) may 
 > **Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.  
 
 ### NNN canonical transcripts are highly intolerant to nonsense variants
-To examine selective constraint against nonsense variants at the transcript level, we trained a variant expectation model [^REF] on coding exome sequencing data from 421,212 individuals in the UK Biobank [^REF]. The model, based on the mutation rate of SNVs in different trinucleotide contexts, explains **[95.9%]** of the variance in the proportion of observed rare synonymous variants exome-wide [^SF].
+To examine selective constraint against nonsense variants at the transcript level, we trained a variant expectation model [^REF] on coding exome sequencing data from 421,212 individuals in the UK Biobank [^REF]. The model, based on the mutation rate of SNVs in a given  trinucleotide context, explains **[95.9%]** of the variance in the proportion of observed rare synonymous variants exome-wide [^SF].
 
 We applied this model to predict the number of synonymous, missense, and nonsense variants expected in this cohort in each canonical transcript. We used a one-sided Z test to test the difference between the proportion of observed and expected variants for each transcript and variant consequence (see Methods).
 
-After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants.
+After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants (2,164 with P < 0.001; 108 with P < 0.01 and 0 variants observed, one-sided Z test) ([Figure 2](#constraint_in_transcripts_by_csq)). Our transcript-level nonsense Z-scores are highly correlated with the gnomAD LOEUF metric [^REF] **[Spearman rank test]** [^SF].
 
-<div class="alert alert-block alert-info">
-    Should I apply the O/E < 0.35 cutoff at this stage? Or is this more relevant for clinical variant filtering? 
+<div class="alert alert-block alert-info">  
+    Should I apply the O/E &lt; 0.35 cutoff at this stage? Or is this more relevant for clinical variant filtering?
 </div>
 
 <a name="constraint_in_transcripts_by_csq"></a>
@@ -121,14 +121,8 @@ After excluding poorly covered transcripts and correcting for multiple testing, 
 
 > **Figure 2:** Transcript-level constraint in 421,212 individuals in the UK Biobank. **Top** The number of expected and observed variants in 19,623 canonical transcripts. The grey dashed line represents x=y, with a slope of 1. The solid blue line is the line of best fit (least squares). The reduced number of observed missense and nonsense variants in many transcripts implies negative selection against these variant types. **Middle** The distribution of observed / expected (O/E) variants per transcript, stratified by variant consequence. The grey dashed line marks O/E = 1. Missense variants are moderately skewed left. Nonsense variants are strongly skewed left. A small peak at the extreme left of the synonymous and missense distributions likely represents transcripts which were poorly covered by sequencing. **Bottom** The distribution of constraint Z scores per transcript , stratified by variant consequence. The grey dashed line marks Z = 0. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction). A negative Z score indicates that the proportion of variants observed is lower than expected. 
 
-
-> Figure: Global Z score distribution  
-> Figure: Nonsense Z scores by region  
-> Supplementary data: Constraint summary statistics  
-> Of which, how many have a pLI / LOEUF annotation, and how many are new?  
-> - Small genes  
-
 ### NNN canonical transcripts exhibit regional nonsense constraint
+The large size of the UKB cohort increases our power to detect constraint at small scales. To find transcripts with regional nonsense constraint, we applied our variant expectation model to the NMD regions described above.
 
 > Figure: Regional Z-score distributions  
 > How many show both global and regional nonsense constraint?  
@@ -144,9 +138,24 @@ After excluding poorly covered transcripts and correcting for multiple testing, 
 ### Comparison with other constraint statistics
 ### Selecting interesting transcript sets
 
-examined the relationship between the mutability of each variant context and the proportion of possible synonymous variants which were observed in the cohort. Synonymous variants were chosen as a class of coding variants which are generally neutral to selection.  
+## To do
 
+- [ ] SF: Synonymous expectation model figure  
+    - [ ] Best fit line
+    - [ ] Regression equation
+    - [ ] R2 value
+- [ ] SF: Synonymous obs vs exp scatter
+    - [ ] Best fit line
+    - [ ] Regression equation
+    - [ ] R2 value
+- [ ] SF: Nonsense Z vs LOEUF
+    - [ ] Spearman's rank
+- [ ] Fig: Nonsense Z scores by region  
+- [ ] SD: Constraint summary statistics
+- [ ] Analysis: Of constrained genes, how many have a pLI / LOEUF annotation, and how many are new?  
+
+
+examined the relationship between the mutability of each variant context and the proportion of possible synonymous variants which were observed in the cohort. Synonymous variants were chosen as a class of coding variants which are generally neutral to selection.  
 
 [^REF]: Reference
 [^SF]: Supplementary_figure
-
