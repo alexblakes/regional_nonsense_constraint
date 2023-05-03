@@ -111,7 +111,7 @@ To examine selective constraint against nonsense variants at the transcript leve
 
 We applied this model to predict the number of synonymous, missense, and nonsense variants expected in this cohort in each canonical transcript. We used a one-sided Z test to test the difference between the proportion of observed and expected variants for each transcript and variant consequence (see Methods).
 
-After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants (P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test) ([Figure 2](#constraint_in_transcripts)). Our transcript-level nonsense Z-scores are highly correlated with the gnomAD LOEUF metric [REF] **[Spearman rank test]** ([SF]).
+After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants (P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test) ([Figure 2](#constraint_in_transcripts)). Our transcript-level nonsense Z-scores are highly correlated with the gnomAD LOEUF metric [REF] (Spearman$\rho$ = 0.77, P < 2.23 x 10$^{-308}$) ([Figure S1](#z_vs_loeuf)).
 
 <div class="alert alert-block alert-info">  
     Should I apply the O/E &lt; 0.35 cutoff at this stage? Or is this more relevant for clinical variant filtering?
@@ -144,7 +144,12 @@ The large size of the UKB cohort increases our power to detect constraint at sma
 ## Supplementary information
 
 ### Supplementary figures
-[SF]: "supplementary_figure"
+
+<a name="z_vs_loeuf"></a>
+
+<img src="../plots/constraint_z_vs_loeuf.svg" style="width: 400px;"/>
+
+> Figure S1: Comparison of UKB Z-score and gnomAD's LOEUF transcript-level constraint metrics. The metrics are highly correlated (Spearman rho = 0.77, P < 2.23 x 10$^{-308}$). Z scores are trimmed between -5 and 2 for clarity.
 
 #### Building the expectation model
 
@@ -165,8 +170,8 @@ The large size of the UKB cohort increases our power to detect constraint at sma
     - [ ] Best fit line
     - [ ] Regression equation
     - [ ] R2 value
-- [ ] SF: Nonsense Z vs LOEUF
-    - [ ] Spearman's rank
+- [X] SF: Nonsense Z vs LOEUF
+    - [X] Spearman's rank
 - [ ] Fig: Nonsense Z scores by region  
 - [ ] SD: Constraint summary statistics
 - [ ] Analysis: Of constrained genes, how many have a pLI / LOEUF annotation, and how many are new?  
