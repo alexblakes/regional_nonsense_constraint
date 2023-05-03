@@ -106,7 +106,7 @@ We identified coding positions in which a premature termination codon (PTC) may 
 
 > **Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.  
 
-### NNN canonical transcripts are highly intolerant to nonsense variants
+### 2,272 canonical transcripts are highly intolerant to nonsense variants
 To examine selective constraint against nonsense variants at the transcript level, we trained a variant expectation model [REF] on coding exome sequencing data from 421,212 individuals in the UK Biobank [REF]. The model, based on the mutation rate of SNVs in a given  trinucleotide context, explains **[95.9%]** of the variance in the proportion of observed rare synonymous variants exome-wide ([SF]).
 
 We applied this model to predict the number of synonymous, missense, and nonsense variants expected in this cohort in each canonical transcript. We used a one-sided Z test to test the difference between the proportion of observed and expected variants for each transcript and variant consequence (see Methods).
@@ -117,13 +117,17 @@ After excluding poorly covered transcripts and correcting for multiple testing, 
     Should I apply the O/E &lt; 0.35 cutoff at this stage? Or is this more relevant for clinical variant filtering?
 </div>
 
+<div class="alert alert-block alert-info">  
+    Are these significance thresholds too extreme? Perhaps A threshold of P &lt; 0.05, combined with multiple correction (FDR &lt; 0.05) and the O/E &lt; 0.35 threshold, would be better? 
+</div>
+
 <a name="constraint_in_transcripts"></a>
 
 <img src="../plots/constraint_in_transcripts_by_csq_combined.png" style="width: 800px;"/>
 
 > **Figure 2:** Transcript-level constraint in 421,212 individuals in the UK Biobank. **Top** The number of expected and observed variants in 19,623 canonical transcripts. The grey dashed line represents x=y, with a slope of 1. The solid blue line is the line of best fit (least squares). The reduced number of observed missense and nonsense variants in many transcripts implies negative selection against these variant types. **Middle** The distribution of observed / expected (O/E) variants per transcript, stratified by variant consequence. The grey dashed line marks O/E = 1. Missense variants are moderately skewed left. Nonsense variants are strongly skewed left. A small peak at the extreme left of the synonymous and missense distributions likely represents transcripts which were poorly covered by sequencing. **Bottom** The distribution of constraint Z scores per transcript , stratified by variant consequence. The grey dashed line marks Z = 0. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction). A negative Z score indicates that the proportion of variants observed is lower than expected. 
 
-### NNN canonical transcripts exhibit regional nonsense constraint
+### Hundreds of transcripts exhibit regional nonsense constraint
 The large size of the UKB cohort increases our power to detect constraint at small scales. To find transcripts with regional nonsense constraint, we applied our variant expectation model to the NMD regions described above. After excluding poorly covered regions and correcting for multiple testing, we found significant regional nonsense constraint in NMD target regions (1,220 transcripts, P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test), long exon NMD escape regions (190 transcripts), and distal NMD escape regions (144 transcripts) ([SD]). We were not powered to detect constraint in start-proximal NMD escape regions.
 
 <a name="constraint_in_regions"></a>
