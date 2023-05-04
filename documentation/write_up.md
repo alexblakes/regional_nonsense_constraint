@@ -62,11 +62,12 @@ After correcting for multiple testing with the Benjamini-Hochberg (false discove
 
 <div class="alert alert-block alert-info">
     I still need to apply FDR correction, and decide on appropriate significance cutoffs.  
-    Should I apply the O/E cutoff prior to FDR correction?
+    Should I apply the O/E cutoff prior to FDR correction?  
+    I have not applied the O/E cutoff just yet.
 </div>
 
 ### Other statistics
-The correlation between transcript Z score and LOEUF was calculated as the Spearman's rank correlation coefficient.
+The correlation between transcript Z score and LOEUF was calculated as the Spearman's rank correlation coefficient ([Figure S2](#z_vs_loeuf)).
 
 ### Constrained transcripts in ClinVar
 <div class="alert alert-block alert-info">
@@ -101,7 +102,7 @@ We identified coding positions in which a premature termination codon (PTC) may 
 > **Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.
 
 ### Nonsense variants in NMD regions are highly constrained
-To identify variant-level constraints, we calculated the mutability-adjusted proportion of singletons (MAPS) for nonsense variants in NMD escape regions, using coding exome sequencing data in 421,212 individuals in the UKB. MAPS is a constraint metric which uses shifts in the allele frequency spectrum to highlight functional variant classes which are under negative selection ([REF]). Nonsense variants in all regions of the transcript are highly constrained ([Figure 2](#maps)), but constraint varies by region. Interestingly, nonsense variants in the 5' end of long exons are the most highly constrained (MAPS = 0.132), even more so than nonsense variant which are likely to be targeted by NMD (MAPS = 0.116). By contrast, distal and start-proximal nonsense variants are less highly constrained (MAPS = 0.080, 0.077 respectively).
+To identify variant-level constraints, we calculated the mutability-adjusted proportion of singletons (MAPS) for nonsense variants in NMD escape regions using coding exome sequencing data in 421,212 individuals in the UKB. MAPS is a constraint metric which uses shifts in the allele frequency spectrum to highlight functional variant classes which are under negative selection ([REF]). Nonsense variants in all regions of the transcript are highly constrained ([Figure 2](#maps)), but there is  variability by NMD region. Interestingly, nonsense variants in the 5' end of long exons are the most highly constrained (MAPS = 0.132), even more so than nonsense variant which are likely to be targeted by NMD (MAPS = 0.116). By contrast, distal and start-proximal nonsense variants are less highly constrained (MAPS = 0.080, 0.077 respectively).
 
 <a name="maps"></a>
 
@@ -131,15 +132,15 @@ After excluding poorly covered transcripts and correcting for multiple testing, 
 > **Figure 3:** Transcript-level constraint in 421,212 individuals in the UK Biobank. **Top** The number of expected and observed variants in 19,623 canonical transcripts. The grey dashed line represents x=y, with a slope of 1. The solid blue line is the line of best fit (least squares). The reduced number of observed missense and nonsense variants in many transcripts implies negative selection against these variant types. **Middle** The distribution of observed / expected (O/E) variants per transcript, stratified by variant consequence. The grey dashed line marks O/E = 1. Missense variants are moderately skewed left. Nonsense variants are strongly skewed left. A small peak at the extreme left of the synonymous and missense distributions likely represents transcripts which were poorly covered by sequencing. **Bottom** The distribution of constraint Z scores per transcript , stratified by variant consequence. A negative Z score indicates that the proportion of variants observed is lower than expected. The grey dashed line marks Z = 0. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction).
 
 ### Hundreds of transcripts exhibit regional nonsense constraint
-The large size of the UKB cohort increases our power to detect constraint at small scales. To find transcripts with regional nonsense constraint, we applied our variant expectation model to the NMD regions described above. After excluding poorly covered regions and correcting for multiple testing, we found significant regional nonsense constraint in NMD target regions (1,220 transcripts, P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test), long exon NMD escape regions (190 transcripts), and distal NMD escape regions (144 transcripts) ([SD]). We were not powered to detect constraint in start-proximal NMD escape regions.
+The large size of the UKB cohort increases our power to detect constraint at small scales. To find transcripts with regional nonsense constraint, we applied our variant expectation model to the NMD regions described above. After excluding poorly covered regions and correcting for multiple testing ([Figure S3](#p_values_fdr)), we found significant regional nonsense constraint in NMD target regions (1,220 transcripts, P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test), long exon NMD escape regions (190 transcripts), and distal NMD escape regions (144 transcripts) ([Figure 4](#regional_constraint), [SD]). We were not powered to detect constraint in start-proximal NMD escape regions.
 
-<a name="constraint_in_regions"></a>
+<a name="regional_constraint"></a>
 
 <img src="../plots/constraint_z_in_regions_nonsense.svg" style="width: 1000px;"/>
 
-> **Figure 3:** Regional nonsense constraint in 421,212 individuals in the UK Biobank. Shown are the distribution of constraint Z scores for nonsense variants, stratified by NMD escape region. For each NMD region, the number of transcripts with at least one possible nonsense variant is shown. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction). A negative Z score indicates that the proportion of variants observed is lower than expected. Many transcripts are constrained for nonsense variants in NMD target regions, distal NMD escape regions, and long exon NMD escape regions. We are not powered to detect regional nonsense constraint in start-proximal NMD escape regions. 
+> **Figure 4:** Regional nonsense constraint in 421,212 individuals in the UK Biobank. Shown are the distribution of constraint Z scores for nonsense variants, stratified by NMD escape region. For each NMD region, the number of transcripts with at least one possible nonsense variant is shown. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction). A negative Z score indicates that the proportion of variants observed is lower than expected. Many transcripts are constrained for nonsense variants in NMD target regions, distal NMD escape regions, and long exon NMD escape regions. We are not powered to detect regional nonsense constraint in start-proximal NMD escape regions. 
 
-### Limitations
+## Limitations
 
 ## References <a id='references'></a>
 [REF]: "reference"
@@ -176,16 +177,16 @@ The large size of the UKB cohort increases our power to detect constraint at sma
 
 <img src="../plots/proportion_singletons_synonymous_vs_mu.svg" style="width: 400px;"/>
 
-> **Figure S4:** The MAPS model. The plot shows the proportion of singletons among synonymous variants in 174 variant contexts (excluding CpG transitions), against mutability. The weighted least squares regression line (weighted on the number of observed variants in each context) is shown. This is the model used to calculate MAPS.
+> **Figure S4:** The MAPS model. The plot shows the proportion of singletons among synonymous variants in 176 variant contexts (excluding CpG transitions), against mutability. The weighted least squares regression line (weighted on the number of observed variants in each context) is shown. This is the model used to calculate MAPS.
+
+### Supplementary data 
+[SD]: "supplementary_data"
 
 #### Building the expectation model
 
 #### Comparison with other constraint statistics
 
 #### Selecting interesting transcript sets
-
-### Supplementary data 
-[SD]: "supplementary_data"
 
 ## To do
 
