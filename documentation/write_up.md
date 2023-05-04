@@ -40,7 +40,9 @@ Variants were identified from coding exome sequencing (CES)[REF] data in the UK 
 </div>
 
 ### Mutability-adjusted proportion of singletons
+We obtained allele counts for every SNV identified above. After VEP annotation (see below, "Modelling the expected number of variants"), we calculated the proportion of singletons for each consequence (synonymous, missense, nonsense) and each NMD region (see above, "Annotating NMD regions") using custom Python scripts.
 
+To account for sequence mutability, we built a weighted least squares model ([Figure S4](#maps_model)) describing the relationship between mutability and the proportion of singletons for synonymous variants in each variant context. The model was weighted by the number of observed synonymous variants in each variant context. CpG transitions (accounting for ~3% of all possible synonymous variants) were excluded from this model.
 
 ### Modelling the expected number of variants
 This analysis was based on the methods described by the gnomAD group [REF].
@@ -53,7 +55,7 @@ Every possible coding SNV in our transcripts of interest were annotated with the
     This is not the case currently. Instead, I have used the VEP --pick, --pick_order, and --coding_only flags. This is a potential source of error. When we refactor the code and rerun the analysis, I should run this as above.
 </div>
 
-To model the expected number of variants in any arbitrary sequence in this cohort, we constructed a weighted least-squares regression model describing the relationship between mutability and the proportion of possible synonymous variants observed for each variant context. The model was weighted by the number of possible synonymous variants in each variant context. CpG transitions (accounting for ~3% of all possible synonymous variants) were excluded from this model and from the remainder of the constraint analysis.
+To model the expected number of variants in any arbitrary sequence in this cohort, we constructed a weighted least-squares regression model describing the relationship between mutability and the proportion of possible synonymous variants observed for each variant context. The model was weighted by the number of possible synonymous variants in each variant context. CpG transitions (accounting for ~3% of all possible synonymous variants) were excluded from this model and from the remainder of the constraint analysis (see [Figure S1](#expectation_model))
 
 <div class="alert alert-block alert-info">
     More discussion on this will be given in the supplementary information. I think a sensible approach would be to build separate models for non-CpG and CpG variants, and to apply them separately to each transcript.
