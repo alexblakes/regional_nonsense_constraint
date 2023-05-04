@@ -128,7 +128,7 @@ After excluding poorly covered transcripts and correcting for multiple testing, 
 
 <img src="../plots/constraint_in_transcripts_by_csq_combined.png" style="width: 800px;"/>
 
-> **Figure 2:** Transcript-level constraint in 421,212 individuals in the UK Biobank. **Top** The number of expected and observed variants in 19,623 canonical transcripts. The grey dashed line represents x=y, with a slope of 1. The solid blue line is the line of best fit (least squares). The reduced number of observed missense and nonsense variants in many transcripts implies negative selection against these variant types. **Middle** The distribution of observed / expected (O/E) variants per transcript, stratified by variant consequence. The grey dashed line marks O/E = 1. Missense variants are moderately skewed left. Nonsense variants are strongly skewed left. A small peak at the extreme left of the synonymous and missense distributions likely represents transcripts which were poorly covered by sequencing. **Bottom** The distribution of constraint Z scores per transcript , stratified by variant consequence. The grey dashed line marks Z = 0. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction). A negative Z score indicates that the proportion of variants observed is lower than expected. 
+> **Figure 2:** Transcript-level constraint in 421,212 individuals in the UK Biobank. **Top** The number of expected and observed variants in 19,623 canonical transcripts. The grey dashed line represents x=y, with a slope of 1. The solid blue line is the line of best fit (least squares). The reduced number of observed missense and nonsense variants in many transcripts implies negative selection against these variant types. **Middle** The distribution of observed / expected (O/E) variants per transcript, stratified by variant consequence. The grey dashed line marks O/E = 1. Missense variants are moderately skewed left. Nonsense variants are strongly skewed left. A small peak at the extreme left of the synonymous and missense distributions likely represents transcripts which were poorly covered by sequencing. **Bottom** The distribution of constraint Z scores per transcript , stratified by variant consequence. A negative Z score indicates that the proportion of variants observed is lower than expected. The grey dashed line marks Z = 0. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction).
 
 ### Hundreds of transcripts exhibit regional nonsense constraint
 The large size of the UKB cohort increases our power to detect constraint at small scales. To find transcripts with regional nonsense constraint, we applied our variant expectation model to the NMD regions described above. After excluding poorly covered regions and correcting for multiple testing, we found significant regional nonsense constraint in NMD target regions (1,220 transcripts, P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test), long exon NMD escape regions (190 transcripts), and distal NMD escape regions (144 transcripts) ([SD]). We were not powered to detect constraint in start-proximal NMD escape regions.
@@ -165,21 +165,22 @@ The large size of the UKB cohort increases our power to detect constraint at sma
 
 ## To do
 
-- [ ] SF: Synonymous expectation model figure  
-    - [ ] Best fit line
-    - [ ] Regression equation
-    - [ ] R2 value
-- [ ] SF: Synonymous obs vs exp scatter
-    - [ ] Best fit line
-    - [ ] Regression equation
-    - [ ] R2 value
+- [X] SF: Synonymous expectation model figure  
+    - [X] Best fit line
+    - [X] Regression equation
+    - [X] R2 value
+- [X] SF: Synonymous obs vs exp scatter
+    - [X] Best fit line
+    - [X] Regression equation
+    - [X] R2 value
 - [X] SF: Nonsense Z vs LOEUF
     - [X] Spearman's rank
-- [ ] Fig: Nonsense Z scores by region  
+- [ ] MAPS
+- [X] Fig: Nonsense Z scores by region  
 - [ ] SD: Constraint summary statistics
 - [ ] Analysis: Of constrained genes, how many have a pLI / LOEUF annotation, and how many are new?  
-- [ ] SF: P-values before and after FDR correction
-- [ ] How many show both global and regional nonsense constraint?  
+- [X] SF: P-values before and after FDR correction
+- [ ] Analysis: How many show both global and regional nonsense constraint?  
     - [ ] NMD is damaging
     - [ ] NMD-escape is damaging
     - [ ] Both NMD and NMD-escape are damaging
