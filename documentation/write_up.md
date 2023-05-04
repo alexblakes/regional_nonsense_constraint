@@ -148,11 +148,18 @@ The large size of the UKB cohort increases our power to detect constraint at sma
 
 ### Supplementary figures
 
+<img src="../plots/expectation_model_by_cpg.svg" style="width: 700px;"/>
+
+> Figure S1: Variant expectation model. **Top left** The proportion of observed synonymous variants in UKB versus sequence mutability. Each point represents one of 304 trinucleotide sequence contexts (e.g. AAG -> AGG) and, for CpG transitions, one of 16 methylation levels. There is a log-linear relationship between mutability and the proportion observed. **Top right** The same data as in top left, after y-axis transformation to linearise the data. Points are coloured to reflect the number of possible synonymous variants in each context. In highly mutable contexts (highly methylated CpG sites), fewer than ten synonymous variants may be possible. In non-CpG contexts, there are typically over 100,000 possible synonymous variants. As a result, the data shows heteroscedasticity (the variance in Y increases with values of X). **Bottom left** The same data as in top left and top right, but with CpG transitions excluded. 176 contexts remain (accounting for ~97% of all possible synonymous variants). The weighted least squares regression line (weighted on the number of possible variants in each context) is shown. 96% of the variance in the proportion of observed variants is explained by the mutability of the variant context.  This is the basis of the variant expectation model used throughout the paper. **Bottom right** The proportion of variants observed and expected for 176 synonymous variant contexts (excluding CpG transitions). The grey dashed line shows x = y. The solid blue line is the ordinary least squares regression line.
+
+
 <a name="z_vs_loeuf"></a>
 
 <img src="../plots/constraint_z_vs_loeuf.svg" style="width: 400px;"/>
 
-> Figure S1: Comparison of UKB Z-score and gnomAD's LOEUF transcript-level constraint metrics. The metrics are highly correlated (Spearman rho = 0.77, P < 2.23 x 10$^{-308}$). Z scores are trimmed between -5 and 2 for clarity.
+> Figure S2: Comparison of UKB Z-score and gnomAD's LOEUF transcript-level constraint metrics. The metrics are highly correlated (Spearman rho = 0.77, P < 2.23 x 10$^{-308}$). Z scores are trimmed between -5 and 2 for clarity.
+
+<a name="expectation_model"></a>
 
 #### Building the expectation model
 
