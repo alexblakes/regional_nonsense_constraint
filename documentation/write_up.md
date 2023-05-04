@@ -168,7 +168,17 @@ The large size of the UKB cohort increases our power to detect constraint at sma
 
 <img src="../plots/constraint_p_in_regions_combined.svg" style="width: 800px;"/>
 
-> **Figure S3:** P value distributions for constraint against nonsense variants in NMD regions. **Top** Unadjusted P values. **Bottom** P values after Benjamini-Hochberg (FDR) correction.  
+> **Figure S3:** P value distributions for constraint against nonsense variants in NMD regions. **Top** Unadjusted P values. **Bottom** P values after Benjamini-Hochberg (FDR) correction.
+
+***
+
+<a name="maps"></a>
+
+<img src="../plots/maps.svg" style="width: 400px;"/>
+
+> **Figure S3:** P value distributions for constraint against nonsense variants in NMD regions. **Top** Unadjusted P values. **Bottom** P values after Benjamini-Hochberg (FDR) correction.
+
+***
 
 #### Building the expectation model
 
