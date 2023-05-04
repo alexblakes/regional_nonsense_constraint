@@ -23,14 +23,14 @@ One representative transcript (the Ensembl_canonical transcript) was selected fo
 
 ### Annotating NMD regions
 For each transcript, the following NMD regions were annotated with custom Python scripts:
-- Start proximal: The first 150nt downstream of the translation start site
+- Start-proximal: The first 150nt downstream of the translation start site
 - Long exon: Positions >400nt upstream of an exon-intron junction
 - 50nt rule: The most 3' 50nt in the penultimate (second-most 3') exon
 - Last exon: Positions in the final (most 3') exon
 - NMD target: Any position within a CDS lacking the annotations above  
 
 "Last exon" and "50nt rule" annotations were unified into one category: "Distal". Positions with multiple NMD annotations were assigned one definitive annotation, with this priority: 
-start proximal > distal > long exon. 
+start-proximal > distal > long exon. 
 
 ### Variant identification
 Variants were identified from coding exome sequencing (CES)[REF] data in the UK Biobank (UKB)[REF]. The sequencing methods have been previously described[REF]. Variants were filtered through the gnomAD sample and variant quality control (QC) pipeline[REF]. Single nucleotide variants (SNVs) in our transcripts of interest, which passed all variant filters (FILTER="PASS") and had a minimum allele count of 1, were extracted from the 421,212 samples which passed sample-level QC. In total, 10,836,767 SNVs meeting these criteria were identified.
@@ -38,6 +38,9 @@ Variants were identified from coding exome sequencing (CES)[REF] data in the UK 
 <div class="alert alert-block alert-info">
     The gnomAD QC pipeline may require more description. Is it identical to the ExAC pipeline?
 </div>
+
+### Mutability-adjusted proportion of singletons
+
 
 ### Modelling the expected number of variants
 This analysis was based on the methods described by the gnomAD group [REF].
@@ -107,14 +110,23 @@ We identified coding positions in which a premature termination codon (PTC) may 
 
 <img src="../plots/230327 Transcript diagram.png" style="width: 800px;"/>
 
-> **Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.  
+> **Figure 1:** Transcript diagram illustrating NMD escape regions. Thick blue boxes represent coding exons. Dark blue dashes depict NMD escape regions. Labels indicate the percentage of coding bases contained within each region, and the number of transcripts which are constrained for nonsense variants in each region.
+
+### Nonsense variants in NMD regions are highly constrained
+To identify variant-level constraints, we calculated the mutability-adjusted proportion of singletons (MAPS) for nonsense variants in NMD escape regions, using coding exome sequencing data in 421,212 individuals in the UKB. MAPS is a constraint metric which uses shifts in the allele frequency spectrum to highlight functional variant classes which are under negative selection ([REF]). Nonsense variants in all regions of the transcript are highly constrained ([Figure 2](#maps)), but constraint varies by region. Interestingly, nonsense variants in the 5' end of long exons are the most highly constrained (MAPS = 0.132), even more so than nonsense variant which are likely to be targeted by NMD (MAPS = 0.116). By contrast, distal and start-proximal nonsense variants are less highly constrained (MAPS = 0.080, 0.077 respectively).
+
+<a name="maps"></a>
+
+<img src="../plots/maps.svg" style="width: 300px;"/>
+
+> **Figure 2:** Mutability-adjusted proportion of singletons for nonsense variants in NMD regions. "Synonymous", "Missense", and "Nonsense" refer to variants in the full length of the transcript. "NMD target", "Long exon", "Distal", and "Start-proximal" refer only to nonsense variants in these NMD regions.
 
 ### 2,272 canonical transcripts are highly intolerant to nonsense variants
 To examine selective constraint against nonsense variants at the transcript level, we trained a variant expectation model [REF] on coding exome sequencing data from 421,212 individuals in the UK Biobank [REF]. The model, based on the mutation rate of SNVs in a given  trinucleotide context, explains **[95.9%]** of the variance in the proportion of observed rare synonymous variants exome-wide ([SF]).
 
 We applied this model to predict the number of synonymous, missense, and nonsense variants expected in this cohort in each canonical transcript. We used a one-sided Z test to test the difference between the proportion of observed and expected variants for each transcript and variant consequence (see Methods).
 
-After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants (P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test) ([Figure 2](#constraint_in_transcripts)). Our transcript-level nonsense Z-scores are highly correlated with the gnomAD LOEUF metric [REF] (Spearman$\rho$ = 0.77, P < 2.23 x 10$^{-308}$) ([Figure S1](#z_vs_loeuf)).
+After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants (P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test) ([Figure 3](#constraint_in_transcripts)). Our transcript-level nonsense Z-scores are highly correlated with the gnomAD LOEUF metric [REF] (Spearman$\rho$ = 0.77, P < 2.23 x 10$^{-308}$) ([Figure S1](#z_vs_loeuf)).
 
 <div class="alert alert-block alert-info">  
     Should I apply the O/E &lt; 0.35 cutoff at this stage? Or is this more relevant for clinical variant filtering?
@@ -128,7 +140,7 @@ After excluding poorly covered transcripts and correcting for multiple testing, 
 
 <img src="../plots/constraint_in_transcripts_by_csq_combined.png" style="width: 800px;"/>
 
-> **Figure 2:** Transcript-level constraint in 421,212 individuals in the UK Biobank. **Top** The number of expected and observed variants in 19,623 canonical transcripts. The grey dashed line represents x=y, with a slope of 1. The solid blue line is the line of best fit (least squares). The reduced number of observed missense and nonsense variants in many transcripts implies negative selection against these variant types. **Middle** The distribution of observed / expected (O/E) variants per transcript, stratified by variant consequence. The grey dashed line marks O/E = 1. Missense variants are moderately skewed left. Nonsense variants are strongly skewed left. A small peak at the extreme left of the synonymous and missense distributions likely represents transcripts which were poorly covered by sequencing. **Bottom** The distribution of constraint Z scores per transcript , stratified by variant consequence. A negative Z score indicates that the proportion of variants observed is lower than expected. The grey dashed line marks Z = 0. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction).
+> **Figure 3:** Transcript-level constraint in 421,212 individuals in the UK Biobank. **Top** The number of expected and observed variants in 19,623 canonical transcripts. The grey dashed line represents x=y, with a slope of 1. The solid blue line is the line of best fit (least squares). The reduced number of observed missense and nonsense variants in many transcripts implies negative selection against these variant types. **Middle** The distribution of observed / expected (O/E) variants per transcript, stratified by variant consequence. The grey dashed line marks O/E = 1. Missense variants are moderately skewed left. Nonsense variants are strongly skewed left. A small peak at the extreme left of the synonymous and missense distributions likely represents transcripts which were poorly covered by sequencing. **Bottom** The distribution of constraint Z scores per transcript , stratified by variant consequence. A negative Z score indicates that the proportion of variants observed is lower than expected. The grey dashed line marks Z = 0. Vertical red lines mark different P value thresholds for a one-sided Z test (prior to FDR correction).
 
 ### Hundreds of transcripts exhibit regional nonsense constraint
 The large size of the UKB cohort increases our power to detect constraint at small scales. To find transcripts with regional nonsense constraint, we applied our variant expectation model to the NMD regions described above. After excluding poorly covered regions and correcting for multiple testing, we found significant regional nonsense constraint in NMD target regions (1,220 transcripts, P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test), long exon NMD escape regions (190 transcripts), and distal NMD escape regions (144 transcripts) ([SD]). We were not powered to detect constraint in start-proximal NMD escape regions.
@@ -152,7 +164,7 @@ The large size of the UKB cohort increases our power to detect constraint at sma
 
 <img src="../plots/expectation_model_by_cpg.svg" style="width: 700px;"/>
 
-> **Figure S1:** Variant expectation model. **Top left** The proportion of observed synonymous variants in UKB versus sequence mutability. Each point represents one of 304 trinucleotide sequence contexts (e.g. AAG -> AGG) and, for CpG transitions, one of 16 methylation levels. There is a log-linear relationship between mutability and the proportion observed. **Top right** The same data as in top left, after y-axis transformation to linearise the data. Points are coloured to reflect the number of possible synonymous variants in each context. In highly mutable contexts (highly methylated CpG sites), fewer than ten synonymous variants may be possible. In non-CpG contexts, there are typically over 100,000 possible synonymous variants. As a result, the data shows heteroscedasticity (the variance in Y increases with values of X). **Bottom left** The same data as in top left and top right, but with CpG transitions excluded. 176 contexts remain (accounting for ~97% of all possible synonymous variants). The weighted least squares regression line (weighted on the number of possible variants in each context) is shown. 96% of the variance in the proportion of observed variants is explained by the mutability of the variant context.  This is the basis of the variant expectation model used throughout the paper. **Bottom right** The proportion of variants observed and expected for 176 synonymous variant contexts (excluding CpG transitions). The grey dashed line shows x = y. The solid blue line is the ordinary least squares regression line.
+> **Figure S1:** Variant expectation model. **Top left** The proportion of observed synonymous variants in UKB versus sequence mutability. Each point represents one of 304 trinucleotide sequence contexts (e.g. AAG -> AGG) and, for CpG transitions, one of 16 methylation levels. There is a log-linear relationship between mutability and the proportion observed. **Top right** The same data as in top left, after y-axis transformation to linearise the data. Points are coloured to reflect the number of possible synonymous variants in each context. In highly mutable contexts (highly methylated CpG sites), fewer than ten synonymous variants may be possible. In non-CpG contexts, there are typically over 100,000 possible synonymous variants. As a result, the data shows heteroscedasticity (the variance in Y increases with values of X). **Bottom left** The same data as in top left and top right, but with CpG transitions excluded. 176 contexts remain (accounting for ~97% of all possible synonymous variants). The weighted least squares regression line (weighted on the number of possible variants in each context) is shown. 96% of the variance in the proportion of observed variants is explained by the mutability of the variant context.  This is the variant expectation model used throughout the paper. **Bottom right** The proportion of variants observed and expected for 176 synonymous variant contexts (excluding CpG transitions). The grey dashed line shows x = y. The solid blue line is the ordinary least squares regression line.
 
 ***
 
@@ -172,13 +184,11 @@ The large size of the UKB cohort increases our power to detect constraint at sma
 
 ***
 
-<a name="maps"></a>
+<a name="maps_model"></a>
 
-<img src="../plots/maps.svg" style="width: 400px;"/>
+<img src="../plots/proportion_singletons_synonymous_vs_mu.svg" style="width: 400px;"/>
 
-> **Figure S3:** P value distributions for constraint against nonsense variants in NMD regions. **Top** Unadjusted P values. **Bottom** P values after Benjamini-Hochberg (FDR) correction.
-
-***
+> **Figure S4:** The MAPS model. The plot shows the proportion of singletons among synonymous variants in 174 variant contexts (excluding CpG transitions), against mutability. The weighted least squares regression line (weighted on the number of observed variants in each context) is shown. This is the model used to calculate MAPS.
 
 #### Building the expectation model
 
