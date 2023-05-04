@@ -1,19 +1,3 @@
-# Formating tricks
-
-> This is a block indent. It is used for table and figure legends.
-
-`
-This is a code block.
-`
-
-<div class="alert alert-block alert-info">
-    This is an <b>alert block</b>. It is used for visible comments.
-</div>
-
-A hidden comment is included below.
-
-[//]: # "This is a hidden comment. It is not included in the preview or output."
-    
 # Title
 
 ## Materials and Methods
@@ -43,6 +27,8 @@ Variants were identified from coding exome sequencing (CES)[REF] data in the UK 
 We obtained allele counts for every SNV identified above. After VEP annotation (see below, "Modelling the expected number of variants"), we calculated the proportion of singletons for each consequence (synonymous, missense, nonsense) and each NMD region (see above, "Annotating NMD regions") using custom Python scripts.
 
 To account for sequence mutability, we built a weighted least squares model ([Figure S4](#maps_model)) describing the relationship between mutability and the proportion of singletons for synonymous variants in each variant context. The model was weighted by the number of observed synonymous variants in each variant context. CpG transitions (accounting for ~3% of all possible synonymous variants) were excluded from this model.
+
+For each functional variant class, we used the model to predict the expected proportion of singletons. The observed proportion of singletons was then adjusted by this number to find MAPS.
 
 ### Modelling the expected number of variants
 This analysis was based on the methods described by the gnomAD group [REF].
@@ -128,7 +114,7 @@ To examine selective constraint against nonsense variants at the transcript leve
 
 We applied this model to predict the number of synonymous, missense, and nonsense variants expected in this cohort in each canonical transcript. We used a one-sided Z test to test the difference between the proportion of observed and expected variants for each transcript and variant consequence (see Methods).
 
-After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants (P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test) ([Figure 3](#constraint_in_transcripts)). Our transcript-level nonsense Z-scores are highly correlated with the gnomAD LOEUF metric [REF] (Spearman$\rho$ = 0.77, P < 2.23 x 10$^{-308}$) ([Figure S1](#z_vs_loeuf)).
+After excluding poorly covered transcripts and correcting for multiple testing, we identified 2,272 transcripts which were significantly constrained for nonsense variants (P < 0.001 or (P < 0.01 and 0 variants observed), one-sided Z test) ([Figure 3](#constraint_in_transcripts)). Our transcript-level nonsense Z-scores are highly correlated with the gnomAD LOEUF metric [REF] (Spearman$\rho$ = 0.77, P < 2.23 x 10$^{-308}$) ([Figure S2](#z_vs_loeuf)).
 
 <div class="alert alert-block alert-info">  
     Should I apply the O/E &lt; 0.35 cutoff at this stage? Or is this more relevant for clinical variant filtering?
@@ -213,16 +199,29 @@ The large size of the UKB cohort increases our power to detect constraint at sma
     - [X] R2 value
 - [X] SF: Nonsense Z vs LOEUF
     - [X] Spearman's rank
-- [ ] MAPS
+- [X] MAPS
 - [X] Fig: Nonsense Z scores by region  
 - [ ] SD: Constraint summary statistics
 - [ ] Analysis: Of constrained genes, how many have a pLI / LOEUF annotation, and how many are new?  
 - [X] SF: P-values before and after FDR correction
-- [ ] Analysis: How many show both global and regional nonsense constraint?  
+- [ ] Analysis: How many transcripts show both global and regional nonsense constraint?  
     - [ ] NMD is damaging
     - [ ] NMD-escape is damaging
     - [ ] Both NMD and NMD-escape are damaging
 
-examined the relationship between the mutability of each variant context and the proportion of possible synonymous variants which were observed in the cohort. Synonymous variants were chosen as a class of coding variants which are generally neutral to selection.  
+# Formating tricks
 
+> This is a block indent. It is used for table and figure legends.
+
+`
+This is a code block.
+`
+
+<div class="alert alert-block alert-info">
+    This is an <b>alert block</b>. It is used for visible comments.
+</div>
+
+A hidden comment is included below.
+
+[//]: # "This is a hidden comment. It is not included in the preview or output."
  
