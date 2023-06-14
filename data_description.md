@@ -15,3 +15,10 @@ With these criteria:
     - HGNC symbol
     - Gene stable ID
     - Transcript stable ID
+    
+## 241-mammalian-2020v2.bigWig
+BigWig file containing phyloP scores from Zoonomia project, using multiple alignment of 241 mammals.
+This is the updated file (v2).
+From this URL: https://cgl.gi.ucsc.edu/data/cactus/241-mammalian-2020v2-hub/Homo_sapiens/241-mammalian-2020v2.bigWig
+Downloaded on 14/06/23.
+Note that due to its size (20Gb) this file is kept in the UKB RAP.
