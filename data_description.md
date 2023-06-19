@@ -22,3 +22,9 @@ This is the updated file (v2).
 From this URL: https://cgl.gi.ucsc.edu/data/cactus/241-mammalian-2020v2-hub/Homo_sapiens/241-mammalian-2020v2.bigWig
 Downloaded on 14/06/23.
 Note that due to its size (20Gb) this file is kept in the UKB RAP.
+
+## hmc_wst_uniquevar_outputforshare_v2.txt.gz
+Gzipped text file containing homologous missense constraint annotations for hg19 and hg38 sites.
+Reference: Zhang, X. et al. Genetic constraint at single amino acid resolution improves missense variant prioritisation and gene discovery. medRxiv 2022.02.16.22271023 (2022) doi:10.1101/2022.02.16.22271023.
+Downloaded 19/06/23.
+From this URL: https://doi.org/10.5281/zenodo.6392153
