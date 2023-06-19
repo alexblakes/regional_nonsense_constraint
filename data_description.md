@@ -34,3 +34,9 @@ bgzipped tsv file containing pext annotations (hg19) for coding sites.
 Reference: Cummings, B. B. et al. Transcript expression-aware annotation improves rare variant interpretation. Nature 581, 452–458 (2020).
 Downloaded: 19/06/23
 From this URL: https://storage.googleapis.com/gcp-public-data--gnomad/papers/2019-tx-annotation/gnomad_browser/all.baselevel.021620.tsv.bgz
+
+## hg19ToHg38.over.chain.gz
+UCSC liftover chain file for hg19 to hg38 annotations.
+Downloaded: 19/06/23
+From this URL: http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz
+
