@@ -25,3 +25,7 @@ UCSC liftover chain file for hg19 to hg38 annotations.
 Downloaded: 19/06/23
 From this URL: http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz
 
+## genemap2.txt
+A tab-delimited file containing OMIM's Synopsis of the Human Gene Map including additional information such as genomic coordinates and inheritance.
+Downloaded: 10/07/23
+From this URL: https://omim.org/downloads (registration is required)
