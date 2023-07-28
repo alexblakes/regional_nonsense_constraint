@@ -15,6 +15,7 @@ axes.prop_cycle : cycler('color', ["0077BB", "009988", "EE7733", "CC3311", "33BB
 # 3.5" (single column), 4.72" (medium), 7.09" (double column)
 # To convert mm to inches, divide by 25.4
 figure.figsize : 3.5, 2.625
+figure.dpi : 350
 
 # Set x axis
 xtick.direction : out
@@ -22,7 +23,7 @@ xtick.major.size : 3
 xtick.major.width : 0.5
 xtick.minor.size : 1.5
 xtick.minor.width : 0.5
-xtick.minor.visible : True
+xtick.minor.visible : False
 xtick.top : False
 
 # Set y axis
@@ -31,7 +32,7 @@ ytick.major.size : 3
 ytick.major.width : 0.5
 ytick.minor.size : 1.5
 ytick.minor.width : 0.5
-ytick.minor.visible : True
+ytick.minor.visible : False
 ytick.right : False
 
 # Axes properties
@@ -51,6 +52,7 @@ legend.borderpad : 0
 legend.labelspacing : 0.2
 legend.handlelength : 1
 legend.handletextpad : 0.5
+legend.labelcolor: linecolor
 
 # Always save as 'tight'
 # savefig.bbox : tight
@@ -62,7 +64,7 @@ axes.titlesize: large
 axes.labelsize: medium
 xtick.labelsize: medium
 ytick.labelsize: medium
-legend.fontsize: medium
+legend.fontsize: 7
 
 # Font Family
 font.family: sans-serif
