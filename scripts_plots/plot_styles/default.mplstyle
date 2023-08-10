@@ -14,8 +14,8 @@ axes.prop_cycle : cycler('color', ["0077BB", "009988", "EE7733", "CC3311", "33BB
 # 89mm (single column), 120mm (medium), 180mm (double column)
 # 3.5" (single column), 4.72" (medium), 7.09" (double column)
 # To convert mm to inches, divide by 25.4
-figure.figsize : 3.5, 2.625
-figure.dpi : 350
+figure.figsize : 3.5, 3
+##figure.dpi : 350
 
 # Set x axis
 xtick.direction : out
