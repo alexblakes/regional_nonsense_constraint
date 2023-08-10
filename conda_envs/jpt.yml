@@ -22,8 +22,8 @@ dependencies:
   - bleach=4.1.0=pyhd3eb1b0_0
   - brotlipy=0.7.0=py310h7f8727e_1002
   - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2023.01.10=h06a4308_0
-  - certifi=2022.12.7=py310h06a4308_0
+  - ca-certificates=2023.7.22=hbcca054_0
+  - certifi=2023.7.22=pyhd8ed1ab_0
   - cffi=1.15.1=py310h5eee18b_3
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - click=8.0.4=py310h06a4308_0
@@ -48,7 +48,8 @@ dependencies:
   - ipython=8.12.0=py310h06a4308_0
   - ipython_genutils=0.2.0=pyhd3eb1b0_1
   - isort=5.9.3=pyhd3eb1b0_0
-  - jedi=0.18.1=py310h06a4308_1
+  - jedi=0.18.0=py310hff52083_3
+  - jedi-language-server=0.34.8=pyhd8ed1ab_0
   - jinja2=3.1.2=py310h06a4308_0
   - json5=0.9.6=pyhd3eb1b0_0
   - jsonschema=4.17.3=py310h06a4308_0
@@ -71,9 +72,11 @@ dependencies:
   - libffi=3.4.2=h6a678d5_6
   - libgcc-ng=12.2.0=h65d4601_19
   - libsodium=1.0.18=h7b6447c_0
+  - libsqlite=3.42.0=h2797004_0
   - libstdcxx-ng=11.2.0=h1234567_1
   - libuuid=1.41.5=h5eee18b_0
   - libuv=1.44.2=h5eee18b_0
+  - libzlib=1.2.13=hd590300_5
   - llvm-openmp=14.0.6=h9e868ea_0
   - markupsafe=2.1.1=py310h7f8727e_0
   - matplotlib-inline=0.1.6=py310h06a4308_0
@@ -87,10 +90,10 @@ dependencies:
   - nbformat=5.7.0=py310h06a4308_0
   - ncurses=6.4=h6a678d5_0
   - nest-asyncio=1.5.6=py310h06a4308_0
-  - nodejs=18.15.0=ha637b67_0
+  - nodejs=12.4.0=he1b5a44_0
   - notebook=6.5.4=pyha770c72_0
   - notebook-shim=0.2.2=py310h06a4308_0
-  - openssl=1.1.1t=h7f8727e_0
+  - openssl=3.1.1=hd590300_1
   - packaging=23.0=py310h06a4308_0
   - pandocfilters=1.5.0=pyhd3eb1b0_0
   - parso=0.8.3=pyhd3eb1b0_0
@@ -107,14 +110,16 @@ dependencies:
   - pure_eval=0.2.2=pyhd3eb1b0_0
   - pycodestyle=2.10.0=py310h06a4308_0
   - pycparser=2.21=pyhd3eb1b0_0
+  - pydantic=1.8.2=py310h6acc77f_2
   - pydocstyle=6.3.0=py310h06a4308_0
   - pyflakes=3.0.1=py310h06a4308_0
+  - pygls=0.11.3=pyhd8ed1ab_0
   - pygments=2.11.2=pyhd3eb1b0_0
   - pylint=2.16.2=py310h06a4308_0
   - pyopenssl=23.0.0=py310h06a4308_0
   - pyrsistent=0.18.0=py310h7f8727e_0
   - pysocks=1.7.1=py310h06a4308_0
-  - python=3.10.10=h7a1cb2a_2
+  - python=3.10.12=h955ad1f_0
   - python-dateutil=2.8.2=pyhd3eb1b0_0
   - python-fastjsonschema=2.16.2=py310h06a4308_0
   - python-json-logger=2.0.7=pyhd8ed1ab_0
@@ -136,7 +141,7 @@ dependencies:
   - sniffio=1.2.0=py310h06a4308_1
   - snowballstemmer=2.2.0=pyhd3eb1b0_0
   - soupsieve=2.4=py310h06a4308_0
-  - sqlite=3.41.1=h5eee18b_0
+  - sqlite=3.42.0=h2c6b66d_0
   - stack_data=0.2.0=pyhd3eb1b0_0
   - terminado=0.17.1=py310h06a4308_0
   - tinycss2=1.2.1=py310h06a4308_0
@@ -147,6 +152,7 @@ dependencies:
   - tornado=6.2=py310h5eee18b_0
   - traitlets=5.7.1=py310h06a4308_0
   - typed-ast=1.4.3=py310h7f8727e_1
+  - typeguard=2.13.3=pyhd8ed1ab_0
   - typing-extensions=4.4.0=py310h06a4308_0
   - typing_extensions=4.4.0=py310h06a4308_0
   - tzdata=2023c=h04d1e81_0
@@ -158,12 +164,12 @@ dependencies:
   - whatthepatch=1.0.2=py310h06a4308_0
   - wheel=0.38.4=py310h06a4308_0
   - wrapt=1.14.1=py310h5eee18b_0
-  - xz=5.2.10=h5eee18b_1
+  - xz=5.4.2=h5eee18b_0
   - y-py=0.5.9=py310h4426083_0
   - yaml=0.2.5=h7b6447c_0
   - yapf=0.31.0=pyhd3eb1b0_0
   - ypy-websocket=0.8.2=pyhd8ed1ab_0
   - zeromq=4.3.4=h2531618_0
   - zipp=3.11.0=py310h06a4308_0
-  - zlib=1.2.13=h5eee18b_0
+  - zlib=1.2.13=hd590300_5
 prefix: /home/alex/miniconda3/jpt
