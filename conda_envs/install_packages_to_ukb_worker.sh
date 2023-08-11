@@ -13,7 +13,7 @@ conda update --force conda -y
 
 # Then install desired packages
 conda install -c bioconda gtfparse -y
-conda install -c anaconda statsmodels scikit-learn -y
+conda install -c anaconda statsmodels scikit-learn ipykernel -y
 conda install -c conda-forge upsetplot -y
 
 # Then update all packages
