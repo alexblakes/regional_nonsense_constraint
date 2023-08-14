@@ -14,7 +14,7 @@ conda update --force conda -y
 # Then install desired packages
 conda install -c bioconda gtfparse -y
 conda install -c anaconda statsmodels scikit-learn ipykernel -y
-conda install -c conda-forge upsetplot jupyterlab_code_formatter black jupyterlab-lsp python-lsp-server -y
+conda install -c conda-forge upsetplot jupyterlab_code_formatter black jupyterlab-lsp python-lsp-server nb_conda_kernels -y
 
 # Then update all packages
 conda update --all -y
