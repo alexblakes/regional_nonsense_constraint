@@ -28,6 +28,6 @@ conda update --all -y
 # Including ipykernel, which allows the new environment to be recognised in Jupyert Lab
 conda create -n ukb python=3.8 -y
 conda install -n ukb -c bioconda -y dxpy gtfparse
-conda install -n ukb -c conda-forge -y tqdm upsetplot 
+conda install -n ukb -c conda-forge -y tqdm upsetplot jupyterlab
 conda install -n ukb -c anaconda -y ipykernel scipy scikit-learn numpy pandas statsmodels matplotlib seaborn requests
 conda update -n ukb --all -y
