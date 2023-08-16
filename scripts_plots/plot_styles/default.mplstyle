@@ -59,12 +59,12 @@ legend.labelcolor: linecolor
 # savefig.pad_inches : 0.01  # Use virtually all space when we specify figure dimensions
 
 # Font sizes
-font.size: 10
-axes.titlesize: large
+font.size: 9
+axes.titlesize: medium
 axes.labelsize: medium
 xtick.labelsize: medium
 ytick.labelsize: medium
-legend.fontsize: small
+legend.fontsize: 8
 
 # Font Family
 font.family: sans-serif
