@@ -43,7 +43,7 @@ axes.spines.right : False
 axes.linewidth : 0.5
 grid.linewidth : 0.5
 lines.linewidth : 1
-lines.markersize : 5
+lines.markersize : 3
 lines.markeredgewidth : 0 # Remove marker edge
 
 # Legend
@@ -55,16 +55,16 @@ legend.handletextpad : 0.5
 legend.labelcolor: linecolor
 
 # Always save as 'tight'
-# savefig.bbox : tight
-# savefig.pad_inches : 0.01  # Use virtually all space when we specify figure dimensions
+savefig.bbox : tight
+savefig.pad_inches : 0.01  # Use virtually all space when we specify figure dimensions
 
 # Font sizes
-font.size: 9
+font.size: 7
 axes.titlesize: medium
 axes.labelsize: medium
 xtick.labelsize: medium
 ytick.labelsize: medium
-legend.fontsize: 8
+legend.fontsize: 7
 
 # Font Family
 font.family: sans-serif
