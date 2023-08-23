@@ -29,3 +29,28 @@ From this URL: http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg3
 A tab-delimited file containing OMIM's Synopsis of the Human Gene Map including additional information such as genomic coordinates and inheritance.
 Downloaded: 10/07/23
 From this URL: https://omim.org/downloads (registration is required)
+
+## CardiacG2P_23_8_2023.csv
+Text file containing G2P disease gene annotations.
+Downloaded: 23/08/23
+From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+
+## DDG2P_23_8_2023.csv
+Text file containing G2P disease gene annotations.
+Downloaded: 23/08/23
+From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+
+## EyeG2P_23_8_2023.csv
+Text file containing G2P disease gene annotations.
+Downloaded: 23/08/23
+From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+
+## SkeletalG2P_23_8_2023.csv
+Text file containing G2P disease gene annotations.
+Downloaded: 23/08/23
+From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+
+## SkinG2P_23_8_2023.csv
+Text file containing G2P disease gene annotations.
+Downloaded: 23/08/23
+From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
