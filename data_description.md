@@ -27,7 +27,7 @@ From this URL: http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg3
 
 ## genemap2.txt
 A tab-delimited file containing OMIM's Synopsis of the Human Gene Map including additional information such as genomic coordinates and inheritance.
-Downloaded: 10/07/23
+Downloaded: 25/08/23
 From this URL: https://omim.org/downloads (registration is required)
 
 ## CardiacG2P_23_8_2023.csv
