@@ -1,4 +1,5 @@
-"""Canonical CDS
+"""
+Canonical CDS
 
 This script defines the coordinates of the CDS for canonical transcripts in a GENCODE
 annotation. It takes a GENCODE .gtf file as input. It writes a .bed output for each of 
@@ -141,13 +142,13 @@ def parse_args():
 
     parser = argparse.ArgumentParser(usage=__doc__)
     parser.add_argument(
-        "--in_file",
+        "-in_file",
         type=str,
         default="data/external/gencode.v39.annotation.gtf",
         help="Path to GENCODE .gtf file",
     )
     parser.add_argument(
-        "--out_file",
+        "-out_file",
         type=str,
         default="data/interim/gencode_v39_canonical_cds.bed",
         help="Path to output .bed file",
@@ -157,8 +158,10 @@ def parse_args():
 
 
 def main():
+    """Call the canonical_cds function with parsed arguments."""
+    
     args = parse_args()
-    canonical_cds(args)
+    canonical_cds(args.in_file, args.out_file)
 
     return None
 
