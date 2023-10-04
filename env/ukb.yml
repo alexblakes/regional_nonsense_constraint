@@ -24,7 +24,7 @@ dependencies:
   - brotli=1.0.9
   - brotli-bin=1.0.9
   - brotlipy=0.7.0
-  - ca-certificates=2023.7.22
+  - ca-certificates=2023.08.22
   - certifi=2023.7.22
   - cffi=1.15.1
   - chardet=4.0.0
@@ -128,7 +128,7 @@ dependencies:
   - numexpr=2.8.4
   - numpy=1.24.3
   - numpy-base=1.24.3
-  - openssl=1.1.1v
+  - openssl=1.1.1w
   - packaging=23.0
   - pandas=1.5.3
   - pandoc=2.19.2
