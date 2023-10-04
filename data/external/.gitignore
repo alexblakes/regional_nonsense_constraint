@@ -1,9 +1,8 @@
 # Git does not track empty directories by default.
-# However, we want the data/ directory to always be accesible.
+# However, we want the data directory and subdirectories to always be accesible.
 
 #Ignore everything in this directory
 *
 
 # Except for these files
 !.gitignore
-!README.md
