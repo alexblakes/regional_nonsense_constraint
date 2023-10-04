@@ -4,6 +4,6 @@
 #Ignore everything in this directory
 *
 
-# Except for the .gitignore file itself
+# Except for these files
 !.gitignore
 !README.md
