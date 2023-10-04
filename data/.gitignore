@@ -6,3 +6,4 @@
 
 # Except for the .gitignore file itself
 !.gitignore
+!README.md
