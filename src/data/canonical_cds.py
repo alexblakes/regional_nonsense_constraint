@@ -18,9 +18,9 @@ Functions:
 
 # Imports
 import gtfparse
+import logging
 import pandas as pd
 from src import constants as C
-
 
 # Module constants
 _BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
@@ -37,13 +37,19 @@ def get_gencode_gtf(path):
 def get_canonical_cds(gtf):
     """Subset to Ensembl_canonical CDS features in protein coding genes."""
 
-    canonical_cds = gtf[
+    logging.info("Getting canonical CDS data...")
+
+    cds = gtf[
         (gtf.feature == "CDS")
         & (gtf.tag.str.contains("Ensembl_canonical"))
         & (gtf.gene_type == "protein_coding")
     ]
 
-    return canonical_cds
+    logging.info(f"Chromosomes represented: {cds.seqname.unique()}")
+    logging.info(f"Unique gene IDs: {cds.gene_id.nunique()}")
+    logging.info(f"Unique transcript IDs: {cds.transcript_id.nunique()}")
+
+    return cds
 
 
 def annotate_exon_number(gtf):
@@ -67,6 +73,8 @@ def gtf_to_bed(gtf, ids):
         pandas.DataFrame: A pandas DataFrame in .bed format.
     """
 
+    logging.info("Converting to bed...")
+
     # Place a comma-separated string of identifiers in the .bed id column
     gtf["id"] = gtf[ids].apply(
         lambda row: ",".join(row.values.astype("str")),
@@ -78,6 +86,11 @@ def gtf_to_bed(gtf, ids):
     gtf.loc[:, "start"] = gtf["start"] - 1
     bed = (
         gtf[_BED_COLUMNS].copy().sort_values(by=["seqname", "start"]).drop_duplicates()
+    )
+
+    logging.info(f"Number of unique IDs in the bed file:\{bed.id.nunique()}")
+    logging.info(
+        f"Number of unique bed intervals: {bed.duplicated(['seqname','start','end']).value_counts()[False]}"
     )
 
     return bed
@@ -95,6 +108,8 @@ def write_bed(bed, path, chr_prefix="chr"):
     Returns:
     - None
     """
+
+    logging.info(f"Writing bed to {path}")
 
     # Add or remove the "chr" prefix
     bed["seqname"] = chr_prefix + bed["seqname"].str.slice(start=3)
