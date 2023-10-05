@@ -27,15 +27,16 @@ Returns:
 import pandas as pd
 import gtfparse
 import argparse
+from .. import constants as C
 
 # Module variables
-FEATURES = ["gene", "transcript", "exon", "CDS"]
-ATTRIBUTES = ["gene_id", "transcript_id", "gene_name", "exon_id", "exon_number"]
-BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
-BED_IDS = ["gene_id", "transcript_id", "exon_id", "cds_number"]
-IN_FILE = "data/external/gencode.v39.annotation.gtf"
-OUT_FILE = "data/interim/gencode_v39_canonical_cds.bed"
-CHR_PREFIX = "chr"
+# FEATURES = ["gene", "transcript", "exon", "CDS"]
+# ATTRIBUTES = ["gene_id", "transcript_id", "gene_name", "exon_id", "exon_number"]
+# BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
+# BED_IDS = ["gene_id", "transcript_id", "exon_id", "cds_number"]
+# IN_FILE = "data/external/gencode.v39.annotation.gtf"
+# OUT_FILE = "data/interim/gencode_v39_canonical_cds.bed"
+# CHR_PREFIX = "chr"
 
 
 # Functions
@@ -137,7 +138,7 @@ def canonical_cds(in_file, out_file):
         .pipe(get_canonical_cds)
         .pipe(annotate_exon_number)
         .pipe(gtf_to_bed, BED_IDS)
-        .pipe(write_bed, OUT_FILE, CHR_PREFIX)
+        .pipe(write_bed, out_file, CHR_PREFIX)
     )
 
     return None
