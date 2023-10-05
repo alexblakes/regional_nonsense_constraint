@@ -22,6 +22,7 @@ import logging
 import pandas as pd
 from src import constants as C
 
+
 # Module constants
 _BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
 _BED_IDS = ["gene_id", "transcript_id", "exon_id", "cds_number"]
@@ -37,7 +38,7 @@ def get_gencode_gtf(path):
 def get_canonical_cds(gtf):
     """Subset to Ensembl_canonical CDS features in protein coding genes."""
 
-    logging.info("Getting canonical CDS data...")
+    logging.info("Filtering for canonical CDS...")
 
     cds = gtf[
         (gtf.feature == "CDS")
@@ -88,7 +89,7 @@ def gtf_to_bed(gtf, ids):
         gtf[_BED_COLUMNS].copy().sort_values(by=["seqname", "start"]).drop_duplicates()
     )
 
-    logging.info(f"Number of unique IDs in the bed file:\{bed.id.nunique()}")
+    logging.info(f"Number of unique IDs in the bed file: {bed.id.nunique()}")
     logging.info(
         f"Number of unique bed intervals: {bed.duplicated(['seqname','start','end']).value_counts()[False]}"
     )
