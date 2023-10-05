@@ -28,6 +28,13 @@ import pandas as pd
 import gtfparse
 import argparse
 
+# Module variables
+FEATURES = ["gene", "transcript", "exon", "CDS"]
+ATTRIBUTES = ["gene_id", "transcript_id", "gene_name", "exon_id", "exon_number"]
+BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
+IN_FILE = "data/external/gencode.v39.annotation.gtf"
+OUT_FILE = "data/interim/gencode_v39_canonical_cds.bed"
+
 
 # Functions
 def get_gencode_gtf(path):
@@ -48,13 +55,13 @@ def get_canonical_cds(gtf):
     return canonical_cds
 
 
-def annotate_exon_number(cds):
+def annotate_exon_number(gtf):
     """Count the number of CDS exons in each transcript."""
 
-    cds["exon_number"] = cds["exon_number"].astype(int)
-    cds["cds_number"] = cds.groupby("transcript_id")["exon_number"].rank().astype(int)
+    gtf["exon_number"] = gtf["exon_number"].astype(int)
+    gtf["cds_number"] = gtf.groupby("transcript_id")["exon_number"].rank().astype(int)
 
-    return cds
+    return gtf
 
 
 def gtf_to_bed(gtf, id_list):
