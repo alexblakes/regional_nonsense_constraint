@@ -7,7 +7,8 @@ writes the results to a BED file.
 
 Functions:
     - get_gencode_gtf(path): Reads a GENCODE .gtf into memory with gtfparse.
-    - get_canonical_cds(gtf): Subsets to Ensembl_canonical CDS features in protein coding genes.
+    - get_canonical_cds(gtf): Subsets to Ensembl_canonical CDS features in protein 
+        coding genes.
     - annotate_exon_number(gtf): Counts the number of CDS exons in each transcript.
     - gtf_to_bed(gtf, ids): Converts a .gtf file to .bed format.
     - write_bed(bed, path, chr_prefix="chr"): Writes a .bed file to output.
