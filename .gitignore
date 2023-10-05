@@ -1,3 +1,4 @@
 # the data/ and outputs/ directories are managed by their own .gitignore files
 .ipynb_checkpoints
 .virtual_documents
+__pycache__
