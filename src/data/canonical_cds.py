@@ -32,8 +32,10 @@ import argparse
 FEATURES = ["gene", "transcript", "exon", "CDS"]
 ATTRIBUTES = ["gene_id", "transcript_id", "gene_name", "exon_id", "exon_number"]
 BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
+BED_IDS = ["gene_id", "transcript_id", "exon_id", "cds_number"]
 IN_FILE = "data/external/gencode.v39.annotation.gtf"
 OUT_FILE = "data/interim/gencode_v39_canonical_cds.bed"
+CHR_PREFIX = "chr"
 
 
 # Functions
@@ -64,7 +66,7 @@ def annotate_exon_number(gtf):
     return gtf
 
 
-def gtf_to_bed(gtf, id_list):
+def gtf_to_bed(gtf, ids):
     """
     Convert a .gtf file to .bed format.
 
@@ -76,8 +78,8 @@ def gtf_to_bed(gtf, id_list):
         pandas.DataFrame: A pandas DataFrame in .bed format.
     """
     
-    # Give desired identifiers in the .bed id column, as a comma-separated string
-    gtf["id"] = gtf[id_list].apply(
+    # Place a comma-separated string of identifiers in the .bed id column
+    gtf["id"] = gtf[ids].apply(
         lambda row: ",".join(row.values.astype("str")),
         axis=1,
     )
@@ -86,7 +88,7 @@ def gtf_to_bed(gtf, id_list):
     gtf.loc[:, "score"] = "."
     gtf.loc[:, "start"] = gtf["start"] - 1
     bed = (
-        gtf[["seqname", "start", "end", "id", "score", "strand"]]
+        gtf[BED_COLUMNS]
         .copy()
         .sort_values(by=["seqname", "start"])
         .drop_duplicates()
@@ -109,7 +111,6 @@ def write_bed(bed, path, chr_prefix="chr"):
     """
 
     # Add or remove the "chr" prefix
-    bed = bed.copy()
     bed["seqname"] = chr_prefix + bed["seqname"].str.slice(start=3)
 
     # Write to output
@@ -131,14 +132,12 @@ def canonical_cds(in_file, out_file):
         None
     """
 
-    bed_ids = ["gene_id", "transcript_id", "exon_id", "cds_number"]
-
     (
         get_gencode_gtf(in_file)
         .pipe(get_canonical_cds)
         .pipe(annotate_exon_number)
-        .pipe(gtf_to_bed, bed_ids)
-        .pipe(write_bed, out_file)
+        .pipe(gtf_to_bed, BED_IDS)
+        .pipe(write_bed, OUT_FILE, CHR_PREFIX)
     )
 
     return None
