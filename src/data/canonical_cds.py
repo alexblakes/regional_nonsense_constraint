@@ -19,14 +19,22 @@ Functions:
 # Imports
 import gtfparse
 import logging
+from pathlib import Path
+
 import pandas as pd
+
 from src import constants as C
+from src import setup_logger
 
 
 # Module constants
 _BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
 _BED_IDS = ["gene_id", "transcript_id", "exon_id", "cds_number"]
 _CHR_PREFIX = "chr"
+
+
+# Logging
+logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
