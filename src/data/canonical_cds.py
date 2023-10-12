@@ -20,6 +20,7 @@ Functions:
 from pathlib import Path
 
 import gtfparse
+# * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 import pandas as pd
 
 from src import constants as C
@@ -37,11 +38,6 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def get_gencode_gtf(path):
-    """Read a GENCODE .gtf into memory with gtfparse."""
-    return gtfparse.read_gtf(path)
-
-
 def get_canonical_cds(gtf):
     """Subset to Ensembl_canonical CDS features in protein coding genes."""
 
@@ -132,7 +128,7 @@ def main():
     """Runs all functions in this module."""
 
     (
-        get_gencode_gtf(C.GENCODE_GTF)
+        gtfparse.read_gtf(C.GENCODE_GTF, features="CDS")
         .pipe(get_canonical_cds)
         .pipe(annotate_exon_number)
         .pipe(gtf_to_bed, _BED_IDS)
