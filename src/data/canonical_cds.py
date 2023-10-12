@@ -17,10 +17,9 @@ Functions:
 
 
 # Imports
-import gtfparse
-import logging
 from pathlib import Path
 
+import gtfparse
 import pandas as pd
 
 from src import constants as C
@@ -46,7 +45,7 @@ def get_gencode_gtf(path):
 def get_canonical_cds(gtf):
     """Subset to Ensembl_canonical CDS features in protein coding genes."""
 
-    logging.info("Filtering for canonical CDS...")
+    logger.info("Filtering for canonical CDS...")
 
     cds = gtf[
         (gtf.feature == "CDS")
@@ -54,9 +53,9 @@ def get_canonical_cds(gtf):
         & (gtf.gene_type == "protein_coding")
     ]
 
-    logging.info(f"Chromosomes represented: {cds.seqname.unique()}")
-    logging.info(f"Unique gene IDs: {cds.gene_id.nunique()}")
-    logging.info(f"Unique transcript IDs: {cds.transcript_id.nunique()}")
+    logger.info(f"Chromosomes represented: {cds.seqname.unique()}")
+    logger.info(f"Unique gene IDs: {cds.gene_id.nunique()}")
+    logger.info(f"Unique transcript IDs: {cds.transcript_id.nunique()}")
 
     return cds
 
@@ -82,7 +81,7 @@ def gtf_to_bed(gtf, ids):
         pandas.DataFrame: A pandas DataFrame in .bed format.
     """
 
-    logging.info("Converting to bed...")
+    logger.info("Converting to bed...")
 
     # Place a comma-separated string of identifiers in the .bed id column
     gtf["id"] = gtf[ids].apply(
@@ -97,8 +96,8 @@ def gtf_to_bed(gtf, ids):
         gtf[_BED_COLUMNS].copy().sort_values(by=["seqname", "start"]).drop_duplicates()
     )
 
-    logging.info(f"Number of unique IDs in the bed file: {bed.id.nunique()}")
-    logging.info(
+    logger.info(f"Number of unique IDs in the bed file: {bed.id.nunique()}")
+    logger.info(
         f"Number of unique bed intervals: {bed.duplicated(['seqname','start','end']).value_counts()[False]}"
     )
 
@@ -118,7 +117,7 @@ def write_bed(bed, path, chr_prefix="chr"):
     - None
     """
 
-    logging.info(f"Writing bed to {path}")
+    logger.info(f"Writing bed to {path}")
 
     # Add or remove the "chr" prefix
     bed["seqname"] = chr_prefix + bed["seqname"].str.slice(start=3)
