@@ -1,5 +1,5 @@
 # Data description
-Description of the datasets in the ./data/ directory.
+Description of the datasets in the ./data/raw/ directory.
    
 ## 241-mammalian-2020v2.bigWig
 BigWig file containing phyloP scores from Zoonomia project, using multiple alignment of 241 mammals.
@@ -33,6 +33,16 @@ From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
 Text file containing G2P disease gene annotations.
 Downloaded: 23/08/23
 From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+
+## GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
+FASTA file for reference human genome. 
+Downloaded: 13/10/23
+From this URL: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
+
+## GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai
+FASTA index for reference human genome. 
+Downloaded: 13/10/23
+From this URL: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai
 
 ## gencode.v39.annotation.gtf
 GENCODE v39 comprehensive gene annotation (GTF format)
