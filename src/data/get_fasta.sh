@@ -8,11 +8,11 @@
 
 bedtools slop \
     -i "data/interim/gencode_v39_canonical_cds.bed" \
-    -g "data/external/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai" \
+    -g "data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai" \
     -b 1 |\
 bedtools getfasta \
     -fo "data/interim/gencode_v39_canonical_cds_seq.tsv" \
     -tab \
-    -fi "data/external/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna" \
+    -fi "data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna" \
     -bed stdin
 
