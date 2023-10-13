@@ -1,5 +1,6 @@
 # the data/ and outputs/ directories are managed by their own .gitignore files
 .ipynb_checkpoints
 .virtual_documents
+.vscode
 __pycache__
 data/logs/
