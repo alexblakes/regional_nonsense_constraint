@@ -1,3 +1,4 @@
+.ONESHELL:
 .PHONY: all
 
 SHELL = bash
@@ -16,6 +17,8 @@ data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
 												 data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai \
-                                                 src/data/get_fasta.sh
+                                                 data/interim/gencode_v39_canonical_cds.bed \
+												 src/data/get_fasta.sh
 	$(CONDA_ACTIVATE) bio
 	bash src/data/get_fasta.sh
+	$(CONDA_ACTIVATE) ukb
