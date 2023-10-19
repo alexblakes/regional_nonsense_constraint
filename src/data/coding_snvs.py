@@ -67,17 +67,11 @@ def get_pos_and_ref(row):
 def get_all_sites(df):
     """Get the position and reference allele for sites in all bed intervals."""
 
+    # Get position and reference allele for each site
     logger.info("Getting position and reference allele for each site in the CDS.")
     sites = df.apply(get_pos_and_ref, axis=1)
     sites = sites.explode()
-
-    # Convert to a DataFrame
     sites = pd.DataFrame(sites.to_list(), index=sites.index, columns=["pos", "ref"])
-
-    # Drop sites where the reference allele is "N"
-    logger.info(f"'N' reference alleles: {(sites['ref']=='N').sum()}")
-    sites = sites.loc[sites["ref"] != "N", :]
-    logger.debug(sites.head())
 
     # Manage data types for memory efficiency
     sites["pos"] = pd.to_numeric(sites["pos"], downcast="integer")
@@ -91,10 +85,8 @@ def get_all_sites(df):
 def merge_sites_and_bed_intervals(df, sites):
     """Merge sites with bed intervals, on index."""
 
-    logger.debug(df.head())
-
     df["chr"] = df["chr"].astype("category")  # Categorical data for memory efficiency
-    df = .concat([df["chr"], sites], axis=1)
+    df = pd.concat([df["chr"], sites], axis=1)
     logger.info(f"CDS sites after merge with bed intervals: {len(df)}")
 
     df = df.drop_duplicates().sort_values(["chr", "pos"])
@@ -140,30 +132,26 @@ def get_all_possible_alt_alleles(df):
     """Get all possible alt alleles for each position."""
 
     df = pd.concat([df.copy().assign(alt=base) for base in ["A", "T", "C", "G"]])
-    df["alt"] = df["alt"].astype("category")
+
+    # Some reference alleles are "N", so add "N" as a category for alt alleles too
+    df["alt"] = df["alt"].astype("category").cat.add_categories("N")
+
+    # Remove sites where the reference allele is the same as the alt allele   
     df = df[df["ref"] != df["alt"]]
 
+    logger.info(f"Possible SNVs before tidying: {len(df)}")
+    
     return df
-
-# def get_all_possible_alt_alleles(df):
-#     # Get possible alt alleles for each position.
-#     logger.info("Getting all possible alt alleles.")
-#     df["alt"] = [["A", "T", "C", "G"]] * len(df)
-#     logger.debug("A")
-#     df = df.explode("alt")
-#     logger.debug("B")
-#     df["alt"] = df["alt"].astype("category")
-#     logger.debug("C")
-#     df = df[df["ref"] != df["alt"]]
-#     df = df[["chr", "pos", "ref", "alt", "tri"]].reset_index(drop=True)
-#     logger.info(f"Duplicated positions: {df.duplicated().sum()}")
-#     logger.info(f"Possible SNVs before tidying: {len(df)}")
-
-#     return df
 
 
 def tidy_data(df):
     # Tidy the dataframe
+
+    # Remove sites where the reference allele is "N"
+    logger.info(f"Sites where reference allele is N: {(df['ref']=='N').sum()}")
+    df = df[df["ref"]!="N"]
+    df["ref"] = df["ref"].cat.remove_unused_categories() # Old categories included "N"
+
     df = df.drop_duplicates()
     df = df[df["ref"] != "N"]  # Mainly chrY positions
     logger.info(f"Possible SNVs: {len(df)}")
@@ -178,7 +166,7 @@ def main():
         merge_sites_and_bed_intervals(df, sites)
         .pipe(get_tri_contexts)
         .pipe(get_all_possible_alt_alleles)
-        .pipe(tidy_data)
+        # .pipe(tidy_data)
     )
 
     logger.warning("Lose this return statement when done testing.")
