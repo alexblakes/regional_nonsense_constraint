@@ -30,9 +30,11 @@ def read_getfasta_output(path):
     logger.info("Reading getfasta output.")
 
     df = pd.read_csv(path, sep="\t", header=None, names=["id", "seq"])
-    logger.warning("Using only five rows of data for testing.")
-    df = df.head(5)
     
+    # TODO lose this in production
+    logger.warning("Using only five rows of data for testing.")
+    df = df.tail(10000)
+
     logger.info(f"Rows in getfasta output: {len(df)}")
 
     return df
@@ -55,6 +57,9 @@ def get_pos_and_ref(row):
 
     interval = range(row["start"], row["end"] + 1)
     sequence = row["seq"]
+    assert len(interval) == len(
+        sequence
+    ), "Interval and sequence are different lengths."
 
     return list(zip(interval, sequence))
 
@@ -66,11 +71,17 @@ def get_all_sites(df):
     sites = df.apply(get_pos_and_ref, axis=1)
     sites = sites.explode()
 
-    # Convert sites to a DataFrame
-    # Use categorical dtypes for memory efficiency
-    sites = pd.DataFrame(
-        sites.to_list(), index=sites.index, columns=["pos", "ref"]
-    ).astype(dtype={"ref": "category"})
+    # Convert to a DataFrame
+    sites = pd.DataFrame(sites.to_list(), index=sites.index, columns=["pos", "ref"])
+
+    # Drop sites where the reference allele is "N"
+    logger.info(f"'N' reference alleles: {(sites['ref']=='N').sum()}")
+    sites = sites.loc[sites["ref"] != "N", :]
+    logger.debug(sites.head())
+
+    # Manage data types for memory efficiency
+    sites["pos"] = pd.to_numeric(sites["pos"], downcast="integer")
+    sites = sites.astype(dtype={"ref": "category"})
 
     logger.info(f"CDS sites: {len(sites)}")
 
@@ -80,51 +91,82 @@ def get_all_sites(df):
 def merge_sites_and_bed_intervals(df, sites):
     """Merge sites with bed intervals, on index."""
 
+    logger.debug(df.head())
+
     df["chr"] = df["chr"].astype("category")  # Categorical data for memory efficiency
-    df = pd.concat([df["chr"], sites], axis=1)
+    df = .concat([df["chr"], sites], axis=1)
     logger.info(f"CDS sites after merge with bed intervals: {len(df)}")
 
-    df = df.drop_duplicates()
+    df = df.drop_duplicates().sort_values(["chr", "pos"])
     logger.info(f"CDS sites after dropping duplicates: {len(df)}")
 
-    assert df.duplicated(["chr","pos"]).sum() == 0, "There are sites with multiple reference alleles."
+    assert (
+        df.duplicated(["chr", "pos"]).sum() == 0
+    ), "There are sites with multiple reference alleles."
     assert df.isna().sum().sum() == 0, "There are missing values."
 
     return df
 
-#! Continue from here
 
+def get_tri_contexts(df):
+    """Get the trinucleotide context around each position."""
 
-def get_tri_contexts(getfasta_output):
-    # Get trinucleotide context around each position.
-    df.index = df.index.rename("cds_id")
-    df = df.sort_values(["cds_id", "pos"])  # Ensure order of positions
+    # Order positions in each CDS
+    df.index = pd.CategoricalIndex(df.index, name="cds_id")  # The index acts as a unique ID for each CDS.
+    df = df.sort_values(["cds_id", "pos"])
 
-    first = df.groupby(["cds"])["ref"].shift(1)  # Order preserved by groupby
-    last = df.groupby(["cds"])["ref"].shift(-1)
-    tri = first.str.cat(others=[df["ref"], last]).rename("tri")  # Get triplet context
+    # Get triplet context
+    first = df.groupby(["cds_id"])["ref"].shift(1)  # Order preserved by groupby
+    last = df.groupby(["cds_id"])["ref"].shift(-1)
+    tri = first.str.cat(others=[df["ref"], last]).rename("tri").astype("category")
 
+    # Merge positions with their trinucleotide contexts
     df = pd.concat([df, tri], axis=1)  # Extreme ends contain NaNs: useful for dropping
-    print(f"They span {len(df)} nt before trimming of the most 3' and 5' positions")
-
-    print(
-        f"There are {df.tri.isna().sum()} positions at the extreme ends of the features."
+    logger.info(
+        f"CDS sites before trimming the extended 5' and 3' positions: {len(df)}"
     )
-    df = df.dropna()  # Drop extreme end positions
-    df = df.sort_values(["chr", "pos"])  # Sort for faster VEP annotation
-    print(f"There are {len(df)} nt after trimming.")
 
-    # Get possible alt alleles for each position.
-    df["alt"] = [["A", "T", "C", "G"]] * len(df)
-    df = df.explode("alt")
+    # CDS intervals were extended by 1 nt each side with the bedtools slop command.
+    # This allows annotation of the trinucleotide context around the most 5' and 3'
+    # sites. Conveniently, the "tri" column now contains NaNs at the extended positions.
+    # These positions are dropped.
+    df = df.dropna()
+    logger.info(f"CDS sites after trimming: {len(df)}")
+
+    return df
+
+
+def get_all_possible_alt_alleles(df):
+    """Get all possible alt alleles for each position."""
+
+    df = pd.concat([df.copy().assign(alt=base) for base in ["A", "T", "C", "G"]])
+    df["alt"] = df["alt"].astype("category")
     df = df[df["ref"] != df["alt"]]
-    df = df[["chr", "pos", "ref", "alt", "tri"]].reset_index(drop=True)
-    print(f"There are {df.duplicated().sum()} identical duplicate positions")
 
+    return df
+
+# def get_all_possible_alt_alleles(df):
+#     # Get possible alt alleles for each position.
+#     logger.info("Getting all possible alt alleles.")
+#     df["alt"] = [["A", "T", "C", "G"]] * len(df)
+#     logger.debug("A")
+#     df = df.explode("alt")
+#     logger.debug("B")
+#     df["alt"] = df["alt"].astype("category")
+#     logger.debug("C")
+#     df = df[df["ref"] != df["alt"]]
+#     df = df[["chr", "pos", "ref", "alt", "tri"]].reset_index(drop=True)
+#     logger.info(f"Duplicated positions: {df.duplicated().sum()}")
+#     logger.info(f"Possible SNVs before tidying: {len(df)}")
+
+#     return df
+
+
+def tidy_data(df):
     # Tidy the dataframe
     df = df.drop_duplicates()
     df = df[df["ref"] != "N"]  # Mainly chrY positions
-    print(f"There are {len(df)} possible SNVs")
+    logger.info(f"Possible SNVs: {len(df)}")
 
     return df
 
@@ -132,14 +174,20 @@ def get_tri_contexts(getfasta_output):
 def main():
     df = read_getfasta_output(fasta).pipe(get_chr_start_end)
     sites = get_all_sites(df)
-    df = merge_sites_and_bed_intervals(df, sites)
-    
+    df = (
+        merge_sites_and_bed_intervals(df, sites)
+        .pipe(get_tri_contexts)
+        .pipe(get_all_possible_alt_alleles)
+        .pipe(tidy_data)
+    )
+
     logger.warning("Lose this return statement when done testing.")
     return df
 
 
 if __name__ == "__main__":
     main()
+    # TODO deal with Ns in the reference sequence
 
     # get_fasta_output = "../outputs/gencode_v39_canonical_cds_seq.tsv"
 
