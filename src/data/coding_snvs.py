@@ -26,10 +26,10 @@ def read_getfasta_output(path):
 
     df = pd.read_csv(path, sep="\t", header=None, names=["id", "seq"])
 
-    # # TODO lose this in production
-    # _N = 10000
-    # logger.warning(f"Using only {_N} rows of data for testing.")
-    # df = df.tail(_N)
+    # TODO lose this in production
+    _N = 100
+    logger.warning(f"Using only {_N} rows of data for testing.")
+    df = df.tail(_N)
 
     logger.info(f"Rows in getfasta output: {len(df)}")
 
@@ -152,6 +152,10 @@ def tidy_tri_contexts(df):
 def get_all_possible_alt_alleles(df):
     """Get all possible alt alleles for each position."""
 
+    # Reset index for later sorting
+    df = df.sort_values(["chr", "pos"]).reset_index(drop=True)
+
+    # Get all possible alt alleles
     df = pd.concat([df.copy().assign(alt=base) for base in ["A", "T", "C", "G"]])
 
     # Convert "alt" column to categorical
@@ -162,12 +166,22 @@ def get_all_possible_alt_alleles(df):
     logger.info(f"Possible SNVs: {len(df)}")
 
     # Sort by chromosome and position for use with VEP
-    df = df.sort_values(["chr", "pos"])
+    df = df.sort_index()
 
     return df
 
 
+def convert_to_vcf(df):
+    """Convert a DataFrame to VCF format."""
+    vcf = df.assign(ID=".", QUAL=".", FILTER=".", INFO=".")
+    vcf = vcf[["chr", "pos", "ID", "ref", "alt", "QUAL", "FILTER", "INFO"]]
+
+    return vcf
+
+
 def main():
+    """Run the script."""
+
     df = read_getfasta_output(C.CANONICAL_CDS_FASTA).pipe(get_chr_start_end)
     sites = get_all_sites(df)
     df = (
@@ -177,26 +191,17 @@ def main():
         .pipe(get_all_possible_alt_alleles)
     )
 
-    logger.warning("Lose this return statement when done testing.")
+    # Save .tsv with all trinucleotide contexts
+    logger.info("Writing TSV")
+    df.to_csv(C.CDS_ALL_SNVS_TRI_CONTEXT, sep="\t", index=False)
+
+    # Save to VCF for VEP annotation
+    logger.info("Writing VCF")
+    convert_to_vcf(df).to_csv(C.CDS_ALL_SNVS_VCF, sep="\t", index=False, header=False)
+
+    ## TODO lose this return statement.
     return df
 
 
 if __name__ == "__main__":
     main()
-    # TODO deal with Ns in the reference sequence
-
-    # get_fasta_output = "../outputs/gencode_v39_canonical_cds_seq.tsv"
-
-    # # Combine NMD-pos and NMD-esc regions
-    # df = get_tri_contexts(get_fasta_output)
-    # print(f"There are {len(df)} distinct possible SNVs in all CDS features.")
-    # print("Writing trinucleotide contexts to .tsv")
-    # df.to_csv("../outputs/cds_trinucleotide_contexts.tsv", sep="\t", index=False)
-
-    # # Create a VCF file for VEP annotation
-    # vcf = df.copy().assign(ID=".", QUAL=".", FILTER=".", INFO=".")
-    # vcf = vcf[["chr", "pos", "ID", "ref", "alt", "QUAL", "FILTER", "INFO"]]
-    # print("Writing SNVs to .vcf")
-    # vcf.to_csv(
-    #     "../outputs/cds_all_possible_snvs.vcf", sep="\t", index=False, header=False
-    # )
