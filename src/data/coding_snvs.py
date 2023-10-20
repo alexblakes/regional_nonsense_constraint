@@ -2,10 +2,6 @@
 It also annotates the trinucleotide context around each SNV.
 
 It takes the output of a bedtools getfasta command (tsv) as input.
-
-NB the coordinates of each feature should be extended by 1 each side with
-bedtools slop, so that the 3nt context around the most 5' and 3' positions
-is still accessible.
 """
 
 # Import relevant modules
@@ -25,12 +21,6 @@ def read_getfasta_output(path):
     """Read the output of a bedtools getfasta command from a TSV file."""
 
     df = pd.read_csv(path, sep="\t", header=None, names=["id", "seq"])
-
-    # TODO lose this in production
-    _N = 100
-    logger.warning(f"Using only {_N} rows of data for testing.")
-    df = df.tail(_N)
-
     logger.info(f"Rows in getfasta output: {len(df)}")
 
     return df
@@ -166,17 +156,20 @@ def get_all_possible_alt_alleles(df):
     logger.info(f"Possible SNVs: {len(df)}")
 
     # Sort by chromosome and position for use with VEP
-    df = df.sort_index()
+    df = df[["chr","pos","ref","alt","tri"]].sort_index()
 
     return df
 
 
 def convert_to_vcf(df):
     """Convert a DataFrame to VCF format."""
-    vcf = df.assign(ID=".", QUAL=".", FILTER=".", INFO=".")
-    vcf = vcf[["chr", "pos", "ID", "ref", "alt", "QUAL", "FILTER", "INFO"]]
+    
+    for col in ["ID","QUAL","FILTER","INFO"]:
+        df[col] = pd.Categorical(["."] * len(df))
+    
+    df = df[["chr", "pos", "ID", "ref", "alt", "QUAL", "FILTER", "INFO"]]
 
-    return vcf
+    return df
 
 
 def main():
@@ -197,11 +190,10 @@ def main():
 
     # Save to VCF for VEP annotation
     logger.info("Writing VCF")
-    convert_to_vcf(df).to_csv(C.CDS_ALL_SNVS_VCF, sep="\t", index=False, header=False)
+    df = convert_to_vcf(df)
+    df.to_csv(C.CDS_ALL_SNVS_VCF, sep="\t", index=False, header=False)
 
-    ## TODO lose this return statement.
-    return df
-
+    logger.info("Done.")
 
 if __name__ == "__main__":
     main()
