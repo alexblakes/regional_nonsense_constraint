@@ -24,8 +24,6 @@ logger = setup_logger(Path(__file__).stem)
 def read_getfasta_output(path):
     """Read the output of a bedtools getfasta command from a TSV file."""
 
-    logger.info("Reading getfasta output.")
-
     df = pd.read_csv(path, sep="\t", header=None, names=["id", "seq"])
 
     # TODO lose this in production
@@ -55,9 +53,7 @@ def get_pos_and_ref(row):
 
     interval = range(row["start"], row["end"] + 1)
     sequence = row["seq"]
-    assert len(interval) == len(
-        sequence
-    ), "Interval and sequence are different lengths."
+    assert len(interval) == len(sequence)
 
     return list(zip(interval, sequence))
 
@@ -84,18 +80,16 @@ def merge_sites_and_bed_intervals(df, sites):
     """Merge sites with bed intervals, on index."""
 
     # Use categorical dtypes for efficiency
-    df["chr"] = df["chr"].astype("category")  
+    df["chr"] = df["chr"].astype("category")
+
+    # Merge sites with bed intervals
     df = pd.concat([df["chr"], sites], axis=1)
     logger.info(f"CDS sites after merge with bed intervals: {len(df)}")
 
-    # Drop duplicated sites
-    df = df.drop_duplicates().sort_values(["chr", "pos"])
-    logger.info(f"CDS sites after dropping duplicates: {len(df)}")
+    # Don't drop duplicated sites yet. Annotation of the trinucleotide context depends
+    # on the sites within each CDS having monotonically increasing values.
 
     # Sanity checks
-    assert (
-        df.duplicated(["chr", "pos"]).sum() == 0
-    ), "There are sites with multiple reference alleles."
     assert df.isna().sum().sum() == 0, "There are missing values."
 
     return df
@@ -105,28 +99,47 @@ def get_tri_contexts(df):
     """Get the trinucleotide context around each position."""
 
     # Order positions in each CDS
-    df.index = pd.CategoricalIndex(
-        df.index, name="cds_id"
-    )  # The index acts as a unique ID for each CDS.
+    df.index = pd.CategoricalIndex(df.index, name="cds_id")
     df = df.sort_values(["cds_id", "pos"])
 
+    # Group by CDS feature
+    df_grouped = df.groupby("cds_id")
+
+    # Check that the position in each interval increases by 1 each time
+    assert (df_grouped["pos"].diff().fillna(1) == 1).all(), "Positions are not adjacent."
+
     # Get triplet context
-    first = df.groupby(["cds_id"])["ref"].shift(1)  # Order preserved by groupby
-    last = df.groupby(["cds_id"])["ref"].shift(-1)
+    first = df_grouped["ref"].shift(1)  # Order preserved by groupby
+    last = df_grouped["ref"].shift(-1)
     tri = first.str.cat(others=[df["ref"], last]).rename("tri").astype("category")
 
     # Merge positions with their trinucleotide contexts
     df = pd.concat([df, tri], axis=1)  # Extreme ends contain NaNs: useful for dropping
     logger.info(
-        f"CDS sites before trimming the extended 5' and 3' positions: {len(df)}"
+        f"CDS sites before tidying: {len(df)}"
     )
 
-    # CDS intervals were extended by 1 nt each side with the bedtools slop command.
-    # This allows annotation of the trinucleotide context around the most 5' and 3'
-    # sites. Conveniently, the "tri" column now contains NaNs at the extended positions.
-    # These positions are dropped.
+    return df
+
+def tidy_tri_contexts(df):
+    """Tidy the dataframe of trinucleotide contexts.
+    
+    Drop duplicated sites, sites with "N" as the reference allele, and the extreme 5' 
+    and 3' positions adjacent to the CDS. 
+    
+    CDS intervals had been extended by 1 nt in 
+    both 5' and 3' directions with the bedtools slop command. This allows annotation of
+    the trinucleotide context around the most 5' and 3' CDS sites. Conveniently, the 
+    "tri" column now contains NaNs at the extended positions. These positions are
+    dropped.
+    """
     df = df.dropna()
-    logger.info(f"CDS sites after trimming: {len(df)}")
+    logger.info(f"CDS sites after trimming extended 5' and 3' positions: {len(df)}")
+
+    # Drop duplicated sites
+    df = df.drop_duplicates().sort_values(["chr", "pos"])
+    assert df.duplicated(["chr", "pos"]).sum() == 0, "There are duplicated sites."
+    logger.info(f"CDS sites after dropping duplicates: {len(df)}")
 
     return df
 
@@ -164,11 +177,12 @@ def tidy_data(df):
 def main():
     df = read_getfasta_output(C.CANONICAL_CDS_FASTA).pipe(get_chr_start_end)
     sites = get_all_sites(df)
+    # return sites
     df = (
         merge_sites_and_bed_intervals(df, sites)
         .pipe(get_tri_contexts)
-        .pipe(get_all_possible_alt_alleles)
-        .pipe(tidy_data)
+        # .pipe(get_all_possible_alt_alleles)
+        # .pipe(tidy_data)
     )
 
     logger.warning("Lose this return statement when done testing.")
