@@ -19,9 +19,6 @@ from src import constants as C
 # Logging
 logger = setup_logger(Path(__file__).stem)
 
-#! TEMP
-fasta = C.CANONICAL_CDS_FASTA
-
 
 # Functions
 def read_getfasta_output(path):
@@ -30,10 +27,11 @@ def read_getfasta_output(path):
     logger.info("Reading getfasta output.")
 
     df = pd.read_csv(path, sep="\t", header=None, names=["id", "seq"])
-    
+
     # TODO lose this in production
-    logger.warning("Using only five rows of data for testing.")
-    df = df.tail(10000)
+    _N = 10000
+    logger.warning(f"Using only {_N} rows of data for testing.")
+    df = df.tail(_N)
 
     logger.info(f"Rows in getfasta output: {len(df)}")
 
@@ -85,13 +83,16 @@ def get_all_sites(df):
 def merge_sites_and_bed_intervals(df, sites):
     """Merge sites with bed intervals, on index."""
 
-    df["chr"] = df["chr"].astype("category")  # Categorical data for memory efficiency
+    # Use categorical dtypes for efficiency
+    df["chr"] = df["chr"].astype("category")  
     df = pd.concat([df["chr"], sites], axis=1)
     logger.info(f"CDS sites after merge with bed intervals: {len(df)}")
 
+    # Drop duplicated sites
     df = df.drop_duplicates().sort_values(["chr", "pos"])
     logger.info(f"CDS sites after dropping duplicates: {len(df)}")
 
+    # Sanity checks
     assert (
         df.duplicated(["chr", "pos"]).sum() == 0
     ), "There are sites with multiple reference alleles."
@@ -104,7 +105,9 @@ def get_tri_contexts(df):
     """Get the trinucleotide context around each position."""
 
     # Order positions in each CDS
-    df.index = pd.CategoricalIndex(df.index, name="cds_id")  # The index acts as a unique ID for each CDS.
+    df.index = pd.CategoricalIndex(
+        df.index, name="cds_id"
+    )  # The index acts as a unique ID for each CDS.
     df = df.sort_values(["cds_id", "pos"])
 
     # Get triplet context
@@ -133,40 +136,39 @@ def get_all_possible_alt_alleles(df):
 
     df = pd.concat([df.copy().assign(alt=base) for base in ["A", "T", "C", "G"]])
 
-    # Some reference alleles are "N", so add "N" as a category for alt alleles too
-    df["alt"] = df["alt"].astype("category").cat.add_categories("N")
+    # Convert "alt" column to categorical
+    df["alt"] = df["alt"].astype("category")
 
-    # Remove sites where the reference allele is the same as the alt allele   
+    # Some reference alleles are "N", so add "N" as a category for alt alleles too
+    if "N" in df["ref"].cat.categories:
+        df["alt"] = df["alt"].cat.add_categories("N")
+
+    # Remove sites where the reference allele is the same as the alt allele
     df = df[df["ref"] != df["alt"]]
 
     logger.info(f"Possible SNVs before tidying: {len(df)}")
-    
+
     return df
 
 
 def tidy_data(df):
     # Tidy the dataframe
 
-    # Remove sites where the reference allele is "N"
-    logger.info(f"Sites where reference allele is N: {(df['ref']=='N').sum()}")
-    df = df[df["ref"]!="N"]
-    df["ref"] = df["ref"].cat.remove_unused_categories() # Old categories included "N"
-
-    df = df.drop_duplicates()
-    df = df[df["ref"] != "N"]  # Mainly chrY positions
-    logger.info(f"Possible SNVs: {len(df)}")
+    # Remove sites where the reference allele is "N" (mainly chrY positions)
+    df = df[df["ref"] != "N"]
+    logger.info(f"Possible SNVs after tidying: {len(df)}")
 
     return df
 
 
 def main():
-    df = read_getfasta_output(fasta).pipe(get_chr_start_end)
+    df = read_getfasta_output(C.CANONICAL_CDS_FASTA).pipe(get_chr_start_end)
     sites = get_all_sites(df)
     df = (
         merge_sites_and_bed_intervals(df, sites)
         .pipe(get_tri_contexts)
         .pipe(get_all_possible_alt_alleles)
-        # .pipe(tidy_data)
+        .pipe(tidy_data)
     )
 
     logger.warning("Lose this return statement when done testing.")
