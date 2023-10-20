@@ -26,10 +26,10 @@ def read_getfasta_output(path):
 
     df = pd.read_csv(path, sep="\t", header=None, names=["id", "seq"])
 
-    # TODO lose this in production
-    _N = 10000
-    logger.warning(f"Using only {_N} rows of data for testing.")
-    df = df.tail(_N)
+    # # TODO lose this in production
+    # _N = 10000
+    # logger.warning(f"Using only {_N} rows of data for testing.")
+    # df = df.tail(_N)
 
     logger.info(f"Rows in getfasta output: {len(df)}")
 
@@ -71,7 +71,7 @@ def get_all_sites(df):
     sites["pos"] = pd.to_numeric(sites["pos"], downcast="integer")
     sites = sites.astype(dtype={"ref": "category"})
 
-    logger.info(f"CDS sites: {len(sites)}")
+    logger.info(f"CDS sites (raw): {len(sites)}")
 
     return sites
 
@@ -84,7 +84,6 @@ def merge_sites_and_bed_intervals(df, sites):
 
     # Merge sites with bed intervals
     df = pd.concat([df["chr"], sites], axis=1)
-    logger.info(f"CDS sites after merge with bed intervals: {len(df)}")
 
     # Don't drop duplicated sites yet. Annotation of the trinucleotide context depends
     # on the sites within each CDS having monotonically increasing values.
@@ -106,7 +105,9 @@ def get_tri_contexts(df):
     df_grouped = df.groupby("cds_id")
 
     # Check that the position in each interval increases by 1 each time
-    assert (df_grouped["pos"].diff().fillna(1) == 1).all(), "Positions are not adjacent."
+    assert (
+        df_grouped["pos"].diff().fillna(1) == 1
+    ).all(), "Positions are not adjacent."
 
     # Get triplet context
     first = df_grouped["ref"].shift(1)  # Order preserved by groupby
@@ -115,24 +116,23 @@ def get_tri_contexts(df):
 
     # Merge positions with their trinucleotide contexts
     df = pd.concat([df, tri], axis=1)  # Extreme ends contain NaNs: useful for dropping
-    logger.info(
-        f"CDS sites before tidying: {len(df)}"
-    )
 
     return df
 
+
 def tidy_tri_contexts(df):
     """Tidy the dataframe of trinucleotide contexts.
-    
-    Drop duplicated sites, sites with "N" as the reference allele, and the extreme 5' 
-    and 3' positions adjacent to the CDS. 
-    
-    CDS intervals had been extended by 1 nt in 
+
+    Drop duplicated sites, sites with "N" as the reference allele, and the extreme 5'
+    and 3' positions adjacent to the CDS.
+
+    CDS intervals had been extended by 1 nt in
     both 5' and 3' directions with the bedtools slop command. This allows annotation of
-    the trinucleotide context around the most 5' and 3' CDS sites. Conveniently, the 
+    the trinucleotide context around the most 5' and 3' CDS sites. Conveniently, the
     "tri" column now contains NaNs at the extended positions. These positions are
     dropped.
     """
+    # Drop extended 5' and 3' positions
     df = df.dropna()
     logger.info(f"CDS sites after trimming extended 5' and 3' positions: {len(df)}")
 
@@ -140,6 +140,11 @@ def tidy_tri_contexts(df):
     df = df.drop_duplicates().sort_values(["chr", "pos"])
     assert df.duplicated(["chr", "pos"]).sum() == 0, "There are duplicated sites."
     logger.info(f"CDS sites after dropping duplicates: {len(df)}")
+
+    # Drop sites where the reference allele is "N"
+    df = df[df["ref"] != "N"]
+    df["ref"] = df["ref"].cat.remove_unused_categories()
+    logger.info(f"CDS sites after dropping 'N' reference alleles: {len(df)}")
 
     return df
 
@@ -152,24 +157,12 @@ def get_all_possible_alt_alleles(df):
     # Convert "alt" column to categorical
     df["alt"] = df["alt"].astype("category")
 
-    # Some reference alleles are "N", so add "N" as a category for alt alleles too
-    if "N" in df["ref"].cat.categories:
-        df["alt"] = df["alt"].cat.add_categories("N")
-
     # Remove sites where the reference allele is the same as the alt allele
     df = df[df["ref"] != df["alt"]]
+    logger.info(f"Possible SNVs: {len(df)}")
 
-    logger.info(f"Possible SNVs before tidying: {len(df)}")
-
-    return df
-
-
-def tidy_data(df):
-    # Tidy the dataframe
-
-    # Remove sites where the reference allele is "N" (mainly chrY positions)
-    df = df[df["ref"] != "N"]
-    logger.info(f"Possible SNVs after tidying: {len(df)}")
+    # Sort by chromosome and position for use with VEP
+    df = df.sort_values(["chr", "pos"])
 
     return df
 
@@ -177,12 +170,11 @@ def tidy_data(df):
 def main():
     df = read_getfasta_output(C.CANONICAL_CDS_FASTA).pipe(get_chr_start_end)
     sites = get_all_sites(df)
-    # return sites
     df = (
         merge_sites_and_bed_intervals(df, sites)
         .pipe(get_tri_contexts)
-        # .pipe(get_all_possible_alt_alleles)
-        # .pipe(tidy_data)
+        .pipe(tidy_tri_contexts)
+        .pipe(get_all_possible_alt_alleles)
     )
 
     logger.warning("Lose this return statement when done testing.")
