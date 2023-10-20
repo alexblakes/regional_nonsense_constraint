@@ -8,6 +8,8 @@ all : data
 
 data : data/interim/gencode_v39_canonical_cds.bed \
        data/interim/gencode_v39_canonical_cds_seq.tsv \
+	   data/interim/cds_trinucleotide_contexts.tsv \
+	   data/interim/cds_all_possible_snvs.vcf \
 
 # Extract canonical CDS from GTF file
 data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf \
@@ -22,3 +24,12 @@ data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh3
 	$(CONDA_ACTIVATE) bio
 	bash src/data/get_fasta.sh
 	$(CONDA_ACTIVATE) ukb
+
+# Get all possible SNVs and trinucleotide contexts
+data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical_cds_seq.tsv \
+                                              src/data/coding_snvs.py
+	python3 -m src.data.coding_snvs
+
+data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
+                                              src/data/coding_snvs.py
+	python3 -m src.data.coding_snvs
