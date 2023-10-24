@@ -1,0 +1,8 @@
+wget https://github.com/dnanexus/dxfuse/releases/download/v1.2.0/dxfuse-linux
+
+chmod +x dxfuse-linux
+
+FUSE_MOUNT=$HOME/projects
+mkdir -p $FUSE_MOUNT
+
+sudo -E ./dxfuse-linux -uid $(id -u) -gid $(id -g) -verbose 2 $FUSE_MOUNT $DX_PROJECT_CONTEXT_ID
