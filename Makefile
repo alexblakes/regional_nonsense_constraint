@@ -1,15 +1,22 @@
 .ONESHELL:
-.PHONY: all
+.PHONY: quick slow all
 
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
-all : data
+# Files which take seconds or minutes to create
+quick : data/interim/gencode_v39_canonical_cds.bed \
+    	data/interim/gencode_v39_canonical_cds_seq.tsv \
+	    data/interim/cds_trinucleotide_contexts.tsv \
+	    data/interim/cds_all_possible_snvs.vcf \
+	    data/interim/cds_all_possible_snvs_vep_tidy.tsv
 
-data : data/interim/gencode_v39_canonical_cds.bed \
-       data/interim/gencode_v39_canonical_cds_seq.tsv \
-	   data/interim/cds_trinucleotide_contexts.tsv \
-	   data/interim/cds_all_possible_snvs.vcf \
+# Files which take hours to create
+slow : data/interim/cds_all_possible_snvs_vep.vcf \
+
+# All files
+all : quick slow
+
 
 # Extract canonical CDS from GTF file
 data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf \
@@ -33,3 +40,18 @@ data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical
 data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
                                               src/data/coding_snvs.py
 	python3 -m src.data.coding_snvs
+
+# Annotate all possible CDS SNVs with VEP
+data/interim/cds_all_possible_snvs_vep.vcf : data/interim/cds_all_possible_snvs.vcf \
+											 src/data/vep_all_snvs.sh
+	$(CONDA_ACTIVATE) bio
+	bash src/data/vep_all_snvs.sh
+	$(CONDA_ACTIVATE) ukb
+
+# Tidy the VEP-annotated SNVs
+data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep.vcf \
+                                                  src/data/vep_all_snvs_tidy.sh
+	bash src/data/vep_all_snvs_tidy.sh
+
+# Make new shell for watch
+# Make logs
