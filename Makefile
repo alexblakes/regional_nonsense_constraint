@@ -42,6 +42,7 @@ data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical
 	python3 -m src.data.coding_snvs
 
 # Annotate all possible CDS SNVs with VEP
+# This script runs over ~ 10 hours
 data/interim/cds_all_possible_snvs_vep.vcf : data/interim/cds_all_possible_snvs.vcf \
 											 src/data/vep_all_snvs.sh
 	$(CONDA_ACTIVATE) bio
@@ -53,6 +54,3 @@ data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_
                                                   src/data/vep_all_snvs_tidy.sh
 	bash src/data/vep_all_snvs_tidy.sh
 	bash src/data/vep_all_snvs_tidy_log.sh
-
-# Make new shell for watch
-# Make logs
