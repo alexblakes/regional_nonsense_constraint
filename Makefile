@@ -48,10 +48,11 @@ data/interim/cds_all_possible_snvs_vep.vcf : data/interim/cds_all_possible_snvs.
 	bash src/data/vep_all_snvs.sh
 	$(CONDA_ACTIVATE) ukb
 
-# Tidy the VEP-annotated SNVs
+# Tidy the VEP-annotated SNVs and log the results
 data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep.vcf \
                                                   src/data/vep_all_snvs_tidy.sh
 	bash src/data/vep_all_snvs_tidy.sh
+	bash src/data/vep_all_snvs_tidy_log.sh
 
 # Make new shell for watch
 # Make logs
