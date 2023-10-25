@@ -3,5 +3,4 @@
 .virtual_documents
 .vscode
 __pycache__
-data/logs/
 src/data/test.py
