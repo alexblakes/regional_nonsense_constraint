@@ -15,7 +15,7 @@ quick : data/interim/gencode_v39_canonical_cds.bed \
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
 
 # All files
-all : quick slow
+all : data quick slow
 
 
 # Extract canonical CDS from GTF file
