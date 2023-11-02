@@ -8,3 +8,4 @@
 !.gitignore
 !README.md
 !raw_urls.txt
+!Makefile
