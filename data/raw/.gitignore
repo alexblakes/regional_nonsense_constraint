@@ -7,3 +7,4 @@
 # Except for these files
 !.gitignore
 !README.md
+!raw_urls.txt
