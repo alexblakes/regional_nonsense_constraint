@@ -1,6 +1,6 @@
 #!/bin/bash --login
 
-# Download reference genome FASTA file.
+# Download phyloP scores.
 
 #$ -cwd
 #$ -e data/logs/csf/

@@ -1,6 +1,6 @@
 #!/bin/bash --login
 
-# Download reference genome FASTA file.
+# Download small files.
 
 #$ -cwd
 #$ -e data/logs/csf/

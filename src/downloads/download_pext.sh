@@ -1,6 +1,6 @@
 #!/bin/bash --login
 
-# Download reference genome FASTA file.
+# Download base level pext scores.
 
 #$ -cwd
 #$ -e data/logs/csf/
