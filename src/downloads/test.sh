@@ -1,8 +1,11 @@
-#! usr/bin/env bash
+#!/bin/bash --login
 
 # Download test file
 
 #$ -cwd
+#$ -e data/logs/csf/
+#$ -o data/logs/csf/
 
-wget cheat.sh/tail
-gzip tail
+# touch test.txt
+wget -P data/raw/ cheat.sh/tail
+gzip data/raw/tail
