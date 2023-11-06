@@ -1,16 +1,21 @@
-.PHONY: g2p big small all
+.PHONY: big small all test
 
 SHELL = bash
 
-g2p : CardiacG2P.csv SkeletalG2P.csv DDG2P.csv EyeG2P.csv SkinG2P.csv
+CardiacG2P.csv SkeletalG2P.csv DDG2P.csv EyeG2P.csv SkinG2P.csv
 
 big : 241-mammalian-2020v2.bigWig GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
-      gencode.v39.annotation.gtf all.baselevel.021620.tsv
+      GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai gencode.v39.annotation.gtf \
+      all.baselevel.021620.tsv
 
-small : GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai genemap2.txt \
-        hg19ToHg38.over.chain variant_summary.txt
+small : genemap2.txt \
+        hg19ToHg38.over.chain variant_summary.txt CardiacG2P.csv SkeletalG2P.csv \
+		DDG2P.csv EyeG2P.csv SkinG2P.csv
 
 all : g2p big small
+
+test:
+	qsub src/downloads/test.sh
 
 CardiacG2P.csv : 
 	wget -c https://www.ebi.ac.uk/gene2phenotype/downloads/CardiacG2P.csv.gz
