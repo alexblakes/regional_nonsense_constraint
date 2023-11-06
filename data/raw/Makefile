@@ -20,9 +20,6 @@ big: $(big_files)
 
 all : small big
 
-
-# Small files
-
 # Big files
 data/raw/hg38.cactus241way.phyloP.bw : 
 	qsub src/downloads/download_phylop.sh

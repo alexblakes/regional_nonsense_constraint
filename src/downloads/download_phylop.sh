@@ -9,3 +9,5 @@
 rsync -avz --progress \
         rsync://hgdownload.soe.ucsc.edu/goldenPath/hg38/cactus241way/hg38.cactus241way.phyloP.bw \
         data/raw/
+
+touch data/raw/hg38.cactus241way.phyloP.bw
