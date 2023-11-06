@@ -1,8 +1,11 @@
 .ONESHELL:
-.PHONY: quick slow all
+.PHONY: downloads quick slow all
 
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
+
+# Raw data downloads
+downloads: make -f data/raw/Makefile all
 
 # Files which take seconds or minutes to create
 quick : data/interim/gencode_v39_canonical_cds.bed \
@@ -15,7 +18,7 @@ quick : data/interim/gencode_v39_canonical_cds.bed \
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
 
 # All files
-all : data quick slow
+all : downloads quick slow
 
 
 # Extract canonical CDS from GTF file

@@ -2,29 +2,36 @@
 
 SHELL = bash
 
-small : genemap2.txt hg19ToHg38.over.chain variant_summary.txt CardiacG2P.csv \
-        SkeletalG2P.csv DDG2P.csv EyeG2P.csv SkinG2P.csv
+small_files = data/raw/genemap2.txt data/raw/hg19ToHg38.over.chain \
+              data/raw/variant_summary.txt data/raw/CardiacG2P.csv \
+              data/raw/SkeletalG2P.csv data/raw/DDG2P.csv data/raw/EyeG2P.csv \
+      	      data/raw/SkinG2P.csv
 
-big : hg38.cactus241way.phyloP.bw GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
-      GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai gencode.v39.annotation.gtf \
-      all.baselevel.021620.tsv
+big_files = data/raw/hg38.cactus241way.phyloP.bw data/raw/gencode.v39.annotation.gtf \
+            data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
+	        data/raw/all.baselevel.021620.tsv
+
+test: qsub src/downloads/test.sh
+
+small:
+	qsub src/downloads/download_small_files.sh
+
+big: $(big_files)
 
 all : small big
 
-test: hg38.cactus241way.phyloP.bw
 
 # Small files
 
-
 # Big files
-hg38.cactus241way.phyloP.bw : 
+data/raw/hg38.cactus241way.phyloP.bw : 
 	qsub src/downloads/download_phylop.sh
 
-GCA_000001405.15_GRCh38_no_alt_analysis_set.fna : 
-	qsub src/downloads/download_reference_fasta.sh
-
-gencode.v39.annotation.gtf : 
+data/raw/gencode.v39.annotation.gtf : 
 	qsub src/downloads/download_gencode.sh
 
-all.baselevel.021620.tsv.bgz :
+data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna : 
+	qsub src/downloads/download_reference_fasta.sh
+
+data/raw/all.baselevel.021620.tsv :
 	qsub src/downloads/download_pext.sh

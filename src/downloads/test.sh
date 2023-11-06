@@ -7,5 +7,4 @@
 #$ -o data/logs/csf/
 
 # touch test.txt
-wget -P data/raw/ cheat.sh/tail
-gzip data/raw/tail
+wget -O - cheat.sh/tail | gzip -c > data/raw/tail
