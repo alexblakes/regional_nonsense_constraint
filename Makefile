@@ -5,7 +5,8 @@ SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 # Raw data downloads
-downloads: make -f data/raw/Makefile all
+downloads: 
+	make -f data/raw/Makefile all
 
 # Files which take seconds or minutes to create
 quick : data/interim/gencode_v39_canonical_cds.bed \
