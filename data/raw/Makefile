@@ -2,65 +2,29 @@
 
 SHELL = bash
 
-CardiacG2P.csv SkeletalG2P.csv DDG2P.csv EyeG2P.csv SkinG2P.csv
+small : genemap2.txt hg19ToHg38.over.chain variant_summary.txt CardiacG2P.csv \
+        SkeletalG2P.csv DDG2P.csv EyeG2P.csv SkinG2P.csv
 
-big : 241-mammalian-2020v2.bigWig GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
+big : hg38.cactus241way.phyloP.bw GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
       GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai gencode.v39.annotation.gtf \
       all.baselevel.021620.tsv
 
-small : genemap2.txt \
-        hg19ToHg38.over.chain variant_summary.txt CardiacG2P.csv SkeletalG2P.csv \
-		DDG2P.csv EyeG2P.csv SkinG2P.csv
+all : small big
 
-all : g2p big small
+test: hg38.cactus241way.phyloP.bw
 
-test:
-	qsub src/downloads/test.sh
+# Small files
 
-CardiacG2P.csv : 
-	wget -c https://www.ebi.ac.uk/gene2phenotype/downloads/CardiacG2P.csv.gz
-	gunzip CardiacG2P.csv.gz
 
-SkeletalG2P.csv :
-	wget -c https://www.ebi.ac.uk/gene2phenotype/downloads/SkeletalG2P.csv.gz
-	gunzip SkeletalG2P.csv.gz
-
-DDG2P.csv :
-	wget -c https://www.ebi.ac.uk/gene2phenotype/downloads/DDG2P.csv.gz
-	gunzip DDG2P.csv.gz
-
-EyeG2P.csv :
-	wget -c https://www.ebi.ac.uk/gene2phenotype/downloads/EyeG2P.csv.gz
-	gunzip EyeG2P.csv.gz
-
-SkinG2P.csv :
-	wget -c https://www.ebi.ac.uk/gene2phenotype/downloads/SkinG2P.csv.gz
-	gunzip SkinG2P.csv.gz
-
-241-mammalian-2020v2.bigWig : 
-	wget -c https://cgl.gi.ucsc.edu/data/cactus/241-mammalian-2020v2-hub/Homo_sapiens/241-mammalian-2020v2.bigWig
+# Big files
+hg38.cactus241way.phyloP.bw : 
+	qsub src/downloads/download_phylop.sh
 
 GCA_000001405.15_GRCh38_no_alt_analysis_set.fna : 
-	wget -c https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
-	gunzip GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
-
-GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai :
-	wget -c https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai
+	qsub src/downloads/download_reference_fasta.sh
 
 gencode.v39.annotation.gtf : 
-	wget -c https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_39/gencode.v39.annotation.gtf.gz
-	gunzip gencode.v39.annotation.gtf.gz
-
-genemap2.txt : 
-	wget -c --no-check-certificate https://data.omim.org/downloads/dW5qBh3GSkCt5K3BqUQL1w/genemap2.txt
-
-hg19ToHg38.over.chain :
-	wget -c http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz
-	gunzip hg19ToHg38.over.chain.gz
+	qsub src/downloads/download_gencode.sh
 
 all.baselevel.021620.tsv.bgz :
-	wget -c https://storage.googleapis.com/gcp-public-data--gnomad/papers/2019-tx-annotation/gnomad_browser/all.baselevel.021620.tsv.bgz
-
-variant_summary.txt :
-	wget -c https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz
-	gunzip variant_summary.txt.gz
+	qsub src/downloads/download_pext.sh
