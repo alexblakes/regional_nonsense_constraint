@@ -6,6 +6,3 @@
 
 # Except for these files
 !.gitignore
-!README.md
-!Makefile
-!gnomad_v4_exomes/
