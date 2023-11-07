@@ -6,5 +6,3 @@
 
 # Except for these files
 !.gitignore
-!README.md
-!csf/
