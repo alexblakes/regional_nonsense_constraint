@@ -4,8 +4,8 @@
 # Run on the login node
 # Run from ukb_constraint directory
 
-# CHRS=({1..22} X Y)
-CHRS=({1..2}) # TESTING
+CHRS=({1..22} X Y) # PRODUCTION
+# CHRS=({1..2}) # TESTING
 
 for CHR in ${CHRS[@]};
     do
@@ -17,5 +17,4 @@ for CHR in ${CHRS[@]};
             -e data/logs/csf/ \
             -cwd \
             ~/scratch/ukb_constraint/src/downloads/download_gnomad.sh ${TBI_URL} ${VCF_URL}
-        # bash ~/scratch/ukb_constraint/src/downloads/download_gnomad.sh ${TBI_URL} ${VCF_URL}
     done
