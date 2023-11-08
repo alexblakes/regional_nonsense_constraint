@@ -19,9 +19,8 @@ Functions:
 # Imports
 from pathlib import Path
 
-import gtfparse
-# * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 import pandas as pd
+import gtfparse # * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 
 from src import constants as C
 from src import setup_logger
