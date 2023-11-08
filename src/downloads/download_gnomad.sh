@@ -1,21 +1,21 @@
 #!/bin/bash --login
 
-# Download GENCODE v39 GTF.
+# Script to download gnomAD VCF and TBI for one chromosome.
 
 #$ -cwd
 #$ -e data/logs/csf/
 #$ -o data/logs/csf/
 
-URLS=(
-    cheat.sh/head
-    cheat.sh/tail
-)
+DIR="/mnt/bmh01-rds/Ellingford_gene/public_data_resources/gnomad/v4.0/vcf"
+TBI_NAME=$( echo $1 | awk -F "/" '{print $NF}' )
+VCF_NAME=$( echo $2 | awk -F "/" '{print $NF}' )
 
-for URL in ${URLS[@]};
-    do
-        NAME=$( echo $URL | awk -F "/" '{print $NF}' )
-        wget $URL
-        md5sum $NAME >> test.md5
-    done
+wget -c -P ${DIR} $1
+wget -c -P ${DIR} $2
 
-# md5sum -c test.md5
+md5sum ${DIR}/$TBI_NAME >> ${DIR}/tbi.md5
+md5sum ${DIR}/$VCF_NAME >> ${DIR}/vcf.md5
+md5sum -c ${DIR}/tbi.md5 ${DIR}/vcf.md5
+
+# md5sum ${DIR}/$TBI_NAME >> test.md5
+# md5sum -c ${DIR}/test.md5
