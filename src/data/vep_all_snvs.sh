@@ -25,5 +25,3 @@ vep \
     --pick_order canonical \
     --coding_only \
     --fields "Location,REF_ALLELE,Allele,Consequence,Feature"
-
-echo "All done."
