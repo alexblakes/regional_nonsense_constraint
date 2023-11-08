@@ -11,7 +11,7 @@ wget -c -P ${DIR} $2
 
 md5sum ${DIR}/$TBI_NAME >> ${DIR}/tbi.md5
 md5sum ${DIR}/$VCF_NAME >> ${DIR}/vcf.md5
-md5sum -c ${DIR}/tbi.md5 ${DIR}/vcf.md5
 
+# md5sum -c ${DIR}/tbi.md5 ${DIR}/vcf.md5
 # md5sum ${DIR}/$TBI_NAME >> tbi.md5
 # md5sum -c ${DIR}/tbi.md5
