@@ -25,20 +25,8 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def get_canonical(gtf):
-    """Get features in Ensembl_canonical protein-coding transcripts"""
-
-    # Subset to Ensembl_canonical features in protein coding genes
-    df = gtf[
-        (gtf.tag.str.contains("Ensembl_canonical"))
-        & (gtf.gene_type == "protein_coding")
-    ]
-
-    return df
-
-
 def count_exons(df):
-    """Count the numner of exons per transcript"""
+    """Count the number of exons per transcript"""
 
     df["exon_number"] = df["exon_number"].astype(int)
     df["exon_count"] = df.groupby("transcript_id")["exon_number"].transform("max")
@@ -46,20 +34,21 @@ def count_exons(df):
     return df
 
 
-def get_exon_starts_ends(df):
+def get_exon_coords(df):
     """Find exon start and end positions (distinct from CDS starts and ends)"""
 
     # Find exon starts and ends
     exons = df[df.feature == "exon"].copy()
-    exons = exons[["exon_id", "start", "end"]]
-    exons.columns = ["exon_id", "exon_start", "exon_end"]
-    exons = exons.drop_duplicates()
+    exon_coords = exons[["exon_id", "start", "end"]]
+    exon_coords.columns = ["exon_id", "exon_start", "exon_end"]
+    exon_coords = exon_coords.drop_duplicates()
 
-    # Limit to CDS
-    cds = df[df.feature == "CDS"]
+    return exon_coords
+
+def merge_cds_with_exon_coords(cds, exon_coords):
 
     # Merge CDS with exon start and end annotations
-    df = cds.merge(exons, how="left")
+    df = cds.merge(exon_coords, how="left")
     df = df.drop_duplicates(["transcript_id", "exon_id", "start", "end"])
 
     return df
@@ -67,15 +56,18 @@ def get_exon_starts_ends(df):
 
 def main():
 
-    gtf = (
-        gtfparse.read_gtf(C.GENCODE_GTF, features={"CDS", "exon"})
-        # .pipe(get_canonical)
-        # .pipe(count_exons)
-        # .pipe(get_exon_starts_ends)
-        # .pipe(ccds.annotate_exon_number)
+    df = (
+        gtfparse.read_gtf(C.GENCODE_GTF)
+        .pipe(ccds.get_canonical, features=["CDS", "exon"])
+        .pipe(count_exons)
     )
 
-    return gtf # TODO Testing
+    exon_coords = get_exon_coords(df)
+    cds = df[df["feature"]=="CDS"].pipe(ccds.annotate_cds_number)
+
+    df = merge_cds_with_exon_coords(cds, exon_coords)
+
+    return df # TODO Testing
 
     # # Read GTF data
     # gencode_path = "../data/gencode.v39.annotation.gtf"

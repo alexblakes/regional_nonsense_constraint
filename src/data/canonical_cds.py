@@ -51,11 +51,12 @@ def get_canonical(gtf, features=["CDS"]):
     logger.info(f"Chromosomes represented: {cds.seqname.unique()}")
     logger.info(f"Unique gene IDs: {cds.gene_id.nunique()}")
     logger.info(f"Unique transcript IDs: {cds.transcript_id.nunique()}")
+    logger.info(f"Feature counts:\n{cds.feature.value_counts()}")
 
     return cds
 
 
-def annotate_exon_number(gtf):
+def annotate_cds_number(gtf):
     """Count the number of CDS exons in each transcript."""
 
     gtf["exon_number"] = gtf["exon_number"].astype(int)
@@ -129,7 +130,7 @@ def main():
     (
         gtfparse.read_gtf(C.GENCODE_GTF, features="CDS")
         .pipe(get_canonical)
-        .pipe(annotate_exon_number)
+        .pipe(annotate_cds_number)
         .pipe(gtf_to_bed, _BED_IDS)
         .pipe(write_bed, C.CANONICAL_CDS_BED, _CHR_PREFIX)
     )
