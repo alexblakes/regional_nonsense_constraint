@@ -1,4 +1,4 @@
-.PHONY: test small big all
+.PHONY: small big test all
 
 SHELL = bash
 
@@ -9,19 +9,20 @@ small_files = data/raw/genemap2.txt \
               data/raw/SkeletalG2P.csv \
 			  data/raw/DDG2P.csv \
 			  data/raw/EyeG2P.csv \
-      	      data/raw/SkinG2P.csv
+      	      data/raw/SkinG2P.csv \
+			  data/raw/gnomad.v4.0.constraint_metrics.tsv
 
 big_files = data/raw/hg38.cactus241way.phyloP.bw \
             data/raw/gencode.v39.annotation.gtf \
             data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
 	        data/raw/all.baselevel.021620.tsv
 
-test : 
-	qsub src/downloads/test.sh
-
 small : ${small_files}
 
 big : $(big_files)
+
+test : 
+	qsub src/downloads/test.sh
 
 all : small big
 
