@@ -66,41 +66,44 @@ def get_exon_starts_ends(df):
 
 
 def main():
-    (
-        gtfparse.read_gtf(C.GENCODE_GTF, features=["CDS", "exon"])
-        .pipe(get_canonical)
-        .pipe(count_exons)
-        .pipe(get_exon_starts_ends)
-        .pipe(ccds.annotate_exon_number)
+
+    gtf = (
+        gtfparse.read_gtf(C.GENCODE_GTF, features={"CDS", "exon"})
+        # .pipe(get_canonical)
+        # .pipe(count_exons)
+        # .pipe(get_exon_starts_ends)
+        # .pipe(ccds.annotate_exon_number)
     )
 
-    # Read GTF data
-    gencode_path = "../data/gencode.v39.annotation.gtf"
-    gtf = get_gencode_gtf(gencode_path)
+    return gtf # TODO Testing
 
-    # Define regions of interest
-    cds = get_canonical_cds(gtf)
-    cds = cds[
-        [
-            "seqname",
-            "start",
-            "end",
-            "exon_start",
-            "exon_end",
-            "strand",
-            "transcript_id",
-            "exon_id",
-            "exon_count",
-            "exon_number",
-            "cds_number",
-        ]
-    ]
-    cds["transcript_id"] = cds["transcript_id"].str.split(".").str[0]
-    cds = cds.set_index(["seqname", "transcript_id", "exon_id"])
-    cds["pos"] = cds.apply(lambda x: list(range(x["start"], x["end"] + 1)), axis=1)
-    cds = cds.explode("pos")
-    cds["cds_len"] = cds.groupby(level="transcript_id")["pos"].transform("count")
-    cds["exon_len"] = cds.groupby(level="exon_id")["pos"].transform("count")
+    # # Read GTF data
+    # gencode_path = "../data/gencode.v39.annotation.gtf"
+    # gtf = get_gencode_gtf(gencode_path)
+
+    # # Define regions of interest
+    # cds = get_canonical_cds(gtf)
+    # cds = cds[
+    #     [
+    #         "seqname",
+    #         "start",
+    #         "end",
+    #         "exon_start",
+    #         "exon_end",
+    #         "strand",
+    #         "transcript_id",
+    #         "exon_id",
+    #         "exon_count",
+    #         "exon_number",
+    #         "cds_number",
+    #     ]
+    # ]
+    # cds["transcript_id"] = cds["transcript_id"].str.split(".").str[0]
+    # cds = cds.set_index(["seqname", "transcript_id", "exon_id"])
+    # cds["pos"] = cds.apply(lambda x: list(range(x["start"], x["end"] + 1)), axis=1)
+    # cds = cds.explode("pos")
+    # cds["cds_len"] = cds.groupby(level="transcript_id")["pos"].transform("count")
+    # cds["exon_len"] = cds.groupby(level="exon_id")["pos"].transform("count")
 
 
 if __name__ == "__main__":
