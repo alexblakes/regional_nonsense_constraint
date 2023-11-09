@@ -37,13 +37,13 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def get_canonical_cds(gtf):
-    """Subset to Ensembl_canonical CDS features in protein coding genes."""
+def get_canonical(gtf, features=["CDS"]):
+    """Subset to features in Ensembl_canonical protein coding genes."""
 
-    logger.info("Filtering for canonical CDS...")
+    logger.info("Filtering for canonical features...")
 
     cds = gtf[
-        (gtf.feature == "CDS")
+        (gtf.feature.isin(features))
         & (gtf.tag.str.contains("Ensembl_canonical"))
         & (gtf.gene_type == "protein_coding")
     ]
@@ -128,7 +128,7 @@ def main():
 
     (
         gtfparse.read_gtf(C.GENCODE_GTF, features="CDS")
-        .pipe(get_canonical_cds)
+        .pipe(get_canonical)
         .pipe(annotate_exon_number)
         .pipe(gtf_to_bed, _BED_IDS)
         .pipe(write_bed, C.CANONICAL_CDS_BED, _CHR_PREFIX)
