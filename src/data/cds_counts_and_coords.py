@@ -68,23 +68,32 @@ def tidy_cds(df):
             "strand",
             "transcript_id",
             "exon_id",
-            "exon_count",
             "exon_number",
+            "exon_count",
             "cds_number",
+            "cds_count",
         ]
     ].copy()
 
     logger.info(f"Unique transcript IDs: {df['transcript_id'].nunique()}")
-    
+
     df["transcript_id"] = df["transcript_id"].str.split(".").str[0]
-    
-    logger.info(f"Unique transcript IDs after dropping version numbers: {df['transcript_id'].nunique()}")
 
-
-    logger.info(f"Duplicated CDS (by exon_id): {df.duplicated(['seqname','exon_id']).sum()}")
-    logger.info(f"Duplicated CDS (by transcript_id and coords): {df.duplicated(['seqname','transcript_id','start','end']).sum()}")
-    logger.info(f"Duplicated CDS (by CDS coords): {df.duplicated(['seqname','start','end','strand']).sum()}")
-    logger.info(f"Duplicated CDS (by exon coords): {df.duplicated(['seqname','exon_start','exon_end','strand']).sum()}")
+    logger.info(
+        f"Unique transcript IDs after dropping version numbers: {df['transcript_id'].nunique()}"
+    )
+    logger.info(
+        f"Duplicated CDS (by exon_id): {df.duplicated(['seqname','exon_id']).sum()}"
+    )
+    logger.info(
+        f"Duplicated CDS (by transcript_id and coords): {df.duplicated(['seqname','transcript_id','start','end']).sum()}"
+    )
+    logger.info(
+        f"Duplicated CDS (by CDS coords): {df.duplicated(['seqname','start','end','strand']).sum()}"
+    )
+    logger.info(
+        f"Duplicated CDS (by exon coords): {df.duplicated(['seqname','exon_start','exon_end','strand']).sum()}"
+    )
 
     return df
 
@@ -110,4 +119,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -12,11 +12,9 @@ Label all CDS positions with an NMD annotation. The annotations include:
 from pathlib import Path
 
 import pandas as pd
-import gtfparse  # * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 
 from src import setup_logger
 from src import constants as C
-from src.data import canonical_cds as ccds
 
 # Module constants
 

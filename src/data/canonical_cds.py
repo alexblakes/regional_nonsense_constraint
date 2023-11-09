@@ -61,6 +61,7 @@ def annotate_cds_number(gtf):
 
     gtf["exon_number"] = gtf["exon_number"].astype(int)
     gtf["cds_number"] = gtf.groupby("transcript_id")["exon_number"].rank().astype(int)
+    gtf["cds_count"] = gtf.groupby("transcript_id")["cds_number"].transform("max")
 
     return gtf
 
