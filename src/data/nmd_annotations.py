@@ -26,7 +26,7 @@ logger = setup_logger(Path(__file__).stem)
 
 # Functions
 def get_canonical(gtf):
-    """Get exons and CDS in Ensembl_canonical protein-coding transcripts"""
+    """Get features in Ensembl_canonical protein-coding transcripts"""
 
     # Subset to Ensembl_canonical features in protein coding genes
     df = gtf[
