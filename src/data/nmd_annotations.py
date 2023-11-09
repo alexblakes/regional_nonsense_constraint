@@ -7,6 +7,7 @@ Label all CDS positions with an NMD annotation. The annotations include:
 3) Last exon
 4) 50nt rule (within the most 3' 50nt of the penultimate exon)
 """
+
 # Imports
 from pathlib import Path
 
@@ -25,81 +26,13 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def count_exons(df):
-    """Count the number of exons per transcript"""
-
-    df["exon_number"] = df["exon_number"].astype(int)
-    df["exon_count"] = df.groupby("transcript_id")["exon_number"].transform("max")
-
-    return df
 
 
-def get_exon_coords(df):
-    """Find exon start and end positions (distinct from CDS starts and ends)"""
-
-    # Find exon starts and ends
-    exons = df[df.feature == "exon"].copy()
-    exon_coords = exons[["exon_id", "start", "end"]]
-    exon_coords.columns = ["exon_id", "exon_start", "exon_end"]
-    exon_coords = exon_coords.drop_duplicates()
-
-    return exon_coords
-
-def merge_cds_with_exon_coords(cds, exon_coords):
-
-    # Merge CDS with exon start and end annotations
-    df = cds.merge(exon_coords, how="left")
-    df = df.drop_duplicates(["transcript_id", "exon_id", "start", "end"])
-
-    return df
-
-
-def main():
-
-    df = (
-        gtfparse.read_gtf(C.GENCODE_GTF)
-        .pipe(ccds.get_canonical, features=["CDS", "exon"])
-        .pipe(count_exons)
-    )
-
-    exon_coords = get_exon_coords(df)
-    cds = df[df["feature"]=="CDS"].pipe(ccds.annotate_cds_number)
-
-    df = merge_cds_with_exon_coords(cds, exon_coords)
-
-    return df # TODO Testing
-
-    # # Read GTF data
-    # gencode_path = "../data/gencode.v39.annotation.gtf"
-    # gtf = get_gencode_gtf(gencode_path)
-
-    # # Define regions of interest
-    # cds = get_canonical_cds(gtf)
-    # cds = cds[
-    #     [
-    #         "seqname",
-    #         "start",
-    #         "end",
-    #         "exon_start",
-    #         "exon_end",
-    #         "strand",
-    #         "transcript_id",
-    #         "exon_id",
-    #         "exon_count",
-    #         "exon_number",
-    #         "cds_number",
-    #     ]
-    # ]
-    # cds["transcript_id"] = cds["transcript_id"].str.split(".").str[0]
-    # cds = cds.set_index(["seqname", "transcript_id", "exon_id"])
-    # cds["pos"] = cds.apply(lambda x: list(range(x["start"], x["end"] + 1)), axis=1)
-    # cds = cds.explode("pos")
-    # cds["cds_len"] = cds.groupby(level="transcript_id")["pos"].transform("count")
-    # cds["exon_len"] = cds.groupby(level="exon_id")["pos"].transform("count")
-
-
-if __name__ == "__main__":
-    main()
+# cds = cds.set_index(["seqname", "transcript_id", "exon_id"])
+# cds["pos"] = cds.apply(lambda x: list(range(x["start"], x["end"] + 1)), axis=1)
+# cds = cds.explode("pos")
+# cds["cds_len"] = cds.groupby(level="transcript_id")["pos"].transform("count")
+# cds["exon_len"] = cds.groupby(level="exon_id")["pos"].transform("count")
 
 
 # # ## NMD annotations for + transcripts

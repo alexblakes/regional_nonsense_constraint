@@ -46,7 +46,7 @@ def get_canonical(gtf, features=["CDS"]):
         (gtf.feature.isin(features))
         & (gtf.tag.str.contains("Ensembl_canonical"))
         & (gtf.gene_type == "protein_coding")
-    ]
+    ].copy()
 
     logger.info(f"Chromosomes represented: {cds.seqname.unique()}")
     logger.info(f"Unique gene IDs: {cds.gene_id.nunique()}")
