@@ -13,4 +13,4 @@ FILEPATH=${DIR}/${NAME}
 
 # Download and extract
 wget -P ${DIR} ${URL}
-tar xzf ${FILEPATH} --directory ${DIR}
+tar xvf ${FILEPATH} --directory ${DIR}
