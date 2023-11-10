@@ -225,6 +225,9 @@ def tidy_dataframe(df):
         f"Number of unique CDS positions:{len(df.drop_duplicates(['chr','pos']))}"
     )
 
+    # Sanity checks
+    assert (df.duplicated(["chr","pos","transcript_id"]).sum()) == 0
+
     return df
 
 
