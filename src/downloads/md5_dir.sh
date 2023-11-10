@@ -1,4 +1,4 @@
-#!bin/bash
+#!/usr/bin/env bash
 
 # md5sum for all files in a directory
 
