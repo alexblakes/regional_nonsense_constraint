@@ -12,6 +12,7 @@ Label all CDS positions with an NMD annotation. The annotations include:
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 
 from src import setup_logger
 from src import constants as C
@@ -24,13 +25,77 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
+def get_cds_positions(df):
+    """Get positions of every nucleotide in the CDS"""
+
+    df = df.set_index(["seqname", "transcript_id", "exon_id"])
+    df["pos"] = df.apply(lambda x: list(range(x["start"], x["end"] + 1)), axis=1)
+    df = df.explode("pos").astype({"pos": int})
+
+    return df
 
 
-# cds = cds.set_index(["seqname", "transcript_id", "exon_id"])
-# cds["pos"] = cds.apply(lambda x: list(range(x["start"], x["end"] + 1)), axis=1)
-# cds = cds.explode("pos")
-# cds["cds_len"] = cds.groupby(level="transcript_id")["pos"].transform("count")
-# cds["exon_len"] = cds.groupby(level="exon_id")["pos"].transform("count")
+def get_feature_lengths(df):
+    """Get the length of the CDS and CDS exons."""
+
+    df["cds_len"] = df.groupby(level=["seqname", "transcript_id"])["pos"].transform(
+        "count"
+    )
+    df["cds_exon_len"] = df.groupby(level="exon_id")["pos"].transform("count")
+
+    return df
+
+
+def get_start_distance(df, strand):
+    if strand == "+":
+        ascending = True
+    if strand == "-":
+        ascending = False
+
+    df["start_distance"] = (
+        df.groupby(level=["seqname", "transcript_id"])["pos"]
+        .rank(ascending=ascending)
+        .astype(int)
+    )
+
+    return df
+
+
+def get_splice_donor_distance(df, strand):
+
+    if strand == "+":
+        _5_prime = df["pos"]
+        _3_prime = df["exon_end"]
+    if strand == "-":
+        _5_prime = df["exon_start"]
+        _3_prime = df["pos"]
+
+    df["splice_donor_distance"] = (_3_prime - _5_prime) + 1
+    df.loc[df["exon_number"] == df["exon_count"], "splice_donor_distance"] = np.nan
+    return df
+
+
+def main():
+    cds = (
+        pd.read_csv(C.CDS_COUNTS_AND_COORDS, sep="\t")
+        .pipe(get_cds_positions)
+        .pipe(get_feature_lengths)
+    )
+
+    # NMD annotations for + transcripts
+    fwd = cds[cds["strand"] == "+"].copy()
+    rev = cds[cds["strand"] == "-"].copy()
+
+    ## Start proximal (distance from start codon)
+    ## Long exons (distance upstream from splice junction)
+
+
+
+    return df  # TODO Testing
+
+
+if __name__ == "__main__":
+    main()
 
 
 # # ## NMD annotations for + transcripts
