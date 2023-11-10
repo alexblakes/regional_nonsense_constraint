@@ -13,7 +13,8 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
        data/interim/gencode_v39_canonical_cds_seq.tsv \
 
 # Files which takes several minutes to create
-medium : data/interim/cds_counts_and_coords.tsv
+medium : data/interim/cds_counts_and_coords.tsv \
+         data/interim/nmd_annotations.tsv \
 	     data/interim/cds_all_possible_snvs.vcf \
 	     data/interim/cds_trinucleotide_contexts.tsv \
 		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
@@ -34,6 +35,11 @@ data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf
 data/interim/cds_counts_and_coords.tsv : data/raw/gencode.v39.annotation.gtf \
                                          src/data/cds_counts_and_coords.py
 	python3 -m src.data.cds_counts_and_coords
+
+# Annotate NMD regions
+data/interim/nmd_annotations.tsv : data/interim/cds_counts_and_coords.tsv \
+                                   src/data/nmd_annotations.py
+	python3 -m src.data.nmd_annotations
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \

@@ -252,7 +252,7 @@ def main():
     )
 
     # Write to output
-    df.to_csv("../outputs/nmd_annotations.tsv", sep="\t", index=False)
+    df.to_csv(C.NMD_ANNOTATIONS, sep="\t", index=False)
 
     return df  # TODO Testing
 
