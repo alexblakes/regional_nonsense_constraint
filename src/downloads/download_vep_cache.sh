@@ -9,8 +9,8 @@
 URL="https://ftp.ensembl.org/pub/release-105/variation/vep/homo_sapiens_vep_105_GRCh38.tar.gz"
 DIR="/mnt/bmh01-rds/Ellingford_gene/.vep"
 NAME="homo_sapiens_vep_105_GRCh38.tar.gz"
-PATH=${DIR}/${NAME}
+FILEPATH=${DIR}/${NAME}
 
 # Download and extract
 wget -P ${DIR} ${URL}
-tar xzf ${PATH} --directory ${DIR}
+tar xzf ${FILEPATH} --directory ${DIR}
