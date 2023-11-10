@@ -1,5 +1,5 @@
 """
-Assign NMD annotations to all CDS positions
+Assign NMD annotations to all CDS positions.
 
 Label all CDS positions with an NMD annotation. The annotations include:
 1) Start-proximal (<150nt from translation start site)
@@ -43,10 +43,16 @@ def get_feature_lengths(df):
     )
     df["cds_exon_len"] = df.groupby(level="exon_id")["pos"].transform("count")
 
+    # Sanity checks
+    assert (df["cds_exon_len"] <= 0).sum() == 0
+    assert (df["cds_len"] <= 0).sum() == 0
+
     return df
 
 
-def get_start_distance(df, strand):
+def annotate_start_distance(df, strand):
+    """Annotate the distance of CDS positions from the translation start site."""
+
     if strand == "+":
         ascending = True
     if strand == "-":
@@ -58,10 +64,14 @@ def get_start_distance(df, strand):
         .astype(int)
     )
 
+    # Sanity checks
+    assert (df["start_distance"] <= 0).sum() == 0
+
     return df
 
 
-def get_splice_donor_distance(df, strand):
+def annotate_splice_donor_distance(df, strand):
+    """Annotate the distance of CDS positions from the downstream splice donor site."""
 
     if strand == "+":
         _5_prime = df["pos"]
@@ -70,134 +80,182 @@ def get_splice_donor_distance(df, strand):
         _5_prime = df["exon_start"]
         _3_prime = df["pos"]
 
+    # Find the distance of each CDS position to the splice donor site
     df["splice_donor_distance"] = (_3_prime - _5_prime) + 1
+
+    # Where the CDS is in the last exon, there is no downstream splice donor site
     df.loc[df["exon_number"] == df["exon_count"], "splice_donor_distance"] = np.nan
+
+    # Sanity check
+    assert (df["splice_donor_distance"] <= 0).sum() == 0
+
+    return df
+
+
+def annotate_last_exons(df):
+    """Annotate CDS positions in a last exon."""
+
+    df["last_exon"] = np.where(df["exon_count"] == df["exon_number"], 1, 0)
+
+    return df
+
+
+def annotate_fifty_nt_rule(df, strand):
+    """Annotate CDS positions subject to the 50nt rule."""
+
+    if strand == "+":
+        _5_prime = df["pos"]
+        _3_prime = df["exon_end"]
+    if strand == "-":
+        _5_prime = df["exon_start"]
+        _3_prime = df["pos"]
+
+    df["fifty_nt_rule"] = np.where(
+        (df["exon_number"] == df["exon_count"] - 1) & ((_3_prime - _5_prime) + 1 <= 50),
+        1,
+        0,
+    )
+
+    return df
+
+
+def get_nmd_criteria(df, strand):
+    """Annotate positions with all NMD criteria."""
+
+    df = (
+        annotate_start_distance(df, strand)
+        .pipe(annotate_splice_donor_distance, strand)
+        .pipe(annotate_last_exons)
+        .pipe(annotate_fifty_nt_rule, strand)
+    )
+
+    return df
+
+
+def get_nmd_annotations(df):
+    """Get NMD annotations for each site."""
+
+    logger.info(f"Start proximal sites: {(df['start_distance'] < 150).sum()}")
+    logger.info(f"Long exon sites: {(df['splice_donor_distance'] > 400).sum()}")
+    logger.info(f"Last exon sites: {df['last_exon'].sum()}")
+    logger.info(f"Fifty nt rule sites: {df['fifty_nt_rule'].sum()}")
+
+    a = pd.Series(np.where(df["start_distance"] <= 150, "start_proximal,", ""))
+    b = pd.Series(np.where(df["splice_donor_distance"] > 400, "long_exon,", ""))
+    c = pd.Series(np.where(df["fifty_nt_rule"] == 1, "fifty_nt,", ""))
+    d = pd.Series(np.where(df["last_exon"] == 1, "last_exon,", ""))
+
+    # Where sites have overlapping NMD annotations, join them
+    df["nmd"] = pd.Series(["".join([w, x, y, z]) for w, x, y, z in zip(a, b, c, d)])
+
+    # Sites with no NMD-escape annotation are NMD targets
+    df["nmd"] = df["nmd"].replace("", "nmd_target")
+
+    logger.info(f"Overlapping NMD annotations value counts:\n{df.nmd.value_counts()}")
+
+    return df
+
+
+def get_definitive_nmd_annotations(df):
+    """Give a definitive NMD annotation to each site.
+
+    "last_exon" and "fifty_nt" annotations are merged into "distal_nmd".
+    Overlapping annotations are removed, with this priority:
+    "start_proximal" > "distal_nmd" > "long_exon"
+    """
+
+    df["nmd_definitive"] = df["nmd"].copy()
+
+    # Start-proximal sites
+    df.loc[
+        df["nmd_definitive"].str.contains("start_proximal"), "nmd_definitive"
+    ] = "start_proximal"
+
+    # Distal NMD sites
+    df.loc[
+        (df["nmd_definitive"].str.contains("fifty_nt"))
+        | (df["nmd_definitive"].str.contains("last_exon")),
+        "nmd_definitive",
+    ] = "distal_nmd"
+
+    # Long exon sites
+    df["nmd_definitive"] = df["nmd_definitive"].replace("long_exon,", "long_exon")
+
+    logger.info(f"NMD annotation value counts:\n{df.nmd_definitive.value_counts()}")
+
+    return df
+
+
+def tidy_dataframe(df):
+    """Tidy the data and add miscellaneous annotations."""
+
+    # Get relative CDS position
+    df["relative_cds_position"] = df["start_distance"] / df["cds_len"]
+
+    # Select columns
+    df = (
+        df[
+            [
+                "seqname",
+                "pos",
+                "transcript_id",
+                "exon_id",
+                "strand",
+                "start",
+                "end",
+                "exon_number",
+                "exon_count",
+                "cds_number",
+                "cds_count",
+                "cds_len",
+                "cds_exon_len",
+                "relative_cds_position",
+                "start_distance",
+                "splice_donor_distance",
+                "last_exon",
+                "fifty_nt_rule",
+                "nmd",
+                "nmd_definitive",
+            ]
+        ]
+    ).rename(columns={"seqname": "chr"})
+
+    logger.info(f"Number of CDS positions:{len(df)}")
+    logger.info(
+        f"Number of unique CDS positions:{len(df.drop_duplicates(['chr','pos']))}"
+    )
+
     return df
 
 
 def main():
+    """Run the script."""
+
+    # Get positions within CDS
     cds = (
         pd.read_csv(C.CDS_COUNTS_AND_COORDS, sep="\t")
         .pipe(get_cds_positions)
         .pipe(get_feature_lengths)
     )
 
-    # NMD annotations for + transcripts
-    fwd = cds[cds["strand"] == "+"].copy()
-    rev = cds[cds["strand"] == "-"].copy()
+    # Annotate NMD criteria for positions in fwd and rev trancripts
+    fwd = cds[cds["strand"] == "+"].copy().pipe(get_nmd_criteria, strand="+")
+    rev = cds[cds["strand"] == "-"].copy().pipe(get_nmd_criteria, strand="-")
 
-    ## Start proximal (distance from start codon)
-    ## Long exons (distance upstream from splice junction)
+    # Combine fwd and rev transcripts, get NMD annotations
+    df = (
+        pd.concat([fwd, rev])
+        .reset_index()
+        .pipe(get_nmd_annotations)
+        .pipe(get_definitive_nmd_annotations)
+        .pipe(tidy_dataframe)
+    )
 
-
+    # Write to output
+    df.to_csv("../outputs/nmd_annotations.tsv", sep="\t", index=False)
 
     return df  # TODO Testing
 
 
 if __name__ == "__main__":
     main()
-
-
-# # ## NMD annotations for + transcripts
-
-# fwd = cds[cds["strand"] == "+"].copy()
-
-# # ### Start proximal (distance from start codon)
-
-# fwd["start_distance"] = (
-#     fwd.groupby(level="transcript_id")["pos"].rank(ascending=True).astype(int)
-# )
-
-# # ### Long exons (distance upstream from splice junction)
-
-# fwd["splice_donor_distance"] = (fwd["exon_end"] - fwd["pos"]) + 1
-
-# # Where the CDS is in the last exon, there is no downstream splice donor site.
-# # Here I will drop the "splice_donor_distance" annotation:
-# fwd.loc[fwd["exon_number"] == fwd["exon_count"], "splice_donor_distance"] = np.nan
-
-# # ### Last exon
-
-# fwd["last_exon"] = np.where(fwd["exon_count"] == fwd["exon_number"], 1, 0)
-
-# # ### 50nt rule
-
-# fwd["fifty_nt_rule"] = np.where(
-#     (fwd["exon_number"] == fwd["exon_count"] - 1)
-#     & ((fwd["exon_end"] - fwd["pos"]) + 1 <= 50),
-#     1,
-#     0,
-# )
-
-# # ## NMD annotations for - transcripts
-
-# rev = cds[cds["strand"] == "-"].copy()
-
-# # ### Start proximal (distance from start codon)
-
-# rev["start_distance"] = (
-#     rev.groupby(level="transcript_id")["pos"].rank(ascending=False).astype(int)
-# )
-
-# # ### Long exons (distance upstream from splice junction)
-
-# rev["splice_donor_distance"] = (rev["pos"] - rev["exon_start"]) + 1
-
-# # Where the CDS is in the last exon (i.e. contiguous with the 3' UTR)
-# # we should drop the "splice_donor_distance" annotation:
-# rev.loc[rev["exon_number"] == rev["exon_count"], "splice_donor_distance"] = np.nan
-
-# # ### Last exon
-
-# rev["last_exon"] = np.where(rev["exon_count"] == rev["exon_number"], 1, 0)
-
-# # ### 50nt rule
-
-# rev["fifty_nt_rule"] = np.where(
-#     (rev["exon_number"] == rev["exon_count"] - 1)
-#     & ((rev["pos"] - rev["exon_start"]) + 1 <= 50),
-#     1,
-#     0,
-# )
-
-# # ## Merge fwd and rev annotations
-
-# df = pd.concat([fwd, rev])
-# df = df.reset_index()
-
-# # ## Unify NMD annotations
-
-# # Describe sites with overlapping NMD annotations
-# a = pd.Series(np.where(df["start_distance"] <= 150, "start_proximal,", ""))
-# b = pd.Series(np.where(df["splice_donor_distance"] > 400, "long_exon,", ""))
-# c = pd.Series(np.where(df["fifty_nt_rule"] == 1, "fifty_nt,", ""))
-# d = pd.Series(np.where(df["last_exon"] == 1, "last_exon,", ""))
-
-# df["nmd"] = pd.Series(["".join([w, x, y, z]) for w, x, y, z in zip(a, b, c, d)])
-
-# # Sites with no NMD-escape annotation are NMD targets
-# df["nmd"] = df["nmd"].replace("", "nmd_target")
-
-# # Create a definitive NMD annotation:
-# ## "last_exon" and "fifty_nt" annotations are merged into "distal_nmd"
-# ## Overlapping annotations are removed, with this priority:
-# ## "start_proximal" > "distal_nmd" > "long_exon"
-# df["nmd_definitive"] = df["nmd"].copy()
-# df.loc[
-#     df["nmd_definitive"].str.contains("start_proximal"), "nmd_definitive"
-# ] = "start_proximal"
-# df.loc[
-#     (df["nmd_definitive"].str.contains("fifty_nt"))
-#     | (df["nmd_definitive"].str.contains("last_exon")),
-#     "nmd_definitive",
-# ] = "distal_nmd"
-# df["nmd_definitive"] = df["nmd_definitive"].replace("long_exon,", "long_exon")
-
-# print("The number of positions per NMD annotation, genome-wide:")
-# print(df.nmd_definitve.value_counts())
-
-
-# df = (df[["seqname", "pos", "transcript_id", "nmd", "nmd_definitive"]]).rename(
-#     columns={"seqname": "chr"}
-# )
-# df.to_csv("../outputs/nmd_annotations.tsv", sep="\t", index=False)
