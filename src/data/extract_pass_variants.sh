@@ -1,6 +1,11 @@
-#!/usr/bin/env/ bash
+#!/bin/bash
 
 # This script extracts all CDS SNVs passing gnomAD filters using bcftools
+
+# Load conda environment with bcftools
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate
+conda activate bio
 
 # A function to run bcftools
 function bcf {
@@ -10,29 +15,12 @@ function bcf {
         --min-ac 1 \
         -R "data/interim/gencode_v39_canonical_cds.bed" \
         -O u \
-        "${1}" |\
-    bcftools head \
-        -n 10 \
-        -O u |\
+        "/mnt/bmh01-rds/Ellingford_gene/public_data_resources/gnomad/v4.0/vcf/gnomad.exomes.v4.0.sites.${1}.vcf.bgz" |\
     bcftools query \
-        -f '%CHROM\t%POS\t.\t%REF\t%ALT\t.\t.\t.\t%AC\t%AN\n' # \
-        # -o "$(basename "${1}" .vcf.gz)_snps_pass.tsv"
+        -f '%CHROM\t%POS\t.\t%REF\t%ALT\t.\t.\t.\t%AC\t%AN\n' \
+        -o "data/scratch/gnomad_v4_${1}_snps_pass.tsv"
     echo "Done with ${1} at $(date +"%T")"
 }
 
+# Execute the function
 bcf $1
-
-# # Parallel processing
-
-# ## Export function for use by parallel
-# export -f bcf
-
-# ## Install parallel
-# apt-get update
-# apt-get install parallel -y
-
-# ## Run jobs in parallel
-# find vcfs/* | grep -v .tbi | parallel bcf
-
-# # Print finish notice
-# echo "Finished with $(find split_paths_*) at $(date +"%T")"

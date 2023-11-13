@@ -6,20 +6,21 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=4.5
-  - bcftools=1.10
+  - bcftools=1.18
   - bedtools=2.31.0
   - bzip2=1.0.8
   - c-ares=1.19.0
   - ca-certificates=2023.08.22
-  - curl=7.88.1
+  - curl=8.4.0
   - gdbm=1.18
-  - gsl=2.5
-  - htslib=1.10
-  - krb5=1.20.1
+  - gsl=2.7
+  - htslib=1.18
+  - keyutils=1.6.1
+  - krb5=1.21.2
   - libblas=3.9.0
   - libcblas=3.9.0
-  - libcurl=7.88.1
-  - libdeflate=1.13
+  - libcurl=8.4.0
+  - libdeflate=1.19
   - libedit=3.1.20221030
   - libev=4.33
   - libgcc-ng=12.2.0
@@ -28,13 +29,14 @@ dependencies:
   - libgomp=12.2.0
   - libnghttp2=1.52.0
   - libopenblas=0.3.21
-  - libssh2=1.10.0
+  - libssh2=1.11.0
   - libstdcxx-ng=13.2.0
   - libzlib=1.2.13
   - ncurses=6.4
-  - openssl=3.0.11
+  - openssl=3.1.4
   - perl=5.34.0
   - readline=8.2
   - xz=5.2.10
   - zlib=1.2.13
-prefix: /home/alex/miniconda3/bio
+  - zstd=1.5.5
+prefix: /mnt/iusers01/bk01/m40482ab/miniforge3/envs/bio
