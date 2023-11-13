@@ -19,9 +19,8 @@ Functions:
 # Imports
 from pathlib import Path
 
-import gtfparse
-# * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 import pandas as pd
+import gtfparse # * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 
 from src import constants as C
 from src import setup_logger
@@ -38,29 +37,31 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def get_canonical_cds(gtf):
-    """Subset to Ensembl_canonical CDS features in protein coding genes."""
+def get_canonical(gtf, features=["CDS"]):
+    """Subset to features in Ensembl_canonical protein coding genes."""
 
-    logger.info("Filtering for canonical CDS...")
+    logger.info("Filtering for canonical features...")
 
     cds = gtf[
-        (gtf.feature == "CDS")
+        (gtf.feature.isin(features))
         & (gtf.tag.str.contains("Ensembl_canonical"))
         & (gtf.gene_type == "protein_coding")
-    ]
+    ].copy()
 
     logger.info(f"Chromosomes represented: {cds.seqname.unique()}")
     logger.info(f"Unique gene IDs: {cds.gene_id.nunique()}")
     logger.info(f"Unique transcript IDs: {cds.transcript_id.nunique()}")
+    logger.info(f"Feature counts:\n{cds.feature.value_counts()}")
 
     return cds
 
 
-def annotate_exon_number(gtf):
+def annotate_cds_number(gtf):
     """Count the number of CDS exons in each transcript."""
 
     gtf["exon_number"] = gtf["exon_number"].astype(int)
-    gtf["cds_number"] = gtf.groupby("transcript_id")["exon_number"].rank().astype(int)
+    gtf["cds_number"] = gtf.groupby("transcript_id")["exon_number"].rank(method="min").astype(int)
+    gtf["cds_count"] = gtf.groupby("transcript_id")["cds_number"].transform("max")
 
     return gtf
 
@@ -129,8 +130,8 @@ def main():
 
     (
         gtfparse.read_gtf(C.GENCODE_GTF, features="CDS")
-        .pipe(get_canonical_cds)
-        .pipe(annotate_exon_number)
+        .pipe(get_canonical)
+        .pipe(annotate_cds_number)
         .pipe(gtf_to_bed, _BED_IDS)
         .pipe(write_bed, C.CANONICAL_CDS_BED, _CHR_PREFIX)
     )
