@@ -1,13 +1,16 @@
 #!/bin/bash --login
 
-# Download vep 105 cache.
+# Download VEP 105 cache.
 
 #$ -cwd
 #$ -e data/logs/csf/
 #$ -o data/logs/csf/
 
-DIR="~/mnt/bmh01-rds/Ellingford_gene/.vep"
+URL="https://ftp.ensembl.org/pub/release-105/variation/vep/homo_sapiens_vep_105_GRCh38.tar.gz"
+DIR="/mnt/bmh01-rds/Ellingford_gene/.vep"
+NAME="homo_sapiens_vep_105_GRCh38.tar.gz"
+FILEPATH=${DIR}/${NAME}
 
-# FASTA file
-wget -P ${DIR} https://ftp.ensembl.org/pub/release-105/variation/vep/homo_sapiens_vep_105_GRCh38.tar.gz
-tar xzf ""${DIR}"/homo_sapiens_vep_105_GRCh38.tar.gz" --directory ${DIR}
+# Download and extract
+wget -P ${DIR} ${URL}
+tar xvf ${FILEPATH} --directory ${DIR}

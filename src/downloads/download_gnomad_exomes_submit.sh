@@ -16,5 +16,5 @@ for CHR in ${CHRS[@]};
             -o data/logs/csf/ \
             -e data/logs/csf/ \
             -cwd \
-            ~/scratch/ukb_constraint/src/downloads/download_gnomad.sh ${TBI_URL} ${VCF_URL}
+            ~/scratch/ukb_constraint/src/downloads/download_gnomad_exomes.sh ${TBI_URL} ${VCF_URL}
     done

@@ -36,3 +36,6 @@ gunzip -c > data/raw/variant_summary.txt
 
 # OMIM genemap2
 wget -P data/raw/ -c --no-check-certificate https://data.omim.org/downloads/dW5qBh3GSkCt5K3BqUQL1w/genemap2.txt
+
+# gnomAD v4.0 constraint
+wget -P data/raw/ https://storage.googleapis.com/gcp-public-data--gnomad/release/v4.0/constraint/gnomad.v4.0.constraint_metrics.tsv
