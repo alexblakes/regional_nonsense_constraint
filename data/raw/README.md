@@ -75,3 +75,13 @@ From this URL: https://storage.googleapis.com/gcp-public-data--gnomad/papers/201
 Text file containing ClinVar variant summary data.
 Downloaded: 04/10/23
 From this URL: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz
+
+## grch38_cpg_methylation.tsv
+Text file containing methylation level annotations for CpG sites.
+
+This data is derived from a publicly available Hail table at: 
+- gs://gnomad-nc-constraint-v31-paper/context_prepared.ht
+
+The methylation data was extracted using Hail. This task cannot be done on the University of Manchester computer cluster owing to software availability. Therefore, these scripts were run on a Spark cluster on the UKB Research Analysis Platform, and subsequently downloaded to the UoM CSF. The relevant UKB RAP scripts are here:
+- src/downloads/get_ht.sh
+- src/downloads/get_methylation.ipynb
