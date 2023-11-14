@@ -96,8 +96,8 @@ def main():
 
     # Logging
     logger.info(f"Number of variant contexts: {len(mu)}")
-    logger.info(f"Check for duplicates: {mu.duplicated().sum()}")
     logger.info(f"Number of CpG contexts: {(mu.variant_type == 'CpG').sum()}")
+    logger.info(f"Check for duplicates: {mu.duplicated().sum()}")
     logger.info("Writing to TSV.")
 
     mu.to_csv(C.GNOMAD_NC_MUTABILITY_TIDY, sep="\t", index=False)
