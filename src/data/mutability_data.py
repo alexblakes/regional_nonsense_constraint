@@ -1,6 +1,6 @@
-"""Module docstring here."""
+"""Tidy the gnomAD non-coding constraint mutability data."""
+
 # Imports
-from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -19,7 +19,9 @@ logger = setup_logger(Path(__file__).stem)
 
 # Functions
 def get_mutability_data(path):
-    """Read gnomAD mutation rate data."""
+    """Read mutability data."""
+
+    logger.info(f"Reading mutability data from {C.GNOMAD_NC_MUTABILITY}")
 
     mu = pd.read_csv(
         path,
@@ -43,13 +45,17 @@ def get_mutability_data(path):
 
 
 def reverse_complement_alleles(df):
-    """Docstring."""
+    """Replace alleles in the REF and ALT columns with their reverse-complement."""
 
+    logger.info("Getting reverse complement of REF / ALT alleles")    
     return df.replace(_COMPLEMENT)
 
 
 def reverse_complement_contexts(df, column="tri"):
-    """Docstring."""
+    """Reverse complement trinucleotide contexts."""
+    
+    logger.info("Getting reverse complement of trinucleotide contexts.")    
+    
     df[column] = pd.Series(
         ["".join([_COMPLEMENT[N] for N in tri])[::-1] for tri in df[column]]
     )
@@ -58,7 +64,9 @@ def reverse_complement_contexts(df, column="tri"):
 
 
 def annotate_variant_types(df):
-    """Docstring."""
+    """Annotate CpG and non-CpG variants."""
+
+    logger.info("Annotating CpG variants.")
 
     # Masks for CpGs transitions
     ## "Forward" strand
@@ -72,7 +80,7 @@ def annotate_variant_types(df):
     m6 = df.alt == "A"
 
     ## Combined
-    m7 = ((m1 & m2 & m3) | (m4 & m5 & m6))
+    m7 = (m1 & m2 & m3) | (m4 & m5 & m6)
 
     df["variant_type"] = np.where(m7, "CpG", "non-CpG")
 
@@ -80,14 +88,22 @@ def annotate_variant_types(df):
 
 
 def main():
+    """Run the script."""
+
     mu = get_mutability_data(C.GNOMAD_NC_MUTABILITY)
     mu_rev = reverse_complement_alleles(mu).pipe(reverse_complement_contexts)
     mu = pd.concat([mu, mu_rev]).pipe(annotate_variant_types)
-    # mu.to_csv()
+
+    # Logging
+    logger.info(f"Number of variant contexts: {len(mu)}")
+    logger.info(f"Check for duplicates: {mu.duplicated().sum()}")
+    logger.info(f"Number of CpG contexts: {(mu.variant_type == 'CpG').sum()}")
+    logger.info("Writing to TSV.")
+
+    mu.to_csv(C.GNOMAD_NC_MUTABILITY_TIDY, sep="\t", index=False)
+
     return mu  # TODO Testing
 
 
 if __name__ == "__main__":
     main()
-
-# Add variant type annotations
