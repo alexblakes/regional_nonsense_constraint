@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# This script extracts all CDS SNVs passing gnomAD filters using bcftools
+# Extract SNVs passing gnomAD filters using bcftools
 
-# Load conda environment with bcftools
+# Load conda environment for bcftools
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate
 conda activate bio

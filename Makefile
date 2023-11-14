@@ -18,6 +18,7 @@ medium : data/interim/cds_counts_and_coords.tsv \
 	     data/interim/cds_all_possible_snvs.vcf \
 	     data/interim/cds_trinucleotide_contexts.tsv \
 		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
+		 data/interim/gnomad_v4_pass_snvs.tsv
 
 # Files which take hours to create
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
@@ -58,6 +59,14 @@ data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical
 data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical_cds_seq.tsv \
                                               src/data/coding_snvs.py
 	python3 -m src.data.coding_snvs
+
+# Extract SNVs from gnomAD
+data/interim/gnomad_v4_pass_snvs.tsv : data/interim/gencode_v39_canonical_cds.bed \
+                                       src/data/extract_pass_variants.sh \
+									   src/data/batch_extract_pass_variants.sh \
+									   src/data/combine_pass_snvs.sh
+	bash src/data/batch_extract_pass_variants.sh
+	qsub src/data/combine_pass_snvs.sh
 
 # Annotate all possible CDS SNVs with VEP
 # This script runs over ~ 10 hours
