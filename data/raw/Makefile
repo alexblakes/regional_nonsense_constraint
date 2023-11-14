@@ -10,7 +10,8 @@ small_files = data/raw/genemap2.txt \
 			  data/raw/DDG2P.csv \
 			  data/raw/EyeG2P.csv \
       	      data/raw/SkinG2P.csv \
-			  data/raw/gnomad.v4.0.constraint_metrics.tsv
+			  data/raw/gnomad.v4.0.constraint_metrics.tsv \
+			  data/raw/mutation_rate_by_context_methyl.txt \
 
 big_files = data/raw/hg38.cactus241way.phyloP.bw \
             data/raw/gencode.v39.annotation.gtf \

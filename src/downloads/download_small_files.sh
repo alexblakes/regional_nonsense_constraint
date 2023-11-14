@@ -39,3 +39,6 @@ wget -P data/raw/ -c --no-check-certificate https://data.omim.org/downloads/dW5q
 
 # gnomAD v4.0 constraint
 wget -P data/raw/ https://storage.googleapis.com/gcp-public-data--gnomad/release/v4.0/constraint/gnomad.v4.0.constraint_metrics.tsv
+
+# gnomAD non-coding mutation rates
+wget -P data/raw/ https://storage.googleapis.com/gnomad-nc-constraint-v31-paper/mutation_rate_by_context_methyl.txt
