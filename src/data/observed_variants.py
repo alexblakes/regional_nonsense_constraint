@@ -19,36 +19,16 @@ from src import setup_logger
 from src import constants as C
 
 # Module constants
+_header = ["chr", "pos", "id", "ref", "alt", "qual", "filter", "info"]
+
+datatypes = defaultdict(lambda: "str")
+datatypes.update({"pos": np.int32, "ac": np.int32, "an": np.int32})
 
 
 # Logging
 logger = setup_logger(Path(__file__).stem)
 
 # Functions
-
-# ### Download datasets from UKB RAP
-
-# %%
-%%bash
-dx download \
-    -f \
-    -o ../data/ \
-    data/cds_trinucleotide_contexts.tsv \
-    data/grch38_cpg_methylation.tsv \
-    data/gnomad_nc_mutation_rates.tsv \
-    data/vep_cds_all_possible_snvs.vcf \
-    outputs/gnomad_pass_variants/all_pass_snvs.txt \
-    outputs/nmd_annotations.tsv
-
-# %% [markdown]
-# ## Load datasets
-
-# %%
-# Define VCF headers and datatypes.
-_header = ["chr", "pos", "id", "ref", "alt", "qual", "filter", "info"]
-
-datatypes = defaultdict(lambda: "str")
-datatypes.update({"pos": np.int32, "ac": np.int32, "an": np.int32})
 
 # %%
 # Retreive observed variants
@@ -73,21 +53,6 @@ vep = pd.read_csv(
     usecols=["chr", "pos", "ref", "alt", "info"],
 )
 
-# %%
-# Get enst
-vep["enst"] = pd.Series([x.split("|", 3)[2] for x in vep["info"]])
-
-# %%
-# Get csq
-syn = pd.Series(["synonymous" in x for x in vep["info"]])
-mis = pd.Series(["missense" in x for x in vep["info"]])
-non = pd.Series(["stop_gained" in x for x in vep["info"]])
-
-vep.loc[syn, "csq"] = "synonymous"
-vep.loc[mis, "csq"] = "missense"
-vep.loc[non, "csq"] = "nonsense"
-
-vep = vep.drop("info", axis=1).dropna()  # Keep only syn/mis/non variants
 
 # %%
 # Trinucleotide contexts

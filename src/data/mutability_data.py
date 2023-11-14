@@ -19,6 +19,9 @@ logger = setup_logger(Path(__file__).stem)
 def get_mutability_data(path):
     """Read gnomAD mutation rate data."""
 
+    context	ref	alt	methylation_level	possible	observed	proportion_observed	mu	fitted_po
+
+
     mu = pd.read_csv(
         path,
         sep="\t",
@@ -27,23 +30,22 @@ def get_mutability_data(path):
             "ref",
             "alt",
             "lvl",
-            "variant_type",
-            "mu",
             "pos",
             "obs",
             "po",
+            "mu",
             "ppo",
         ],
         header=0,
-        usecols=["tri", "ref", "alt", "lvl", "mu", "variant_type"],
-    ).replace({"transversion": "non-CpG", "non-CpG transition": "non-CpG",})
+        usecols=["tri", "ref", "alt", "lvl", "mu"],
+    )
 
     return mu
 
 
 
 def main():
-    df = get_mutability_data()
+    df = get_mutability_data(C.GNOMAD_NC_MUTABILITY)
 
     return df # TODO Testing
 
