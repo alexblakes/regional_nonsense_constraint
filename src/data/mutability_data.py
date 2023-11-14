@@ -47,15 +47,15 @@ def get_mutability_data(path):
 def reverse_complement_alleles(df):
     """Replace alleles in the REF and ALT columns with their reverse-complement."""
 
-    logger.info("Getting reverse complement of REF / ALT alleles")    
+    logger.info("Getting reverse complement of REF / ALT alleles")
     return df.replace(_COMPLEMENT)
 
 
 def reverse_complement_contexts(df, column="tri"):
     """Reverse complement trinucleotide contexts."""
-    
-    logger.info("Getting reverse complement of trinucleotide contexts.")    
-    
+
+    logger.info("Getting reverse complement of trinucleotide contexts.")
+
     df[column] = pd.Series(
         ["".join([_COMPLEMENT[N] for N in tri])[::-1] for tri in df[column]]
     )
@@ -101,8 +101,6 @@ def main():
     logger.info("Writing to TSV.")
 
     mu.to_csv(C.GNOMAD_NC_MUTABILITY_TIDY, sep="\t", index=False)
-
-    return mu  # TODO Testing
 
 
 if __name__ == "__main__":

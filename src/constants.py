@@ -36,6 +36,6 @@ CDS_ALL_SNVS_VCF = f"{INTERIM_DIR}/cds_all_possible_snvs.vcf"
 CDS_COUNTS_AND_COORDS = f"{INTERIM_DIR}/cds_counts_and_coords.tsv"
 NMD_ANNOTATIONS = f"{INTERIM_DIR}/nmd_annotations.tsv"
 GNOMAD_NC_MUTABILITY_TIDY = f"{INTERIM_DIR}/mutation_rate_by_context_methyl_tidy.tsv"
-
+GNOMAD_PASS_SNVS = f"{INTERIM_DIR}/gnomad_v4_pass_snvs.tsv"
 
 ### Final
