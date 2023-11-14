@@ -3,6 +3,7 @@
 from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from src import setup_logger
@@ -71,7 +72,9 @@ def annotate_variant_types(df):
     m6 = df.alt == "A"
 
     ## Combined
-    m7 = 
+    m7 = ((m1 & m2 & m3) | (m4 & m5 & m6))
+
+    df["variant_type"] = np.where(m7, "CpG", "non-CpG")
 
     return df
 
@@ -79,7 +82,7 @@ def annotate_variant_types(df):
 def main():
     mu = get_mutability_data(C.GNOMAD_NC_MUTABILITY)
     mu_rev = reverse_complement_alleles(mu).pipe(reverse_complement_contexts)
-    mu = pd.concat([mu, mu_rev])
+    mu = pd.concat([mu, mu_rev]).pipe(annotate_variant_types)
     # mu.to_csv()
     return mu  # TODO Testing
 

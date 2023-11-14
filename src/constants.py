@@ -35,5 +35,7 @@ CDS_ALL_SNVS_TRI_CONTEXT = f"{INTERIM_DIR}/cds_trinucleotide_contexts.tsv"
 CDS_ALL_SNVS_VCF = f"{INTERIM_DIR}/cds_all_possible_snvs.vcf"
 CDS_COUNTS_AND_COORDS = f"{INTERIM_DIR}/cds_counts_and_coords.tsv"
 NMD_ANNOTATIONS = f"{INTERIM_DIR}/nmd_annotations.tsv"
+GNOMAD_NC_MUTABILITY_TIDY = f"{RAW_DIR}/mutation_rate_by_context_methyl_tidy.tsv"
+
 
 ### Final
