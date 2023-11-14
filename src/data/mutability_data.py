@@ -9,6 +9,7 @@ from src import setup_logger
 from src import constants as C
 
 # Module constants
+_COMPLEMENT = {"A": "T", "C": "G", "G": "C", "T": "A"}
 
 
 # Logging
@@ -18,9 +19,6 @@ logger = setup_logger(Path(__file__).stem)
 # Functions
 def get_mutability_data(path):
     """Read gnomAD mutation rate data."""
-
-    context	ref	alt	methylation_level	possible	observed	proportion_observed	mu	fitted_po
-
 
     mu = pd.read_csv(
         path,
@@ -43,26 +41,50 @@ def get_mutability_data(path):
     return mu
 
 
+def reverse_complement_alleles(df):
+    """Docstring."""
+
+    return df.replace(_COMPLEMENT)
+
+
+def reverse_complement_contexts(df, column="tri"):
+    """Docstring."""
+    df[column] = pd.Series(
+        ["".join([_COMPLEMENT[N] for N in tri])[::-1] for tri in df[column]]
+    )
+
+    return df
+
+
+def annotate_variant_types(df):
+    """Docstring."""
+
+    # Masks for CpGs transitions
+    ## "Forward" strand
+    m1 = df.tri.str[1] == "C"
+    m2 = df.tri.str[2] == "G"
+    m3 = df.alt == "T"
+
+    ## "Reverse" strand
+    m4 = df.tri.str[0] == "C"
+    m5 = df.tri.str[1] == "G"
+    m6 = df.alt == "A"
+
+    ## Combined
+    m7 = 
+
+    return df
+
 
 def main():
-    df = get_mutability_data(C.GNOMAD_NC_MUTABILITY)
+    mu = get_mutability_data(C.GNOMAD_NC_MUTABILITY)
+    mu_rev = reverse_complement_alleles(mu).pipe(reverse_complement_contexts)
+    mu = pd.concat([mu, mu_rev])
+    # mu.to_csv()
+    return mu  # TODO Testing
 
-    return df # TODO Testing
 
 if __name__ == "__main__":
     main()
 
-# # Simplify variant type annotations
-# mu = mu
-
-# # Mutation rates are only available for 32 codons. We need to reverse-complement for the remainder.
-# complement = {"A": "T", "C": "G", "G": "C", "T": "A"}
-
-# # Replace ref and alt alleles
-# _mu = mu.copy().replace(complement)
-
-# # Reverse-complement trinucleotide contexts
-# _mu["tri"] = pd.Series(["".join([complement[y] for y in x])[::-1] for x in mu.tri])
-
-# # Merge original and reverse-complemented data
-# mu = pd.concat([mu, _mu])
+# Add variant type annotations
