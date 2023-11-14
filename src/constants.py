@@ -27,6 +27,7 @@ GNOMAD_LOEUF_CONSTRAINT = f"{RAW_DIR}/supplementary_dataset_11_full_constraint_m
 OMIM_GENEMAP = f"{RAW_DIR}/genemap2.txt"
 GNOMAD_V4_CONSTRAINT = f"{RAW_DIR}/gnomad.v4.0.constraint_metrics.tsv"
 GNOMAD_NC_MUTABILITY = f"{RAW_DIR}/mutation_rate_by_context_methyl.txt"
+GNOMAD_NC_METHYLATION = f"{RAW_DIR}/grch38_cpg_methylation.tsv"
 
 ### Interim
 CANONICAL_CDS_BED = f"{INTERIM_DIR}/gencode_v39_canonical_cds.bed"
