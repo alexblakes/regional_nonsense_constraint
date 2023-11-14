@@ -11,6 +11,7 @@ downloads:
 # Files which take less than a minute to create
 fast : data/interim/gencode_v39_canonical_cds.bed \
        data/interim/gencode_v39_canonical_cds_seq.tsv \
+	   data/interim/mutation_rate_by_context_methyl_tidy.tsv \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
@@ -81,3 +82,9 @@ data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_
                                                   src/data/vep_all_snvs_tidy.sh
 	bash src/data/vep_all_snvs_tidy.sh
 	bash src/data/vep_all_snvs_tidy_log.sh
+
+# Tidy mutability data
+data/interim/mutation_rate_by_context_methyl_tidy.tsv : src/data/mutability_data.py
+	python3 -m src.data.mutability_data
+
+
