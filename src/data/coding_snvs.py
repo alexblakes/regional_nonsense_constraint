@@ -122,19 +122,20 @@ def tidy_tri_contexts(df):
     "tri" column now contains NaNs at the extended positions. These positions are
     dropped.
     """
+
     # Drop extended 5' and 3' positions
     df = df.dropna()
     logger.info(f"CDS sites after trimming extended 5' and 3' positions: {len(df)}")
-
-    # Drop duplicated sites
-    df = df.drop_duplicates().sort_values(["chr", "pos"])
-    assert df.duplicated(["chr", "pos"]).sum() == 0, "There are duplicated sites."
-    logger.info(f"CDS sites after dropping duplicates: {len(df)}")
 
     # Drop sites where the reference allele is "N"
     df = df[df["ref"] != "N"]
     df["ref"] = df["ref"].cat.remove_unused_categories()
     logger.info(f"CDS sites after dropping 'N' reference alleles: {len(df)}")
+
+    # Drop duplicated sites
+    df = df.drop_duplicates().sort_values(["chr", "pos"])
+    assert df.duplicated(["chr", "pos"]).sum() == 0, "There are duplicated sites."
+    logger.info(f"CDS sites after dropping duplicates: {len(df)}")
 
     return df
 
