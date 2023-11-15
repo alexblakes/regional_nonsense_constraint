@@ -58,6 +58,7 @@ def get_vep_annotations(path):
         header=None,
         names=["chr","pos","ref","alt","csq","enst"],
         dtype=_DATATYPES,
+        nrows = 100 # ! Testing
         # usecols=["chr", "pos", "ref", "alt", "info"],
     )
 
