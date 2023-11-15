@@ -1,7 +1,9 @@
-# # Observed variants
-# This script identifies the observed and possible variants in UKB.
-#
-# Variants are grouped by variant context, transcript, or NMD-region. The script aggregates the number observed, the number possible, and the mean mutability for each grouping. The summary data are saved to a .tsv outputs.
+"""
+Annotate observed and possible variants.
+
+Merge annotations for trinucleotide context, vep consequences, NMD annotations, 
+methylation, and mutability for all observed and possible SNVs.
+"""
 
 # Imports
 from collections import defaultdict
@@ -9,10 +11,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy import stats as _stats
-import seaborn as sns
-import statsmodels.formula.api as smf
-from statsmodels.stats.proportion import proportions_ztest
 
 from src import setup_logger
 from src import constants as C
@@ -29,8 +27,6 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-
-
 def get_trinucleotide_contexts(path):
     """Get trinucleotide contexts."""
 
@@ -128,27 +124,43 @@ def get_methylation_data(path):
 
     return meth
 
-def tidy_df(df):
-    """Tidy dataframe and log summary data."""
- 
-    # Assign methylation levels. 
-    # All non-CpG sites have methylation level 0.
+
+def assign_methylation_levels(df):
+    """Assign methylation levels to non-CpG variants."""
+
     logger.info(f"Missing lvl annotations: {df['lvl'].isna().sum()}")
 
+    # All non-CpG sites have methylation level 0.
     df.loc[df["variant_type"] != "CpG", "lvl"] = 0
-    df.lvl = df.lvl.astype(int) # For later merging with mutability data
+    df.lvl = df.lvl.astype(int)  # For later merging with mutability data
 
-    logger.info(f"Missing lvl annotations after assigning non-CpGs to lvl = 0: {df['lvl'].isna().sum()}")
-    
-    # Missing values
+    logger.info(
+        f"Missing lvl annotations after assigning non-CpGs to lvl = 0: {df['lvl'].isna().sum()}"
+    )
+
+    return df
+
+
+def address_missing_values(df):
+    """Address missing values in the data."""
+
+    # Variants lacking an NMD annotation are dropped.
     df = df.dropna(subset="nmd")
 
     logger.info(f"Variants with an NMD annotation: {len(df)}")
 
-    logger.info(f"These sites, which lack a variant_type annotation, are dropped:\n{df[df['variant_type'].isna()]}")
+    # Variants lacking a variant_type annotation are dropped.
+    logger.info(
+        f"These sites, which lack a variant_type annotation, are dropped:\n{df[df['variant_type'].isna()]}"
+    )
     df = df.dropna(subset="variant_type")
 
-    # Drop chrM sites
+    return df
+
+
+def drop_chrm_sites(df):
+    """Drop chrM sites."""
+
     logger.info(f"Unique chromosomes: {df.chr.nunique()}")
 
     m = df[df["chr"] == "chrM"]
@@ -161,12 +173,18 @@ def tidy_df(df):
     logger.info(f"chrM sites are dropped.")
     logger.info(f"Variants after dropping chrM sites: {len(df)}")
 
+    return df
+
+
+def log_summary_data(df):
+    """Log summary data."""
+
     # Summary statistics (all variants)
     logger.info(f"Unique transcripts: {df.enst.nunique()}")
     logger.info(f"Consequence value counts:\n{df.csq.value_counts()}")
     logger.info(f"CpG value counts:\n{df.variant_type.value_counts()}")
     logger.info(f"NMD regions value counts:\n{df.nmd.value_counts()}")
-    
+
     # Summary statistics (CpGs)
     cpg = df[df["variant_type"] == "CpG"]
 
@@ -174,14 +192,16 @@ def tidy_df(df):
 
     # Summary statistics (Observed variants)
     obs = df[df["obs"] == True]
-    
-    logger.info(f"Observed variants consequence value counts:\n{obs.csq.value_counts()}")
- 
-    return df
+
+    logger.info(
+        f"Observed variants consequence value counts:\n{obs.csq.value_counts()}"
+    )
+
 
 def main():
     """Run the script."""
 
+    # Get datasets
     vep = get_vep_annotations(C.VEP_ALL_SNVS_TIDY)
     tri = get_trinucleotide_contexts(C.CDS_ALL_SNVS_TRI_CONTEXT)
     nmd = get_nmd_annotations(C.NMD_ANNOTATIONS)
@@ -190,7 +210,7 @@ def main():
     mu = pd.read_csv(C.GNOMAD_NC_MUTABILITY_TIDY, sep="\t")
     variant_types = mu[["tri", "ref", "alt", "variant_type"]].drop_duplicates()
 
-    # Merge VEP, context, NMD, and observed variant annotations
+    # Merge the annotations
     logger.info("Merging annotations.")
 
     df = (
@@ -204,80 +224,22 @@ def main():
 
     logger.info(f"Variants in raw merged data: {len(df)}")
 
+    # Tidy the data
+    df = (
+        assign_methylation_levels(df).pipe(address_missing_values).pipe(drop_chrm_sites)
+    )
+
+    # Merge with mutability annotations
+    df = df.merge(mu)
+
+    # Write logs
+    log_summary_data(df)
+
+    # Write to output
+    df.to_csv(C.ALL_VARIANTS_MERGED_ANNOTATIONS, sep="\t", index=False)
+
     return df  #! Testing
 
 
 if __name__ == "__main__":
     main()
-
-
-# # All non-CpG sites have lvl 0
-# df.loc[df["variant_type"] != "CpG", "lvl"] = 0
-# df.lvl = df.lvl.astype(int)
-# df.obs = df.obs.astype(int)
-
-# # Merge with mutability data
-# df = df.merge(mu, how="left")
-
-
-# # ## Summarise the data
-
-
-# # ### Rare synonymous variants for expectation model
-
-
-# # Subset to synonymous variants only
-# syn = df[df["csq"] == "synonymous"]
-
-# # Mask contexts in which a synonymous variant is generally not possible.
-# # (NB synonymous variants in these contexts can only occur at exon-intron junctions)
-# m1 = (syn.tri == "AGT") & ((syn.alt == "C") | (syn.alt == "T"))
-# m2 = (syn.tri == "AAT") & ((syn.alt == "C") | (syn.alt == "T"))
-# m3 = (syn.tri == "ACT") & ((syn.alt == "G") | (syn.alt == "A"))
-# m4 = (syn.tri == "ATT") & ((syn.alt == "G") | (syn.alt == "A"))
-
-# # Mask rare variants
-# m5 = syn["ac"] == 0
-# m6 = (syn["ac"] / syn["an"]) < 0.001
-
-# # Apply filters
-# syn = syn[~(m1 | m2 | m3 | m4) & (m5 | m6)]
-
-# # Group by variant context
-# dfg = (
-#     syn.groupby(["tri", "ref", "alt", "variant_type", "lvl"])
-#     .agg({"mu": "mean", "obs": "sum", "pos": "count"})
-#     .reset_index()
-# )
-
-# # Write to output
-# dfg.to_csv("../outputs/observed_variants_stats_synonymous.tsv", sep="\t", index=False)
-
-
-# # ### Observed variants by region
-
-
-# # Transcripts
-# dfg = (
-#     df.groupby(["enst", "csq", "variant_type"])
-#     .agg(n_pos=("pos", "count"), n_obs=("obs", "sum"), mu=("mu", "mean"))
-#     .reset_index()
-# )
-
-# # Save to output
-# dfg.to_csv("../outputs/observed_variants_stats_transcript.tsv", sep="\t", index=False)
-
-
-# # NMD regions
-# dfg = (
-#     df.groupby(["enst", "csq", "variant_type", "nmd"])
-#     .agg(n_pos=("pos", "count"), n_obs=("obs", "sum"), mu=("mu", "mean"))
-#     .reset_index()
-# )
-
-# # Save to output
-# dfg.to_csv("../outputs/observed_variants_stats_nmd.tsv", sep="\t", index=False)
-
-
-# # # Upload outputs to UKB RAP
-# # dx upload --destination outputs/ ../outputs/observed_variants_stats_transcript.tsv ../outputs/observed_variants_stats_nmd.tsv
