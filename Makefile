@@ -15,11 +15,12 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
+         data/interim/gene_ids.tsv \
          data/interim/nmd_annotations.tsv \
 	     data/interim/cds_all_possible_snvs.vcf \
 	     data/interim/cds_trinucleotide_contexts.tsv \
 		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
-		 data/interim/gnomad_v4_pass_snvs.tsv
+		 data/interim/gnomad_v4_pass_snvs.tsv \
 
 # Files which take hours to create
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
@@ -37,6 +38,12 @@ data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf
 data/interim/cds_counts_and_coords.tsv : data/raw/gencode.v39.annotation.gtf \
                                          src/data/cds_counts_and_coords.py
 	python3 -m src.data.cds_counts_and_coords
+
+# Get gene IDs
+data/interim/gene_ids.tsv : data/raw/gencode.v39.annotation.gtf \
+                            src/data/canonical_cds.py \
+							src/data/canonical_cds_gene_ids.py
+	python3 -m src.data.canonical_cds_gene_ids
 
 # Annotate NMD regions
 data/interim/nmd_annotations.tsv : data/interim/cds_counts_and_coords.tsv \
@@ -81,7 +88,7 @@ data/interim/cds_all_possible_snvs_vep.vcf : data/interim/cds_all_possible_snvs.
 data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep.vcf \
                                                   src/data/vep_all_snvs_tidy.sh
 	bash src/data/vep_all_snvs_tidy.sh
-	bash src/data/vep_all_snvs_tidy_log.sh
+	python3 -m src.data.vep_all_snvs_tidy_log
 
 # Tidy mutability data
 data/interim/mutation_rate_by_context_methyl_tidy.tsv : src/data/mutability_data.py
