@@ -51,6 +51,7 @@ def merge_cds_with_exon_coords(cds, exon_coords):
     df = df.drop_duplicates(["transcript_id", "exon_id", "start", "end"])
 
     logger.info(f"Number of CDS after merging with exon coordinates: {len(df)}")
+    logger.info(f"Number of CDS positions: {((df.end - df.start) + 1).sum()}")
 
     return df
 
