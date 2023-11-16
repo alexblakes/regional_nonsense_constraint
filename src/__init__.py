@@ -8,7 +8,7 @@ def setup_logger(name):
     """Start a separate logger for each script."""
 
     formatter = logging.Formatter(
-        fmt="[%(asctime)s] %(levelname)s (%(filename)s, %(funcName)s): %(message)s", 
+        fmt="[%(asctime)s] %(levelname)s %(funcName)s(): %(message)s", 
         datefmt='%d-%b-%y %H:%M:%S',
         )
 
