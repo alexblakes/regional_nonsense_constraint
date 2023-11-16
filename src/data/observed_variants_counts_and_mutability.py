@@ -34,23 +34,6 @@ _DATATYPES = {
     "median_coverage": "Int16",
 }
 
-_USECOLS = [
-    "pos",
-    "ref",
-    "alt",
-    "csq",
-    "enst",
-    "tri",
-    "nmd",
-    "ac",
-    "an",
-    "obs",
-    "variant_type",
-    "lvl",
-    "mu",
-]  # Note that median_coverage is excluded
-
-
 # Logging
 logger = setup_logger(Path(__file__).stem)
 
@@ -65,7 +48,6 @@ def get_variant_annotations(path):
         path,
         sep="\t",
         dtype=_DATATYPES,
-        usecols=_USECOLS,
         # nrows=10000,  #! Testing
     )
 
@@ -96,7 +78,7 @@ def get_rare_synonymous_variants(df):
     # Logging
     logger.info(f"Synonymous variants at splice junctions: {(m1 | m2 | m3 | m4).sum()}")
     logger.info(f"Synonymous variants not observed: {m5.sum()}")
-    logger.info(f"Rare (AF < 0.1%) observed synonymous variants: {m6.sum()}")
+    logger.info(f"Observed rare (AF < 0.1%) synonymous variants: {m6.sum()}")
     logger.info(f"Qualifying synonymous variants: {len(syn)}")
 
     return syn
@@ -135,8 +117,8 @@ def main():
 
     # Logging
     logger.info(f"Synonymous contexts annotated: {len(syn)}")
-    logger.info(f"Transcripts annotated: {len(transcript)}")
-    logger.info(f"NMD regions annotated: {len(nmd)}")
+    logger.info(f"enst/csq/cpg annotations: {len(transcript)}")
+    logger.info(f"nmd/enst/csq/cpg annotations: {len(nmd)}")
 
     # Write to output
     syn.to_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t", index=False)
