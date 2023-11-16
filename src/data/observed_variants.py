@@ -36,7 +36,7 @@ def get_trinucleotide_contexts(path):
         path,
         sep="\t",
         dtype=_DATATYPES,
-        # nrows=10000,  #! Testing
+        nrows=10000,  #! Testing
     )
 
     logger.info(f"Positions with trinucleotide sequence contexts: {len(tri)}")
@@ -56,7 +56,7 @@ def get_vep_annotations(path):
         header=None,
         names=["chr", "pos", "ref", "alt", "csq", "enst"],
         dtype=_DATATYPES,
-        # nrows=10000  # ! Testing
+        nrows=10000  # ! Testing
         # usecols=["chr", "pos", "ref", "alt", "info"],
     )
 
@@ -75,7 +75,7 @@ def get_nmd_annotations(path):
         sep="\t",
         usecols=["chr", "pos", "transcript_id", "nmd_definitive"],
         dtype=_DATATYPES,
-        # nrows=10000,  # ! Testing
+        nrows=10000,  # ! Testing
     ).rename(columns={"transcript_id": "enst", "nmd_definitive": "nmd"})
 
     logger.info(f"NMD annotations: {len(nmd)}")
@@ -95,7 +95,7 @@ def get_observed_variants(path):
         names=_VCF_HEADER + ["ac", "an"],
         usecols=["chr", "pos", "ref", "alt", "ac", "an"],
         dtype=_DATATYPES,
-        # nrows=10000,  #! Testing
+        nrows=10000,  #! Testing
     ).assign(obs=True)
 
     logger.info(f"Observed variants: {len(obs)}")
@@ -141,6 +141,29 @@ def assign_methylation_levels(df):
     return df
 
 
+def get_coverage_data(path):
+    """Get median coverage at all sites."""
+
+    logger.info("Getting coverage data.")
+
+    cov = pd.read_csv(
+        path,
+        sep="\t",
+        usecols=["locus", "median_approx"],
+        dtype={"locus": "str", "median_approx": "int16"},
+        nrows=10000,  #! Testing
+    ).rename(columns={"median_approx": "median_coverage"})
+
+    locus = cov.locus.str.split(":")
+    cov["chr"] = locus.str[0]
+    cov["pos"] = locus.str[1].astype("int32")
+    cov = cov.drop("locus", axis=1)[["chr", "pos", "median_coverage"]].drop_duplicates()
+
+    logger.info(f"Coverage annotations: {len(cov)}")
+
+    return cov
+
+
 def address_missing_values(df):
     """Address missing values in the data."""
 
@@ -180,6 +203,9 @@ def log_summary_data(df):
     """Log summary data."""
 
     # Summary statistics (all variants)
+    logger.info(
+        f"Duplicated variants: {df.duplicated(['chr','pos','ref','alt']).sum()}"
+    )
     logger.info(f"Unique transcripts: {df.enst.nunique()}")
     logger.info(f"Consequence value counts:\n{df.csq.value_counts()}")
     logger.info(f"CpG value counts:\n{df.variant_type.value_counts()}")
@@ -202,13 +228,14 @@ def main():
     """Run the script."""
 
     # Get datasets
-    vep = get_vep_annotations(C.VEP_ALL_SNVS_TIDY)
-    tri = get_trinucleotide_contexts(C.CDS_ALL_SNVS_TRI_CONTEXT)
-    nmd = get_nmd_annotations(C.NMD_ANNOTATIONS)
+    vep = get_vep_annotations(C.VEP_ALL_SNVS_TIDY) # chr pos ref alt
+    tri = get_trinucleotide_contexts(C.CDS_ALL_SNVS_TRI_CONTEXT) # chr pos ref alt
+    nmd = get_nmd_annotations(C.NMD_ANNOTATIONS) # chr pos
     obs = get_observed_variants(C.GNOMAD_PASS_SNVS)
     meth = get_methylation_data(C.GNOMAD_NC_METHYLATION)
     mu = pd.read_csv(C.GNOMAD_NC_MUTABILITY_TIDY, sep="\t")
     variant_types = mu[["tri", "ref", "alt", "variant_type"]].drop_duplicates()
+    cov = get_coverage_data(C.GNOMAD_COVERAGE)
 
     # Merge the annotations
     logger.info("Merging annotations.")
@@ -220,20 +247,18 @@ def main():
         .fillna({"obs": False})
         .merge(variant_types, how="left")
         .merge(meth, how="left")
+        .pipe(assign_methylation_levels)
+        .merge(mu)
+        .merge(cov, how="left")
     )
 
     logger.info(f"Variants in raw merged data: {len(df)}")
 
     # Tidy the data
-    df = (
-        assign_methylation_levels(df).pipe(address_missing_values).pipe(drop_chrm_sites)
-    )
-
-    # Merge with mutability annotations
-    df = df.merge(mu)
+    df = address_missing_values(df).pipe(drop_chrm_sites)
 
     # Write logs
-    log_summary_data(df)
+    # log_summary_data(df)
 
     # Write to output
     df.to_csv(C.ALL_VARIANTS_MERGED_ANNOTATIONS, sep="\t", index=False)

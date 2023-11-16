@@ -1,8 +1,9 @@
 """Defines project-wide constants."""
 
 # Directories
-## CSF
+# RDS
 RDS_DIR = "/mnt/bmh01-rds/Ellingford_gene"
+GNOMAD_DIR = f"{RDS_DIR}/public_data_resources/gnomad/v4.0"
 
 ## Data
 DATA_DIR = "data"
@@ -14,6 +15,9 @@ RAW_DIR = f"{DATA_DIR}/raw"
 STATISTICS_DIR = f"{DATA_DIR}/statistics"
 
 # Files
+## RDS
+GNOMAD_COVERAGE = f"{GNOMAD_DIR}/coverage/gnomad.exomes.v4.0.coverage.summary.tsv"
+
 ## Data
 ### Raw
 CLINVAR_VARIANT_SUMMARY = f"{RAW_DIR}/variant_summary.txt"
