@@ -36,7 +36,7 @@ def get_trinucleotide_contexts(path):
         path,
         sep="\t",
         dtype=_DATATYPES,
-        nrows=10000,  #! Testing
+        # nrows=10000,  #! Testing
     )
 
     logger.info(f"Positions with trinucleotide sequence contexts: {len(tri)}")
@@ -56,8 +56,7 @@ def get_vep_annotations(path):
         header=None,
         names=["chr", "pos", "ref", "alt", "csq", "enst"],
         dtype=_DATATYPES,
-        nrows=10000  # ! Testing
-        # usecols=["chr", "pos", "ref", "alt", "info"],
+        # nrows=10000  # ! Testing
     )
 
     logger.info(f"VEP-annotated possible SNVs: {len(vep)}")
@@ -75,7 +74,7 @@ def get_nmd_annotations(path):
         sep="\t",
         usecols=["chr", "pos", "transcript_id", "nmd_definitive"],
         dtype=_DATATYPES,
-        nrows=10000,  # ! Testing
+        # nrows=10000,  # ! Testing
     ).rename(columns={"transcript_id": "enst", "nmd_definitive": "nmd"})
 
     logger.info(f"NMD annotations: {len(nmd)}")
@@ -95,7 +94,7 @@ def get_observed_variants(path):
         names=_VCF_HEADER + ["ac", "an"],
         usecols=["chr", "pos", "ref", "alt", "ac", "an"],
         dtype=_DATATYPES,
-        nrows=10000,  #! Testing
+        # nrows=10000,  #! Testing
     ).assign(obs=True)
 
     logger.info(f"Observed variants: {len(obs)}")
@@ -151,7 +150,7 @@ def get_coverage_data(path):
         sep="\t",
         usecols=["locus", "median_approx"],
         dtype={"locus": "str", "median_approx": "int16"},
-        nrows=10000,  #! Testing
+        # nrows=10000,  #! Testing
     ).rename(columns={"median_approx": "median_coverage"})
 
     locus = cov.locus.str.split(":")
@@ -167,16 +166,17 @@ def get_coverage_data(path):
 def address_missing_values(df):
     """Address missing values in the data."""
 
-    # Variants lacking an NMD annotation are dropped.
-    df = df.dropna(subset="nmd")
-
-    logger.info(f"Variants with an NMD annotation: {len(df)}")
-
-    # Variants lacking a variant_type annotation are dropped.
     logger.info(
-        f"These sites, which lack a variant_type annotation, are dropped:\n{df[df['variant_type'].isna()]}"
+        f"Variants lacking an nmd annotation are dropped: N = {df.nmd.isna().sum()}"
     )
-    df = df.dropna(subset="variant_type")
+    logger.info(
+        f"Variants lacking a variant_type annotation are dropped:\n{df[df['variant_type'].isna()]}"
+    )
+
+    df = df.dropna(subset=["nmd", "variant_type"])
+
+    logger.info(f"Variants after addressing missing values: {len(df)}")
+    logger.info(f"Missing values:\n{df.isna().sum()}")
 
     return df
 
@@ -228,9 +228,9 @@ def main():
     """Run the script."""
 
     # Get datasets
-    vep = get_vep_annotations(C.VEP_ALL_SNVS_TIDY) # chr pos ref alt
-    tri = get_trinucleotide_contexts(C.CDS_ALL_SNVS_TRI_CONTEXT) # chr pos ref alt
-    nmd = get_nmd_annotations(C.NMD_ANNOTATIONS) # chr pos
+    vep = get_vep_annotations(C.VEP_ALL_SNVS_TIDY)  # chr pos ref alt
+    tri = get_trinucleotide_contexts(C.CDS_ALL_SNVS_TRI_CONTEXT)  # chr pos ref alt
+    nmd = get_nmd_annotations(C.NMD_ANNOTATIONS)  # chr pos
     obs = get_observed_variants(C.GNOMAD_PASS_SNVS)
     meth = get_methylation_data(C.GNOMAD_NC_METHYLATION)
     mu = pd.read_csv(C.GNOMAD_NC_MUTABILITY_TIDY, sep="\t")
@@ -248,7 +248,7 @@ def main():
         .merge(variant_types, how="left")
         .merge(meth, how="left")
         .pipe(assign_methylation_levels)
-        .merge(mu)
+        .merge(mu, how="left")
         .merge(cov, how="left")
     )
 
@@ -258,7 +258,7 @@ def main():
     df = address_missing_values(df).pipe(drop_chrm_sites)
 
     # Write logs
-    # log_summary_data(df)
+    log_summary_data(df)
 
     # Write to output
     df.to_csv(C.ALL_VARIANTS_MERGED_ANNOTATIONS, sep="\t", index=False)
