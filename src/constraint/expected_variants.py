@@ -95,13 +95,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# # ## Modelling expected proportion of variants
-
-
-# # CpG variants are fit to a log-linear model.
-
-
 # # ## Variants observed in UKB
 
 
@@ -118,6 +111,7 @@ if __name__ == "__main__":
 
 
 # # Concatenate the transcript-level and region-level data
+#! Note that the nmd column is called "region" here.
 # enst = enst.assign(region="transcript")
 # nmd = nmd.rename(columns={"nmd": "region"})
 
