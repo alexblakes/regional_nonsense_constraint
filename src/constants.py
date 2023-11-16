@@ -1,7 +1,7 @@
 """Defines project-wide constants."""
 
 # Directories
-# RDS
+## RDS
 RDS_DIR = "/mnt/bmh01-rds/Ellingford_gene"
 GNOMAD_DIR = f"{RDS_DIR}/public_data_resources/gnomad/v4.0"
 
@@ -48,6 +48,8 @@ VEP_ALL_SNVS_TIDY = f"{INTERIM_DIR}/cds_all_possible_snvs_vep_tidy.tsv"
 
 ### Final
 ALL_VARIANTS_MERGED_ANNOTATIONS = f"{FINAL_DIR}/all_variants_merged_annotations.tsv"
+OBSERVED_VARIANTS_COUNTS_SYN = f"{FINAL_DIR}/observed_variants_counts_synonymous.tsv"
+OBSERVED_VARIANTS_COUNTS_REGION = f"{FINAL_DIR}/observed_variants_counts_region.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
