@@ -1,0 +1,247 @@
+"""
+Find the expected number of variants for a given transcript / NMD region.
+"""
+
+# Imports
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+
+from src import setup_logger
+from src import constants as C
+
+# Module constants
+
+
+# Logging
+logger = setup_logger(Path(__file__).stem)
+
+
+# Functions
+def process_synonymous_variants(syn, cpg=False):
+    """Retrieve synonymous variants in CpG or non-CpG contexts
+
+    Args:
+        cpg (bool, default=False): Processes CpGs if True, non-CpGs if False.
+    """
+
+    # Get proportion observed
+    syn["prop_obs"] = syn["obs"] / syn["pos"]
+
+    if not cpg:
+        syn = syn[syn["variant_type"] != "CpG"]
+        logger.info(f"Non-CpG synonymous contexts: {len(syn)}")
+
+    if cpg:
+        syn = syn[syn["variant_type"] == "CpG"].copy()
+
+        # Saturated CpG contexts are dropped
+        mask = syn["prop_obs"] == 1
+        syn = syn[~mask]
+        logger.info(f"Saturated CpG synonymous contexts: {mask.sum()}")
+        logger.info(f"Remaining CpG synonymous contexts: {len(syn)}")
+
+    return syn
+
+
+def non_cpg_model(df):
+    """Linear model for non-CpGs."""
+
+    y = np.log(1 - df["prop_obs"])
+    x = df["mu"]
+    X = sm.tools.add_constant(x)
+    w = df["pos"]
+
+    model = sm.WLS(y, X, weights=w)
+    results = model.fit()
+    logger.info(f"\n{results.summary(slim=True)}")
+
+    return results
+
+
+def cpg_model(df):
+    """Log-linear model for CpGs."""
+
+    y = np.log(1 - df["prop_obs"])
+    x = np.exp(df["mu"])
+    X = sm.tools.add_constant(x)
+    w = df["pos"]
+
+    model = sm.WLS(y, X, weights=w)
+    results = model.fit()
+    logger.info(f"\n{results.summary(slim=True)}")
+    
+    return results
+
+
+def main():
+    """Run the script."""
+
+    syn = pd.read_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t")
+
+    logger.info(f"Total synonymous contexts: {len(syn)}")
+
+    syn_non = process_synonymous_variants(syn, cpg=False)
+    syn_cpg = process_synonymous_variants(syn, cpg=True)
+
+    non_cpg_results = non_cpg_model(syn_non)
+    cpg_results = cpg_model(syn_cpg)
+
+    return syn_cpg  #! Testing
+
+
+if __name__ == "__main__":
+    main()
+
+
+# # ## Modelling expected proportion of variants
+
+
+# # CpG variants are fit to a log-linear model.
+
+
+# # ## Variants observed in UKB
+
+
+# # ### Combine observations in NMD regions and transcripts
+# # The expected number of variants will be predicted for each of these regions.
+
+
+# # Variants observed per transcript
+# enst = pd.read_csv("../outputs/observed_variants_stats_transcript.tsv", sep="\t")
+
+
+# # Variants observed per NMD region
+# nmd = pd.read_csv("../outputs/observed_variants_stats_nmd.tsv", sep="\t")
+
+
+# # Concatenate the transcript-level and region-level data
+# enst = enst.assign(region="transcript")
+# nmd = nmd.rename(columns={"nmd": "region"})
+
+# df = pd.concat([nmd, enst]).sort_values(["region", "enst", "csq"])
+# df.head(3)
+
+
+# # ### Treat CpG and non-CpG variants separately
+
+
+# # Non-CpG
+# non_cpg = df[df["variant_type"] != "CpG"].copy()
+# non_cpg.enst.nunique()
+
+
+# # CpG
+# cpg = df[df["variant_type"] == "CpG"].copy()
+# cpg.enst.nunique()
+
+
+# # Several transcripts are missing from the CpG data, presumably because there are no CpG sites in these transcripts. I will re-index the data so that all transcripts, consequences and regions are represented.
+
+
+# # Re-index non-CpGs
+# non_cpg = (
+#     non_cpg.set_index(["enst", "region", "csq"])
+#     .unstack("enst")
+#     .stack(dropna=False)
+#     .reset_index()
+# )
+
+# # Check that all combinations of enst, region, and csq are present
+# assert non_cpg.enst.nunique() * non_cpg.region.nunique() * non_cpg.csq.nunique() == len(
+#     non_cpg
+# )
+
+# # Fill NaN values for variant type
+# non_cpg["variant_type"] = non_cpg["variant_type"].fillna("non-CpG")
+
+
+# # This is slightly more complex for CpGs, which are missing several transcripts, compared with the non-CpG data...
+
+
+# # Get all the transcripts in the non-CpG data
+# all_transcripts = pd.Series(non_cpg["enst"].unique(), name="enst")
+
+# # Merge on these transcripts
+# cpg = cpg.merge(all_transcripts, how="right")
+
+# # Fill any NaN values in csq and region with dummy values
+# cpg["csq"] = cpg.csq.fillna("missense")
+# cpg["region"] = cpg.region.fillna("transcript")
+
+# # Reindex CpGs, as above
+# cpg = (
+#     cpg.set_index(["enst", "region", "csq"])
+#     .unstack("enst")
+#     .stack(dropna=False)
+#     .reset_index()
+# )
+
+# # Check that all combinations of enst, region, and csq are present
+# assert cpg.enst.nunique() * cpg.region.nunique() * cpg.csq.nunique() == len(cpg)
+
+# # Fill NaN values for variant type
+# cpg["variant_type"] = cpg["variant_type"].fillna("CpG")
+
+
+# # ## Calculate the expected proportion of variants per transcript and region
+
+
+# # ### Non-CpGs
+
+
+# # Predict the proportion observed with the non-CpG model
+# non_cpg["prop_exp"] = 1 - np.exp(non_cpg_results.predict(sm.tools.add_constant(non_cpg["mu"])))
+
+# # Calculate the number of variants expected
+# non_cpg["n_exp"] = (non_cpg["prop_exp"] * non_cpg["n_pos"]).pipe(np.round, 3)
+
+
+# # ### CpGs
+
+
+# # Predict the proportion observed with the CpG model
+# cpg["prop_exp"] = 1 - np.exp(cpg_results.predict(np.exp(sm.tools.add_constant(cpg["mu"]))))
+
+# # Calculate the number of variants expected
+# cpg["n_exp"] = (cpg["prop_exp"] * cpg["n_pos"]).pipe(np.round, 3)
+
+
+# # ### Combine CpG and non-CpG variants
+
+
+# # Give CpG and non-CpG variants a consistent index
+# non_cpg = non_cpg.set_index(["enst","region","csq"])
+# cpg = cpg.set_index(["enst","region","csq"])
+
+# # Combine non-CpG and CpG data into the essential summary statistics
+# n_pos = non_cpg["n_pos"].fillna(0) + cpg["n_pos"].fillna(0)
+# n_obs = non_cpg["n_obs"].fillna(0) + cpg["n_obs"].fillna(0)
+# n_exp = non_cpg["n_exp"].fillna(0) + cpg["n_exp"].fillna(0)
+# oe = (n_obs / n_exp).rename("oe")
+# prop_obs = (n_obs / n_pos).rename("prop_obs")
+# prop_exp = (n_exp / n_pos).rename("prop_exp")
+
+# # Calculate the total mutability for each region
+# # In each dataframe, "mu" is the mean mutability for contexts in a region
+# mu_non_cpg = (non_cpg["mu"] * non_cpg["n_pos"]).fillna(0)
+# mu_cpg = (cpg["mu"] * cpg["n_pos"]).fillna(0)
+# mu = (mu_non_cpg + mu_cpg).rename("mu")
+
+# # Create a summary dataframe
+# df = pd.concat([mu, n_pos, n_obs, n_exp, oe, prop_obs, prop_exp], axis=1).reset_index(drop=False)
+
+# # How many regions are missing variants?
+# oe.isna().sum()
+
+
+# #
+# # Note the many sites with NaN values. These are regions where 0 variants are possible. We have kept them for now; they could be dropped later.
+
+
+# # ## Write to output
+
+
+# df.to_csv("../outputs/expected_variants_all_regions.tsv", sep="\t", index=False)
