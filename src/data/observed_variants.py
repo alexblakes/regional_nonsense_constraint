@@ -184,16 +184,16 @@ def address_missing_values(df):
 def drop_chrm_sites(df):
     """Drop chrM sites."""
 
-    logger.info(f"Unique chromosomes: {df.chr.nunique()}")
-
     m = df[df["chr"] == "chrM"]
 
-    logger.info(f"chrM sites: {len(m)}")
+    logger.info(f"Unique chromosomes: {df.chr.nunique()}")
+    logger.info(f"chrM variants: {len(m)}")
+    logger.info(f"chrM transcripts: {m.enst.nunique()}")
     logger.info(f"Observed chrM variants: {m.obs.sum()}")
+    logger.info(f"chrM sites are dropped.")
 
     df = df[df["chr"] != "chrM"]
 
-    logger.info(f"chrM sites are dropped.")
     logger.info(f"Variants after dropping chrM sites: {len(df)}")
 
     return df
@@ -204,7 +204,7 @@ def log_summary_data(df):
 
     # Summary statistics (all variants)
     logger.info(
-        f"Duplicated variants: {df.duplicated(['chr','pos','ref','alt']).sum()}"
+        f"Duplicated variants: {df.duplicated(['chr','pos','ref','alt', 'enst']).sum()}"
     )
     logger.info(f"Unique transcripts: {df.enst.nunique()}")
     logger.info(f"Consequence value counts:\n{df.csq.value_counts()}")
