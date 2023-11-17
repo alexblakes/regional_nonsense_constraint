@@ -108,7 +108,8 @@ data/final/all_variants_merged_annotations.tsv : data/interim/nmd_annotations.ts
 	python3 -m src.data.observed_variants
 
 # Get variant counts and mutability
-data/final/observed_variants_counts_region.tsv \
-data/final/observed_variants_counts_synonymous.tsv : data/final/all_variants_merged_annotations.tsv \
-                                                     src/data/observed_variants_counts_and_mutability.py 
-	python3 -m src.data.observed_variants_counts_and_mutability
+data/interim/observed_variants_counts_regions_cov_30.tsv \
+data/interim/observed_variants_counts_synonymous_cov_30.tsv : data/final/all_variants_merged_annotations.tsv \
+                                                              src/data/observed_variants_counts_and_mutability.py 
+	python3 -m src.data.observed_variants_counts_and_mutability -c 0 10 20 30
+
