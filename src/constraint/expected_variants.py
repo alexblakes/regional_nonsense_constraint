@@ -60,32 +60,6 @@ def variant_expectation_model(df):
 
     return results
 
-
-def reindex_non_cpgs(df):
-    """Ensure all combinations of enst / region / csq are present."""
-
-    logger.info(f"Re-indexing variants: {df.variant_type.unique()}")
-    logger.info(f"Number of unique transcripts: {df.enst.nunique()}")
-
-    df = (
-        df.set_index(["enst", "region", "csq"])
-        .unstack("enst")
-        .stack(dropna=False)
-        .reset_index()
-    )
-
-    # Check that all combinations of enst, region, and csq are present
-    logger.info(f"Number of rows: {len(df)}")
-    logger.info(
-        f"Number of combinations of enst/region/csq: {df.enst.nunique() * df.region.nunique() * df.csq.nunique()}"
-    )
-
-    # Fill NaN values for variant type
-    df["variant_type"] = df["variant_type"].fillna("non-CpG")
-
-    return df
-
-
 def predict_expected_variants(df, fit_model):
     """Get the proportion and number of variants expected."""
 
@@ -119,7 +93,7 @@ def combine_constraint_statistics_for_all_regions(non_cpg, cpg):
     # In each dataframe, "mu" is the mean mutability for contexts in a region
     mu_non_cpg = (non_cpg["mu"] * non_cpg["pos"]).fillna(0)
     mu_cpg = (cpg["mu"] * cpg["pos"]).fillna(0)
-    mu = (mu_non_cpg + mu_cpg).rename("mu")
+    mu = (mu_non_cpg + mu_cpg).rename("mu").replace(0, np.nan)
 
     # Combine the summary statistics
     df = pd.concat(
@@ -138,6 +112,9 @@ def combine_constraint_statistics_for_all_regions(non_cpg, cpg):
     logger.info(f"Number of regions: {len(df)}")
     logger.info(f"Missing annotations: {df.oe.isna().sum()}")
     logger.info(f"Annotations available: {(~df.oe.isna()).sum()}")
+    logger.info(
+        f"Valid annotations by region:\n{df[~df.oe.isna()].groupby('csq').region.value_counts()}"
+    )
 
     return df
 
