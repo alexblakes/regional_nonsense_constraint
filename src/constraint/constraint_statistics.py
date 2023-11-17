@@ -19,6 +19,9 @@ from src import constants as C
 
 
 # Module constants
+_TRANSCRIPT = ["transcript"]
+_REGIONS = ["distal_nmd", "nmd_target", "long_exon"]
+_CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
 
 
 # Logging
@@ -26,90 +29,97 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
+def per_row_ztest(row, statistic="z"):
+    """Calculate one-sided z test row-wise"""
+
+    if statistic == "z":
+        i = 0
+    elif statistic == "p":
+        i = 1
+
+    stat = proportions_ztest(
+        count=row["n_obs"],
+        nobs=row["n_pos"],
+        value=row["prop_exp"],
+        alternative="smaller",
+        prop_var=row["prop_exp"],
+    )[i]
+
+    return stat
+
+
+def fdr_adjustment(df, region, csq):
+    """Get FDR-adjusted P-values for a given region and variant consequence."""
+
+    # Mask regions and consequences
+    m1 = df.region.isin(region)
+    m2 = df.csq == csq
+
+    # Filter the dataframe and drop cases lacking constraint statistics
+    df = df.loc[m1 & m2, ["region", "p"]].dropna().copy()
+
+    # FDR adjustment
+    df["fdr_p"] = fdr(pvals=df["p"])[1]
+
+    return df["fdr_p"]
+
+
+def get_gnomad_constraint(path):
+    """Read gnomAD v4 constraint data."""
+
+    df = pd.read_csv(
+        path,
+        sep="\t",
+        usecols=["transcript", "lof.pLI", "lof.oe_ci.upper", "constraint_flags"],
+    ).rename(
+        columns={
+            "transcript": "enst",
+            "lof.pLI": "pli",
+            "lof.oe_ci.upper": "loeuf",
+            "constraint_flags": "gnomad_constraint_flags",
+        }
+    )
+
+    return df
+
+
 def main():
     """Run as script."""
 
+    # Read expected variant data
     df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t")
 
-    return df #! Testing    
+    # Get z scores and unadjusted p values
+    df["z"] = df.apply(per_row_ztest, statistic="z", axis=1)
+    df["p"] = df.apply(per_row_ztest, statistic="p", axis=1)
+
+    logger.info(
+        f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).z.count()}"
+    )
+
+    # FDR adjustment.
+    # Calculated separately for whole-transcripts and constrained regions, and for each
+    # distinct consequence.
+    fdr_results = pd.concat(
+        [
+            fdr_adjustment(df, region=r, csq=c)
+            for c in _CSQS
+            for r in [_TRANSCRIPT, _REGIONS]
+        ]
+    )
+
+    # Annotate the original dataframe with FDR-adjusted p-values
+    df = df.join(fdr_results)
+
+    # Merge with gnomAD constraint data
+    gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
+    df = df.merge(gnomad, how="left")
+
+    return df  #! Testing
+
 
 if __name__ == "__main__":
     main()
-
-
-
-
-# # ## Get constraint Z scores
-
-
-# def per_row_ztest(row, statistic="z"):
-#     if statistic == "z":
-#         i = 0
-#     elif statistic == "p":
-#         i = 1
-
-#     stat = proportions_ztest(
-#         count=row["n_obs"],
-#         nobs=row["n_pos"],
-#         value=row["prop_exp"],
-#         alternative="smaller",
-#         prop_var=row["prop_exp"],
-#     )[i]
-
-#     return stat
-
-
-# %%capture
-# df["z"] = df.apply(per_row_ztest, statistic="z", axis=1)
-# df["p"] = df.apply(per_row_ztest, statistic="p", axis=1)
-
-# # Print summary data
-# _ = df.groupby(["region", "csq"])["z"].count()
-# print(f"Constraint statistics by region and consequence:\n{_}")
-
-
-# # ## Get FDR-adjusted P-values
-# # For nonsense variants only. Calculate separately for whole-transcripts and constrained regions
-
-
-# def fdr_adjustment(df, region, csq):
-#     """Get FDR-adjusted P-values for a given region and variant consequence."""
-#     # Mask regions and consequences
-#     m1 = df.region.isin(region)
-#     m2 = df.csq == csq
-
-#     # Filter the dataframe and drop cases without a P-value
-#     _df = df.loc[m1 & m2, ["region", "p"]].dropna().copy()
-
-#     # FDR adjustment
-#     _df["fdr_p"] = fdr(pvals=_df["p"])[1]
-
-#     return _df["fdr_p"]
-
-
-# # FDR adjustment is done separately for transcripts and NMD regions
-# # and for each distinct consequence
-# r1 = ["transcript"]
-# r2 = ["distal_nmd", "nmd_target", "long_exon"]
-# csq = ["synonymous", "missense", "nonsense"]
-
-# fdr_results = pd.concat([fdr_adjustment(df, region=r, csq=c) for c in csq for r in [r1, r2]])
-
-
-# # Join FDR-adjusted p-values to the original dataframe
-# df = df.join(fdr_results)
-
-
-# # ## Merge with gnomAD constraint data
-
-
-# gnomad = pd.read_csv(
-#     "../data/supplementary_dataset_11_full_constraint_metrics.tsv",
-#     sep="\t",
-#     usecols=["transcript", "pLI", "oe_lof_upper"],
-# ).rename(columns={"transcript": "enst", "pLI": "pli", "oe_lof_upper": "loeuf"})
-
-# df = df.merge(gnomad, how="left")
 
 
 # # ## Save to output
@@ -170,5 +180,3 @@ if __name__ == "__main__":
 # print(spearmanr(z, loeuf, nan_policy="omit", alternative="two-sided"))
 # print("\nSee below for smallest possible P-value ('tiny')")
 # print(np.finfo(np.float64))
-
-

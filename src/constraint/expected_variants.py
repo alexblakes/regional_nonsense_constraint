@@ -82,8 +82,8 @@ def combine_constraint_statistics_for_all_regions(non_cpg, cpg):
     cpg = cpg.set_index(["enst", "region", "csq"])
 
     # Combine non-CpG and CpG data into the essential summary statistics
-    n_pos = non_cpg["pos"].fillna(0) + cpg["pos"].fillna(0)
-    n_obs = non_cpg["obs"].fillna(0) + cpg["obs"].fillna(0)
+    n_pos = (non_cpg["pos"].fillna(0) + cpg["pos"].fillna(0)).rename("n_pos")
+    n_obs = (non_cpg["obs"].fillna(0) + cpg["obs"].fillna(0)).rename("n_obs")
     n_exp = non_cpg["n_exp"].fillna(0) + cpg["n_exp"].fillna(0)
     oe = (n_obs / n_exp).rename("oe")
     prop_obs = (n_obs / n_pos).rename("prop_obs")
