@@ -78,13 +78,13 @@ def reindex_data(df, cpg=False):
 def main():
     """Run the script."""
 
-    #? Does the script account for duplicated PAR transcripts on X and Y
+    # ? Does the script account for duplicated PAR transcripts on X and Y
 
     # Read regional variant data
     regions = pd.read_csv(C.OBS_COUNTS_REGIONS_20, sep="\t")
 
     # Get list of transcripts
-    all_transcripts = regions[["chr","enst"]].drop_duplicates()
+    all_transcripts = regions[["chr", "enst"]].drop_duplicates()
     logger.info(f"Total number of transcripts: {len(all_transcripts)}")
 
     # Split region variants into CpGs and non-CpGs
