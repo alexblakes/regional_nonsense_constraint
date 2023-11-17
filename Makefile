@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: downloads fast medium slow all
+.PHONY: downloads fast medium slow notebooks all
 
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
@@ -28,8 +28,17 @@ medium : data/interim/cds_counts_and_coords.tsv \
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
        data/final/all_variants_merged_annotations.tsv \
 
+# Notebooks
+notebooks :
+	# Expectation model choices
+	for N in 0 10 20 30 ; do \
+		papermill notebooks/01_expectation_model_choices.ipynb \
+		notebooks/01_expectation_model_choices.ipynb \
+		-p coverage $$N ; \
+	done
+
 # All files
-all : downloads fast medium slow
+all : downloads fast medium slow notebooks
 
 
 # Extract canonical CDS from GTF file
