@@ -122,3 +122,7 @@ data/interim/observed_variants_counts_synonymous_cov_30.tsv : data/final/all_var
                                                               src/data/observed_variants_counts_and_mutability.py 
 	python3 -m src.data.observed_variants_counts_and_mutability -c 0 10 20 30
 
+# Clean regional variant count data
+data/interim/observed_variants_counts_regions_cov_20_clean.tsv : data/interim/observed_variants_counts_regions_cov_20.tsv \
+                                                                 src/data/observed_variants_counts_regions_clean.py
+	python3 -m src.data.observed_variants_counts_regions_clean

@@ -5,9 +5,7 @@ Find the expected number of variants for a given transcript / NMD region.
 # Imports
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 
 from src import setup_logger
 from src import constants as C
@@ -80,10 +78,13 @@ def reindex_data(df, cpg=False):
 def main():
     """Run the script."""
 
+    #? Does the script account for duplicated PAR transcripts on X and Y
+
+    # Read regional variant data
     regions = pd.read_csv(C.OBS_COUNTS_REGIONS_20, sep="\t")
 
     # Get list of transcripts
-    all_transcripts = pd.Series(regions["enst"].unique(), name="enst")
+    all_transcripts = regions[["chr","enst"]].drop_duplicates()
     logger.info(f"Total number of transcripts: {len(all_transcripts)}")
 
     # Split region variants into CpGs and non-CpGs
@@ -94,69 +95,15 @@ def main():
         .pipe(reindex_data, cpg=True)
     )
 
-    return cpg  #! Testing
+    # Combine regions
+    regions = pd.concat([non_cpg, cpg])
+
+    # Write to output
+    logger.info("Writing to output.")
+    regions.to_csv(C.OBS_COUNTS_REGIONS_20_CLEAN, sep="\t", index=False)
+
+    # return regions  #! Testing
 
 
 if __name__ == "__main__":
     main()
-
-
-# # ## Calculate the expected proportion of variants per transcript and region
-
-
-# # ### Non-CpGs
-
-
-# # Predict the proportion observed with the non-CpG model
-# non_cpg["prop_exp"] = 1 - np.exp(non_cpg_results.predict(sm.tools.add_constant(non_cpg["mu"])))
-
-# # Calculate the number of variants expected
-# non_cpg["n_exp"] = (non_cpg["prop_exp"] * non_cpg["n_pos"]).pipe(np.round, 3)
-
-
-# # ### CpGs
-
-
-# # Predict the proportion observed with the CpG model
-# cpg["prop_exp"] = 1 - np.exp(cpg_results.predict(np.exp(sm.tools.add_constant(cpg["mu"]))))
-
-# # Calculate the number of variants expected
-# cpg["n_exp"] = (cpg["prop_exp"] * cpg["n_pos"]).pipe(np.round, 3)
-
-
-# # ### Combine CpG and non-CpG variants
-
-
-# # Give CpG and non-CpG variants a consistent index
-# non_cpg = non_cpg.set_index(["enst","region","csq"])
-# cpg = cpg.set_index(["enst","region","csq"])
-
-# # Combine non-CpG and CpG data into the essential summary statistics
-# n_pos = non_cpg["n_pos"].fillna(0) + cpg["n_pos"].fillna(0)
-# n_obs = non_cpg["n_obs"].fillna(0) + cpg["n_obs"].fillna(0)
-# n_exp = non_cpg["n_exp"].fillna(0) + cpg["n_exp"].fillna(0)
-# oe = (n_obs / n_exp).rename("oe")
-# prop_obs = (n_obs / n_pos).rename("prop_obs")
-# prop_exp = (n_exp / n_pos).rename("prop_exp")
-
-# # Calculate the total mutability for each region
-# # In each dataframe, "mu" is the mean mutability for contexts in a region
-# mu_non_cpg = (non_cpg["mu"] * non_cpg["n_pos"]).fillna(0)
-# mu_cpg = (cpg["mu"] * cpg["n_pos"]).fillna(0)
-# mu = (mu_non_cpg + mu_cpg).rename("mu")
-
-# # Create a summary dataframe
-# df = pd.concat([mu, n_pos, n_obs, n_exp, oe, prop_obs, prop_exp], axis=1).reset_index(drop=False)
-
-# # How many regions are missing variants?
-# oe.isna().sum()
-
-
-# #
-# # Note the many sites with NaN values. These are regions where 0 variants are possible. We have kept them for now; they could be dropped later.
-
-
-# # ## Write to output
-
-
-# df.to_csv("../outputs/expected_variants_all_regions.tsv", sep="\t", index=False)

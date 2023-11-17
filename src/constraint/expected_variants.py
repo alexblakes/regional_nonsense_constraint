@@ -109,68 +109,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# # ### Treat CpG and non-CpG variants separately
-
-
-# # Non-CpG
-# non_cpg = df[df["variant_type"] != "CpG"].copy()
-# non_cpg.enst.nunique()
-
-
-# # CpG
-# cpg = df[df["variant_type"] == "CpG"].copy()
-# cpg.enst.nunique()
-
-
-# # Several transcripts are missing from the CpG data, presumably because there are no CpG sites in these transcripts. I will re-index the data so that all transcripts, consequences and regions are represented.
-
-
-# # Re-index non-CpGs
-# non_cpg = (
-#     non_cpg.set_index(["enst", "region", "csq"])
-#     .unstack("enst")
-#     .stack(dropna=False)
-#     .reset_index()
-# )
-
-# # Check that all combinations of enst, region, and csq are present
-# assert non_cpg.enst.nunique() * non_cpg.region.nunique() * non_cpg.csq.nunique() == len(
-#     non_cpg
-# )
-
-# # Fill NaN values for variant type
-# non_cpg["variant_type"] = non_cpg["variant_type"].fillna("non-CpG")
-
-
-# # This is slightly more complex for CpGs, which are missing several transcripts, compared with the non-CpG data...
-
-
-# # Get all the transcripts in the non-CpG data
-# all_transcripts = pd.Series(non_cpg["enst"].unique(), name="enst")
-
-# # Merge on these transcripts
-# cpg = cpg.merge(all_transcripts, how="right")
-
-# # Fill any NaN values in csq and region with dummy values
-# cpg["csq"] = cpg.csq.fillna("missense")
-# cpg["region"] = cpg.region.fillna("transcript")
-
-# # Reindex CpGs, as above
-# cpg = (
-#     cpg.set_index(["enst", "region", "csq"])
-#     .unstack("enst")
-#     .stack(dropna=False)
-#     .reset_index()
-# )
-
-# # Check that all combinations of enst, region, and csq are present
-# assert cpg.enst.nunique() * cpg.region.nunique() * cpg.csq.nunique() == len(cpg)
-
-# # Fill NaN values for variant type
-# cpg["variant_type"] = cpg["variant_type"].fillna("CpG")
-
-
 # # ## Calculate the expected proportion of variants per transcript and region
 
 
