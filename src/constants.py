@@ -47,6 +47,8 @@ VEP_ALL_SNVS = f"{INTERIM_DIR}/cds_all_possible_snvs_vep.vcf"
 VEP_ALL_SNVS_TIDY = f"{INTERIM_DIR}/cds_all_possible_snvs_vep_tidy.tsv"
 _OBS_COUNTS_SYN = f"{INTERIM_DIR}/observed_variants_counts_synonymous_cov_"
 _OBS_COUNTS_REGIONS = f"{INTERIM_DIR}/observed_variants_counts_regions_cov_"
+OBS_COUNTS_SYN_20 = f"{INTERIM_DIR}/observed_variants_counts_synonymous_cov_20.tsv"
+OBS_COUNTS_REGIONS_20 = f"{INTERIM_DIR}/observed_variants_counts_regions_cov_20.tsv"
 
 ### Final
 ALL_VARIANTS_MERGED_ANNOTATIONS = f"{FINAL_DIR}/all_variants_merged_annotations.tsv"

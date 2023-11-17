@@ -4,7 +4,6 @@ Find the expected number of variants for a given transcript / NMD region.
 
 # Imports
 from pathlib import Path
-import argparse
 
 import numpy as np
 import pandas as pd
@@ -28,9 +27,6 @@ def process_synonymous_variants(syn, cpg=False):
         cpg (bool, default=False): Processes CpGs if True, non-CpGs if False.
     """
 
-    # Get proportion observed
-    syn["prop_obs"] = syn["obs"] / syn["pos"]
-
     if not cpg:
         syn = syn[syn["variant_type"] != "CpG"]
         logger.info(f"Non-CpG synonymous contexts: {len(syn)}")
@@ -47,8 +43,11 @@ def process_synonymous_variants(syn, cpg=False):
     return syn
 
 
-def non_cpg_model(df):
-    """Linear model for non-CpGs."""
+def variant_expectation_model(df):
+    """Variant expectation model.
+    
+    Predicts the proportion of possible variants observed, for a given mutability.
+    """
 
     y = np.log(1 - df["prop_obs"])
     x = df["mu"]
@@ -61,63 +60,54 @@ def non_cpg_model(df):
 
     return results
 
+def reindex_non_cpgs(df):
+    """Ensure all combinations of enst / region / csq are present."""
+    
+    logger.info(f"Re-indexing variants: {df.variant_type.unique()}")
+    logger.info(f"Number of unique transcripts: {df.enst.nunique()}")
 
-def cpg_model(df):
-    """Log-linear model for CpGs."""
+    df = (
+        df.set_index(["enst", "region", "csq"])
+        .unstack("enst")
+        .stack(dropna=False)
+        .reset_index()
+    )
 
-    y = np.log(1 - df["prop_obs"])
-    x = np.exp(df["mu"])
-    X = sm.tools.add_constant(x)
-    w = df["pos"]
+    # Check that all combinations of enst, region, and csq are present
+    logger.info(f"Number of rows: {len(df)}")
+    logger.info(f"Number of combinations of enst/region/csq: {df.enst.nunique() * df.region.nunique() * df.csq.nunique()}")
 
-    model = sm.WLS(y, X, weights=w)
-    results = model.fit()
-    logger.info(f"\n{results.summary(slim=True)}")
+    # Fill NaN values for variant type
+    df["variant_type"] = df["variant_type"].fillna("non-CpG")
 
-    return results
+    return df
 
 
 def main():
     """Run the script."""
 
-    syn = pd.read_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t")
+    # Read synonymous counts
+    syn = pd.read_csv(C.OBS_COUNTS_SYN_20, sep="\t")
+    
+    # Get proportion observed
+    syn["prop_obs"] = syn["obs"] / syn["pos"]
 
     logger.info(f"Total synonymous contexts: {len(syn)}")
 
+    # Split CpG and non-CpG variant contexts
     syn_non = process_synonymous_variants(syn, cpg=False)
     syn_cpg = process_synonymous_variants(syn, cpg=True)
 
-    non_cpg_results = non_cpg_model(syn_non)
-    cpg_results = cpg_model(syn_cpg)
+    non_cpg_results = variant_expectation_model(syn_non)
+    cpg_results = variant_expectation_model(syn_cpg)
 
-    return None  #! Testing
+    # syn_non = reindex_non_cpgs(syn_non)
+
+    return syn_non  #! Testing
 
 
 if __name__ == "__main__":
     main()
-
-# # ## Variants observed in UKB
-
-
-# # ### Combine observations in NMD regions and transcripts
-# # The expected number of variants will be predicted for each of these regions.
-
-
-# # Variants observed per transcript
-# enst = pd.read_csv("../outputs/observed_variants_stats_transcript.tsv", sep="\t")
-
-
-# # Variants observed per NMD region
-# nmd = pd.read_csv("../outputs/observed_variants_stats_nmd.tsv", sep="\t")
-
-
-# # Concatenate the transcript-level and region-level data
-#! Note that the nmd column is called "region" here.
-# enst = enst.assign(region="transcript")
-# nmd = nmd.rename(columns={"nmd": "region"})
-
-# df = pd.concat([nmd, enst]).sort_values(["region", "enst", "csq"])
-# df.head(3)
 
 
 # # ### Treat CpG and non-CpG variants separately
