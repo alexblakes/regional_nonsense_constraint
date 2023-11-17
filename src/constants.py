@@ -45,11 +45,11 @@ GNOMAD_NC_MUTABILITY_TIDY = f"{INTERIM_DIR}/mutation_rate_by_context_methyl_tidy
 GNOMAD_PASS_SNVS = f"{INTERIM_DIR}/gnomad_v4_pass_snvs.tsv"
 VEP_ALL_SNVS = f"{INTERIM_DIR}/cds_all_possible_snvs_vep.vcf"
 VEP_ALL_SNVS_TIDY = f"{INTERIM_DIR}/cds_all_possible_snvs_vep_tidy.tsv"
+_OBS_COUNTS_SYN = f"{INTERIM_DIR}/observed_variants_counts_synonymous_cov_"
+_OBS_COUNTS_REGIONS = f"{INTERIM_DIR}/observed_variants_counts_regions_cov_"
 
 ### Final
 ALL_VARIANTS_MERGED_ANNOTATIONS = f"{FINAL_DIR}/all_variants_merged_annotations.tsv"
-_OBS_COUNTS_SYN = f"{FINAL_DIR}/observed_variants_counts_synonymous_cov_"
-_OBS_COUNTS_REGIONS = f"{FINAL_DIR}/observed_variants_counts_regions_cov_"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
