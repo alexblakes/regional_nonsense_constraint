@@ -12,6 +12,8 @@ downloads:
 fast : data/interim/gencode_v39_canonical_cds.bed \
        data/interim/gencode_v39_canonical_cds_seq.tsv \
 	   data/interim/mutation_rate_by_context_methyl_tidy.tsv \
+	   data/interim/observed_variants_counts_regions_cov_20_clean.tsv \
+	   data/final/expected_variants_all_regions.tsv
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
@@ -21,8 +23,8 @@ medium : data/interim/cds_counts_and_coords.tsv \
 	     data/interim/cds_trinucleotide_contexts.tsv \
 		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
 		 data/interim/gnomad_v4_pass_snvs.tsv \
-		 data/final/observed_variants_counts_region.tsv \
-		 data/final/observed_variants_counts_synonymous.tsv \
+		 data/interim/observed_variants_counts_regions_cov_20.tsv \
+		 data/interim/observed_variants_counts_synonymous_cov_20.tsv \
 
 # Files which take hours to create
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
@@ -117,12 +119,18 @@ data/final/all_variants_merged_annotations.tsv : data/interim/nmd_annotations.ts
 	python3 -m src.data.observed_variants
 
 # Get variant counts and mutability
-data/interim/observed_variants_counts_regions_cov_30.tsv \
-data/interim/observed_variants_counts_synonymous_cov_30.tsv : data/final/all_variants_merged_annotations.tsv \
+data/interim/observed_variants_counts_regions_cov_20.tsv \
+data/interim/observed_variants_counts_synonymous_cov_20.tsv : data/final/all_variants_merged_annotations.tsv \
                                                               src/data/observed_variants_counts_and_mutability.py 
-	python3 -m src.data.observed_variants_counts_and_mutability -c 0 10 20 30
+	python3 -m src.data.observed_variants_counts_and_mutability --coverage 0 10 20 30
 
 # Clean regional variant count data
 data/interim/observed_variants_counts_regions_cov_20_clean.tsv : data/interim/observed_variants_counts_regions_cov_20.tsv \
                                                                  src/data/observed_variants_counts_regions_clean.py
 	python3 -m src.data.observed_variants_counts_regions_clean
+
+# Get expected variants for all regions
+data/final/expected_variants_all_regions.tsv : data/interim/observed_variants_counts_synonymous_cov_20.tsv \
+                                               data/interim/observed_variants_counts_regions_cov_20_clean.tsv \
+											   src/constraint/expected_variants.py
+	python3 -m src.constraint.expected_variants
