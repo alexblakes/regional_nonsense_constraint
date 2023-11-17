@@ -172,10 +172,11 @@ def main():
 
         # Logging
         logger.info(f"Synonymous contexts annotated: {len(syn)}")
-        logger.info(f"enst/csq/cpg annotations: {len(transcript)}")
-        logger.info(f"nmd/enst/csq/cpg annotations: {len(nmd)}")
+        logger.info(f"Counts grouped by enst/csq/cpg: {len(transcript)}")
+        logger.info(f"Counts grouped by nmd/enst/csq/cpg: {len(nmd)}")
 
         # Write to output
+        logger.info("Writing to output.\n")
         syn.to_csv(f"{C._OBS_COUNTS_SYN}{str(cov)}.tsv", sep="\t", index=False)
         regions.to_csv(f"{C._OBS_COUNTS_REGIONS}{str(cov)}.tsv", sep="\t", index=False)
 
