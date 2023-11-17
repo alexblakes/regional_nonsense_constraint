@@ -175,8 +175,8 @@ def main():
         logger.info(f"nmd/enst/csq/cpg annotations: {len(nmd)}")
 
         # Write to output
-        syn.to_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t", index=False)
-        regions.to_csv(C.OBSERVED_VARIANTS_COUNTS_REGION, sep="\t", index=False)
+        syn.to_csv(f"{C._OBS_COUNTS_SYN}{str(cov)}.tsv", sep="\t", index=False)
+        regions.to_csv(f"{C._OBS_COUNTS_REGIONS}{str(cov)}.tsv", sep="\t", index=False)
 
     # return regions  #! Testing
 
