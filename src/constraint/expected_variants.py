@@ -4,6 +4,7 @@ Find the expected number of variants for a given transcript / NMD region.
 
 # Imports
 from pathlib import Path
+import argparse
 
 import numpy as np
 import pandas as pd
@@ -20,6 +21,13 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
+
+def filter_covered_sites(df, coverage):
+    """Filter for sites with minimum coverage requirement."""
+
+    if not type(coverage) == int: raise ValueError("Coverage should be an integer.")
+    
+
 def process_synonymous_variants(syn, cpg=False):
     """Retrieve synonymous variants in CpG or non-CpG contexts
 
@@ -72,24 +80,46 @@ def cpg_model(df):
     model = sm.WLS(y, X, weights=w)
     results = model.fit()
     logger.info(f"\n{results.summary(slim=True)}")
-    
+
     return results
+
+
+def parse_args():
+    """Parse command line arguments."""
+
+    parser = argparse.ArgumentParser(usage=__doc__)
+
+    parser.add_argument(
+        "-c",
+        "--coverage",
+        type=int,
+        default=[0],
+        nargs='*',
+        help="Minimum coverage of sites to include. Accepts multiple integer values.",
+    )
+
+    return parser.parse_args()
 
 
 def main():
     """Run the script."""
 
-    syn = pd.read_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t")
+    coverage = parse_args().coverage
+    
+    for c in coverage:
 
-    logger.info(f"Total synonymous contexts: {len(syn)}")
 
-    syn_non = process_synonymous_variants(syn, cpg=False)
-    syn_cpg = process_synonymous_variants(syn, cpg=True)
+    # syn = pd.read_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t")
 
-    non_cpg_results = non_cpg_model(syn_non)
-    cpg_results = cpg_model(syn_cpg)
+    # logger.info(f"Total synonymous contexts: {len(syn)}")
 
-    return syn_cpg  #! Testing
+    # syn_non = process_synonymous_variants(syn, cpg=False)
+    # syn_cpg = process_synonymous_variants(syn, cpg=True)
+
+    # non_cpg_results = non_cpg_model(syn_non)
+    # cpg_results = cpg_model(syn_cpg)
+
+    return None  #! Testing
 
 
 if __name__ == "__main__":
