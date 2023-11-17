@@ -54,6 +54,31 @@ def get_variant_annotations(path):
     return df
 
 
+def filter_covered_sites(df, coverage):
+    """Filter for sites with minimum coverage requirement."""
+
+    if not type(coverage) == int:
+        raise ValueError("Coverage must be integer.")
+
+    logger.info(f"Filtering for sites with coverage >= {coverage}.")
+
+    # Some sites have NaN values for coverage.
+    # If coverage == 0, do not exclude even these.
+    if coverage == 0:
+        logger.info(f"Qualifying variants: {len(df)}")
+        logger.info(
+            f"Variants where coverage is NaN: {df.median_coverage.isna().sum()}"
+        )
+        logger.info(f"Qualifying variants by consequence:\n{df.csq.value_counts()}")
+        return df
+
+    df = df[df.median_coverage >= coverage]
+    logger.info(f"Qualifying variants: {len(df)}")
+    logger.info(f"Qualifying variants by consequence:\n{df.csq.value_counts()}")
+
+    return df
+
+
 def get_rare_synonymous_variants(df):
     """Get rare synonymous variants for variant expectation model."""
 
@@ -96,33 +121,62 @@ def agg_counts_and_mutability(df, grouping_columns):
     return df
 
 
+def parse_args():
+    """Parse command line arguments."""
+
+    parser = argparse.ArgumentParser(usage=__doc__)
+
+    parser.add_argument(
+        "-c",
+        "--coverage",
+        type=int,
+        default=[0],
+        nargs="*",
+        help="Minimum coverage of sites to include. Accepts multiple integer values.",
+    )
+
+    return parser.parse_args()
+
+
 def main():
     """Run the script."""
 
-    df = get_variant_annotations(C.ALL_VARIANTS_MERGED_ANNOTATIONS)
-    # ? We could filter for coverage at this point
-
-    # Synonymous variants
-    syn = get_rare_synonymous_variants(df).pipe(
-        agg_counts_and_mutability, ["tri", "ref", "alt", "variant_type", "lvl"]
+    df = get_variant_annotations(C.ALL_VARIANTS_MERGED_ANNOTATIONS).rename(
+        columns={"nmd": "region"}
     )
 
-    # Regions
-    # We need to group by chr for PAR transcripts on chrX & chrY
-    transcript = agg_counts_and_mutability(
-        df, ["chr", "enst", "csq", "variant_type"]
-    ).assign(nmd="transcript")
-    nmd = agg_counts_and_mutability(df, ["chr", "enst", "csq", "variant_type", "nmd"])
-    regions = pd.concat([nmd, transcript])
+    # Filter for coverage
+    coverage = parse_args().coverage
 
-    # Logging
-    logger.info(f"Synonymous contexts annotated: {len(syn)}")
-    logger.info(f"enst/csq/cpg annotations: {len(transcript)}")
-    logger.info(f"nmd/enst/csq/cpg annotations: {len(nmd)}")
+    for cov in coverage:
+        # Filter variants by coverage
+        df_min_coverage = filter_covered_sites(df, cov)
 
-    # Write to output
-    syn.to_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t", index=False)
-    regions.to_csv(C.OBSERVED_VARIANTS_COUNTS_REGION, sep="\t", index=False)
+        # Get rare synonymous variants for expectation model
+        syn = get_rare_synonymous_variants(df_min_coverage).pipe(
+            agg_counts_and_mutability, ["tri", "ref", "alt", "variant_type", "lvl"]
+        )
+
+        # Get variants by region for constraint calculations.
+        #? Should we limit to rare variants only?
+        #* We need to group by chr for PAR transcripts on chrX & chrY
+        transcript = agg_counts_and_mutability(
+            df_min_coverage, ["chr", "enst", "csq", "variant_type"]
+        ).assign(region="transcript")
+
+        nmd = agg_counts_and_mutability(
+            df_min_coverage, ["chr", "enst", "csq", "variant_type", "region"]
+        )
+        regions = pd.concat([nmd, transcript])
+
+        # Logging
+        logger.info(f"Synonymous contexts annotated: {len(syn)}")
+        logger.info(f"enst/csq/cpg annotations: {len(transcript)}")
+        logger.info(f"nmd/enst/csq/cpg annotations: {len(nmd)}")
+
+        # Write to output
+        syn.to_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t", index=False)
+        regions.to_csv(C.OBSERVED_VARIANTS_COUNTS_REGION, sep="\t", index=False)
 
     # return regions  #! Testing
 

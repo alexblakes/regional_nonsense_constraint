@@ -21,13 +21,6 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-
-def filter_covered_sites(df, coverage):
-    """Filter for sites with minimum coverage requirement."""
-
-    if not type(coverage) == int: raise ValueError("Coverage should be an integer.")
-    
-
 def process_synonymous_variants(syn, cpg=False):
     """Retrieve synonymous variants in CpG or non-CpG contexts
 
@@ -84,40 +77,18 @@ def cpg_model(df):
     return results
 
 
-def parse_args():
-    """Parse command line arguments."""
-
-    parser = argparse.ArgumentParser(usage=__doc__)
-
-    parser.add_argument(
-        "-c",
-        "--coverage",
-        type=int,
-        default=[0],
-        nargs='*',
-        help="Minimum coverage of sites to include. Accepts multiple integer values.",
-    )
-
-    return parser.parse_args()
-
-
 def main():
     """Run the script."""
 
-    coverage = parse_args().coverage
-    
-    for c in coverage:
+    syn = pd.read_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t")
 
+    logger.info(f"Total synonymous contexts: {len(syn)}")
 
-    # syn = pd.read_csv(C.OBSERVED_VARIANTS_COUNTS_SYN, sep="\t")
+    syn_non = process_synonymous_variants(syn, cpg=False)
+    syn_cpg = process_synonymous_variants(syn, cpg=True)
 
-    # logger.info(f"Total synonymous contexts: {len(syn)}")
-
-    # syn_non = process_synonymous_variants(syn, cpg=False)
-    # syn_cpg = process_synonymous_variants(syn, cpg=True)
-
-    # non_cpg_results = non_cpg_model(syn_non)
-    # cpg_results = cpg_model(syn_cpg)
+    non_cpg_results = non_cpg_model(syn_non)
+    cpg_results = cpg_model(syn_cpg)
 
     return None  #! Testing
 
