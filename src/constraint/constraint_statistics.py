@@ -20,7 +20,7 @@ from src import constants as C
 
 # Module constants
 _TRANSCRIPT = ["transcript"]
-_REGIONS = ["distal_nmd", "nmd_target", "long_exon"]
+_REGIONS = ["distal_nmd", "nmd_target", "long_exon", "start_proximal"] # Note "start_proximal" excluded
 _CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
 
 
@@ -71,7 +71,7 @@ def get_gnomad_constraint(path):
             "transcript": "enst",
             "lof.pLI": "pli",
             "lof.oe_ci.upper": "loeuf",
-            "constraint_flags": "gnomad_constraint_flags",
+            "constraint_flags": "gnomad_flags",
         }
     )
 
@@ -82,15 +82,18 @@ def main():
     """Run as script."""
 
     # Read expected variant data
-    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t", nrows=5)
+    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t")
 
     # Get z scores and unadjusted p values
+    logger.info("Getting z scores per region and consequence type.")
+
     zp = df.apply(per_row_ztest, axis=1, result_type="expand").set_axis(
         ["z", "p"], axis=1
     )
 
     df = pd.concat([df, zp], axis=1)
 
+    logger.info(f"Valid z scores: {df.z.count()}")
     logger.info(
         f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).z.count()}"
     )
@@ -98,6 +101,8 @@ def main():
     # FDR adjustment.
     # Calculated separately for whole-transcripts and constrained regions, and for each
     # distinct consequence.
+    logger.info("Getting FDR statistics. Start-proximal regions are excluded.")
+
     fdr_results = pd.concat(
         [
             fdr_adjustment(df, region=r, csq=c)
@@ -107,11 +112,15 @@ def main():
     )
 
     df = df.join(fdr_results)
+    logger.info(f"Valid FDR results: {df.fdr_p.count()}")
 
     # Merge with gnomAD constraint data
     gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
-    
+
     df = df.merge(gnomad, how="left")
+
+    # Write to output
+    df.to_csv(C.REGIONAL_CONSTRAINT_STATS, sep="\t", index=False)
 
     return df  #! Testing
 
