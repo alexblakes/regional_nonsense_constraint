@@ -29,13 +29,8 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def per_row_ztest(row, statistic="z"):
+def per_row_ztest(row):
     """Calculate one-sided z test row-wise"""
-
-    if statistic == "z":
-        i = 0
-    elif statistic == "p":
-        i = 1
 
     stat = proportions_ztest(
         count=row["n_obs"],
@@ -43,7 +38,7 @@ def per_row_ztest(row, statistic="z"):
         value=row["prop_exp"],
         alternative="smaller",
         prop_var=row["prop_exp"],
-    )[i]
+    )
 
     return stat
 
@@ -87,11 +82,14 @@ def main():
     """Run as script."""
 
     # Read expected variant data
-    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t")
+    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t", nrows=5)
 
     # Get z scores and unadjusted p values
-    df["z"] = df.apply(per_row_ztest, statistic="z", axis=1)
-    df["p"] = df.apply(per_row_ztest, statistic="p", axis=1)
+    zp = df.apply(per_row_ztest, axis=1, result_type="expand").set_axis(
+        ["z", "p"], axis=1
+    )
+
+    df = pd.concat([df, zp], axis=1)
 
     logger.info(
         f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).z.count()}"
@@ -108,11 +106,11 @@ def main():
         ]
     )
 
-    # Annotate the original dataframe with FDR-adjusted p-values
     df = df.join(fdr_results)
 
     # Merge with gnomAD constraint data
     gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
+    
     df = df.merge(gnomad, how="left")
 
     return df  #! Testing
