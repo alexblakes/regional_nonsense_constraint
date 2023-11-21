@@ -5,6 +5,7 @@
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 from statsmodels.stats.proportion import proportions_ztest
 from statsmodels.stats.proportion import proportions_chisquare
 from statsmodels.stats.multitest import fdrcorrection as fdr
@@ -37,16 +38,28 @@ def per_row_ztest(row):
 
     return stat
 
-def per_row_chisquare(row):
-    """Calculate chi-square test for proportions row-wise."""
-    
-    stat = proportions_chisquare(
-        count=row["n_obs"],
-        nobs=row["n_pos"],
-        value=row["prop_exp"],
-    )
 
-    return stat[0:2]
+def per_row_chisquare(row):
+    """Calculate chi-square goodness of fit test for proportions row-wise."""
+
+    if row["n_exp"] >= 5:  # Condition for X2 goodness of fit
+
+        # Get statistics
+        chi2, p, table = proportions_chisquare(
+            count=row["n_obs"],
+            nobs=row["n_pos"],
+            value=row["prop_exp"],
+        )
+
+        z = np.sqrt(chi2)
+
+        # Negate z scores where O/E < 1
+        if row["oe"] < 1:
+            z = z * -1
+
+        return chi2, z, p
+
+    pass
 
 
 def fdr_adjustment(df, region, csq):
@@ -88,49 +101,49 @@ def main():
     """Run as script."""
 
     # Read expected variant data
-    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t", nrows=10)
+    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t")
 
-    # Get z scores and unadjusted p values
-    logger.info("Getting z scores per region and consequence type.")
-
-    zp = df.apply(per_row_ztest, axis=1, result_type="expand").set_axis(
-        ["z", "p"], axis=1
+    # Get chi squared scores, z scores, and unadjusted p values
+    logger.info(
+        "Running Chi squared goodness of fit tests per region and consequence type."
     )
 
-    X2 = df.apply(per_row_chisquare, axis=1, result_type="expand").set_axis(["X2","p"], axis=1)
+    chi2 = df.apply(per_row_chisquare, axis=1, result_type="expand").set_axis(
+        ["chi2", "z", "p"], axis=1
+    )
 
-    # df = pd.concat([df, zp], axis=1)
+    df = pd.concat([df, chi2], axis=1)
 
-    # logger.info(f"Valid z scores: {df.z.count()}")
-    # logger.info(
-    #     f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).z.count()}"
-    # )
+    logger.info(f"Valid chi squared statistics: {df.chi2.count()}")
+    logger.info(
+        f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).chi2.count()}"
+    )
 
-    # # FDR adjustment.
-    # # Calculated separately for whole-transcripts and constrained regions, and for each
-    # # distinct consequence.
-    # logger.info("Getting FDR statistics.")
+    # FDR adjustment.
+    # Calculated separately for whole-transcripts and constrained regions, and for each
+    # distinct consequence.
+    logger.info("Getting FDR statistics.")
 
-    # fdr_results = pd.concat(
-    #     [
-    #         fdr_adjustment(df, region=r, csq=c)
-    #         for c in _CSQS
-    #         for r in [_TRANSCRIPT, _REGIONS]
-    #     ]
-    # )
+    fdr_results = pd.concat(
+        [
+            fdr_adjustment(df, region=r, csq=c)
+            for c in _CSQS
+            for r in [_TRANSCRIPT, _REGIONS]
+        ]
+    )
 
-    # df = df.join(fdr_results)
-    # logger.info(f"Valid FDR results: {df.fdr_p.count()}")
+    df = df.join(fdr_results)
+    logger.info(f"Valid FDR results: {df.fdr_p.count()}")
 
-    # # Merge with gnomAD constraint data
-    # gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
+    # Merge with gnomAD constraint data
+    gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
 
-    # df = df.merge(gnomad, how="left")
+    df = df.merge(gnomad, how="left")
 
-    # # Write to output
-    # df.to_csv(C.REGIONAL_CONSTRAINT_STATS, sep="\t", index=False)
+    # Write to output
+    df.to_csv(C.REGIONAL_CONSTRAINT_STATS, sep="\t", index=False)
 
-    return zp, X2  #! Testing
+    # return df  #! Testing
 
 
 if __name__ == "__main__":
