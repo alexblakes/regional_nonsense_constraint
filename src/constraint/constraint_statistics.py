@@ -4,15 +4,9 @@
 # Imports
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-import statsmodels.api as sm
-import seaborn as sns
-import matplotlib.pyplot as plt
 from statsmodels.stats.proportion import proportions_ztest
 from statsmodels.stats.multitest import fdrcorrection as fdr
-from scipy import stats as _stats
-from scipy.stats import spearmanr
 
 from src import setup_logger
 from src import constants as C
@@ -20,7 +14,7 @@ from src import constants as C
 
 # Module constants
 _TRANSCRIPT = ["transcript"]
-_REGIONS = ["distal_nmd", "nmd_target", "long_exon", "start_proximal"] # Note "start_proximal" excluded
+_REGIONS = ["distal_nmd", "nmd_target", "long_exon", "start_proximal"]
 _CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
 
 
@@ -101,7 +95,7 @@ def main():
     # FDR adjustment.
     # Calculated separately for whole-transcripts and constrained regions, and for each
     # distinct consequence.
-    logger.info("Getting FDR statistics. Start-proximal regions are excluded.")
+    logger.info("Getting FDR statistics.")
 
     fdr_results = pd.concat(
         [
