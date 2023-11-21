@@ -51,7 +51,7 @@ def per_row_chisquare(row):
             value=row["prop_exp"],
         )
 
-        z = np.sqrt(chi2)
+        z = np.sqrt(chi2) # Equivalent to two-sided z test
 
         # Negative z scores where O/E < 1
         if row["oe"] < 1:
