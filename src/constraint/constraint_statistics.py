@@ -53,7 +53,7 @@ def per_row_chisquare(row):
 
         z = np.sqrt(chi2)
 
-        # Negate z scores where O/E < 1
+        # Negative z scores where O/E < 1
         if row["oe"] < 1:
             z = z * -1
 
