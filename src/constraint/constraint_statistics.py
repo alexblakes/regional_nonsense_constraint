@@ -1,4 +1,4 @@
-"""Constraint statistics."""
+"""Identify regions and transcripts which are constrained for nonsense variants."""
 
 
 # Imports
@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 from statsmodels.stats.proportion import proportions_ztest
+from statsmodels.stats.proportion import proportions_chisquare
 from statsmodels.stats.multitest import fdrcorrection as fdr
 
 from src import setup_logger
@@ -30,11 +31,22 @@ def per_row_ztest(row):
         count=row["n_obs"],
         nobs=row["n_pos"],
         value=row["prop_exp"],
-        alternative="smaller",
+        alternative="two-sided",
         prop_var=row["prop_exp"],
     )
 
     return stat
+
+def per_row_chisquare(row):
+    """Calculate chi-square test for proportions row-wise."""
+    
+    stat = proportions_chisquare(
+        count=row["n_obs"],
+        nobs=row["n_pos"],
+        value=row["prop_exp"],
+    )
+
+    return stat[0:2]
 
 
 def fdr_adjustment(df, region, csq):
@@ -76,7 +88,7 @@ def main():
     """Run as script."""
 
     # Read expected variant data
-    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t")
+    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t", nrows=10)
 
     # Get z scores and unadjusted p values
     logger.info("Getting z scores per region and consequence type.")
@@ -85,38 +97,40 @@ def main():
         ["z", "p"], axis=1
     )
 
-    df = pd.concat([df, zp], axis=1)
+    X2 = df.apply(per_row_chisquare, axis=1, result_type="expand").set_axis(["X2","p"], axis=1)
 
-    logger.info(f"Valid z scores: {df.z.count()}")
-    logger.info(
-        f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).z.count()}"
-    )
+    # df = pd.concat([df, zp], axis=1)
 
-    # FDR adjustment.
-    # Calculated separately for whole-transcripts and constrained regions, and for each
-    # distinct consequence.
-    logger.info("Getting FDR statistics.")
+    # logger.info(f"Valid z scores: {df.z.count()}")
+    # logger.info(
+    #     f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).z.count()}"
+    # )
 
-    fdr_results = pd.concat(
-        [
-            fdr_adjustment(df, region=r, csq=c)
-            for c in _CSQS
-            for r in [_TRANSCRIPT, _REGIONS]
-        ]
-    )
+    # # FDR adjustment.
+    # # Calculated separately for whole-transcripts and constrained regions, and for each
+    # # distinct consequence.
+    # logger.info("Getting FDR statistics.")
 
-    df = df.join(fdr_results)
-    logger.info(f"Valid FDR results: {df.fdr_p.count()}")
+    # fdr_results = pd.concat(
+    #     [
+    #         fdr_adjustment(df, region=r, csq=c)
+    #         for c in _CSQS
+    #         for r in [_TRANSCRIPT, _REGIONS]
+    #     ]
+    # )
 
-    # Merge with gnomAD constraint data
-    gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
+    # df = df.join(fdr_results)
+    # logger.info(f"Valid FDR results: {df.fdr_p.count()}")
 
-    df = df.merge(gnomad, how="left")
+    # # Merge with gnomAD constraint data
+    # gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
 
-    # Write to output
-    df.to_csv(C.REGIONAL_CONSTRAINT_STATS, sep="\t", index=False)
+    # df = df.merge(gnomad, how="left")
 
-    return df  #! Testing
+    # # Write to output
+    # df.to_csv(C.REGIONAL_CONSTRAINT_STATS, sep="\t", index=False)
+
+    return zp, X2  #! Testing
 
 
 if __name__ == "__main__":
