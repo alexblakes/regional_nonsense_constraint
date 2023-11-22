@@ -55,6 +55,7 @@ OBS_COUNTS_REGIONS_20_CLEAN = f"{INTERIM_DIR}/observed_variants_counts_regions_c
 ALL_VARIANTS_MERGED_ANNOTATIONS = f"{FINAL_DIR}/all_variants_merged_annotations.tsv"
 EXPECTED_VARIANTS_ALL_REGIONS = f"{FINAL_DIR}/expected_variants_all_regions.tsv"
 REGIONAL_CONSTRAINT_STATS = f"{FINAL_DIR}/regional_constraint_stats.tsv"
+REGIONAL_NONSENSE_CONSTRAINT = f"{FINAL_DIR}/regional_nonsense_constraint.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
