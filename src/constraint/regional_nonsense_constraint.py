@@ -1,4 +1,4 @@
-"""Annotate regions with nonsense constraint labels."""
+"""Find constrained and unconstrained regions."""
 
 
 # Imports
@@ -43,7 +43,7 @@ def assign_constraint_label(df):
 
     # Filtering masks
     m1 = df["oe"] < _OE
-    m2 = df["syn_z"] > _SYN_Z
+    m2 = df["syn_z"] >= _SYN_Z
     m3 = df["fdr_p"] < _FDR_P
 
     m4 = df["p"] >= _P
@@ -55,7 +55,7 @@ def assign_constraint_label(df):
 
     # Logging
     logger.info(
-        f"Constrained region value counts:\n{df.groupby('region').constraint.value_counts()}"
+        f"Constrained region value counts:\n{df.groupby('region').constraint.value_counts(dropna=False)}"
     )
 
     return df
@@ -75,7 +75,7 @@ def main():
     # Write to output
     df.to_csv(C.REGIONAL_NONSENSE_CONSTRAINT, sep="\t", index=False)
 
-    return df  #! Testing
+    # return df  #! Testing
 
 
 if __name__ == "__main__":
