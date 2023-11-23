@@ -13,7 +13,9 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
        data/interim/gencode_v39_canonical_cds_seq.tsv \
 	   data/interim/mutation_rate_by_context_methyl_tidy.tsv \
 	   data/interim/observed_variants_counts_regions_cov_20_clean.tsv \
-	   data/final/expected_variants_all_regions.tsv
+	   data/final/expected_variants_all_regions.tsv \
+	   data/final/regional_constraint_stats.tsv \
+	   data/final/regional_nonsense_constraint.tsv \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
@@ -134,3 +136,12 @@ data/final/expected_variants_all_regions.tsv : data/interim/observed_variants_co
                                                data/interim/observed_variants_counts_regions_cov_20_clean.tsv \
 											   src/constraint/expected_variants.py
 	python3 -m src.constraint.expected_variants
+
+# Get nonsense-constrained regions
+data/final/regional_constraint_stats.tsv \
+data/final/regional_nonsense_constraint.tsv : src/constraint/constraint_statistics.py \
+                                              src/constraint/regional_nonsense_constraint.py \
+											  data/final/expected_variants_all_regions.tsv \
+											  data/raw/gnomad.v4.0.constraint_metrics.tsv
+	python3 -m src.constraint.constraint_statistics
+	python3 -m src.constraint.regional_nonsense_constraint
