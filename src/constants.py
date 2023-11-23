@@ -63,3 +63,4 @@ VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
 
 ## Visualisation
 DEFAULT_MPL = "src/visualisation/default.mplstyle"
+CM = 1/ 2.54 # cm to inches conversion
