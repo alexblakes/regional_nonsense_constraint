@@ -93,6 +93,7 @@ def main():
     )
 
     # Write to output
+    logger.info("Writing to output.")
     df.to_csv(C.PS_SYN_CONTEXT, sep="\t", index=False)
 
     return df  #! Testing
