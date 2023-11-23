@@ -1,248 +1,151 @@
+"""Docstring."""
 
-# # Observed variants
-# This script identifies the observed and possible variants in UKB. 
-# 
-# Variants are grouped by variant context, transcript, or NMD-region. The script aggregates the number observed, the number possible, and the mean mutability for each grouping. The summary data are saved to a .tsv outputs.
-
-
-# ## Preliminaries
-
-
-# ### Import modules
-
+# Imports
+from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from collections import defaultdict
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats as _stats
 import statsmodels.formula.api as smf
 from statsmodels.stats.proportion import proportions_ztest
 
-sns.set_context("talk")
+from src import setup_logger
+from src import constants as C
+
+# Module constants
+_VCF_HEADER = ["chr", "pos", "id", "ref", "alt", "qual", "filter", "info"]
+_DATATYPES = defaultdict(lambda: "str")
+_DATATYPES.update({"pos": np.int32, "ac": np.int32, "an": np.int32})
+_COVERAGE = 20
 
 
-# ### Download datasets from UKB RAP
+# Logging
+logger = setup_logger(Path(__file__).stem)
 
-dx download \
-    -f \
-    -o ../data/ \
-    data/cds_trinucleotide_contexts.tsv \
-    data/grch38_cpg_methylation.tsv \
-    data/gnomad_nc_mutation_rates.tsv \
-    data/vep_cds_all_possible_snvs.vcf \
-    outputs/gnomad_pass_variants/all_pass_snvs.txt \
-    outputs/nmd_annotations.tsv
+# Functions
+def get_variant_annotations(path):
+    """Get merged annotations for all variants."""
 
+    df = (
+        pd.read_csv(
+            path,
+            sep="\t",
+            # nrows=1000000,
+        )
+        .rename(columns={"nmd": "region"})
+        .query("obs == True")
+        .query(f"median_coverage >= {_COVERAGE}")
+    )
 
-# ## Load datasets
+    # Sanity checks
+    assert all(x > 0 for x in df.ac), "0s or NaNs present in df.ac"
 
-
-# Define VCF headers and datatypes.
-_header = ["chr", "pos", "id", "ref", "alt", "qual", "filter", "info"]
-
-datatypes = defaultdict(lambda: "str")
-datatypes.update({"pos": np.int32, "ac": np.int32, "an": np.int32})
-
-
-# Retreive observed variants
-obs = pd.read_csv(
-    "../data/all_pass_snvs.txt",
-    sep="\t",
-    header=None,
-    names=_header + ["ac", "an"],
-    usecols=["chr", "pos", "ref", "alt", "ac", "an"],
-    dtype=datatypes,
-).assign(obs=1)
+    # Logging
+    logger.info(f"Observed variants at {_COVERAGE}x coverage: {len(df)}")
+    logger.info(f"Missing values:\n{df.isna().sum()}")
+    
+    return df
 
 
-# Retreive VEP annotations of all possible SNVs
-vep = pd.read_csv(
-    "../data/vep_cds_all_possible_snvs.vcf",
-    sep="\t",
-    comment="#",
-    header=None,
-    names=_header,
-    dtype=datatypes,
-    usecols=["chr", "pos", "ref", "alt", "info"],
-)
+def get_valid_synonymous_variants(df):
+    """Get valid synonymous variants for MAPS model."""
 
+    logger.info("Filtering for valid synonymous variants.")
 
-# Get enst
-vep["enst"] = pd.Series([x.split("|", 3)[2] for x in vep["info"]])
+    syn = df[df["csq"] == "synonymous_variant"]
 
+    logger.info(f"Synonymous variants before filtering: {len(syn)}")
 
-# Get csq
-syn = pd.Series(["synonymous" in x for x in vep["info"]])
-mis = pd.Series(["missense" in x for x in vep["info"]])
-non = pd.Series(["stop_gained" in x for x in vep["info"]])
+    # Mask contexts in which a synonymous variant is generally not possible.
+    # Synonymous variants in these contexts can only occur at exon-intron junctions.
+    m1 = (syn.tri == "AGT") & ((syn.alt == "C") | (syn.alt == "T"))
+    m2 = (syn.tri == "AAT") & ((syn.alt == "C") | (syn.alt == "T"))
+    m3 = (syn.tri == "ACT") & ((syn.alt == "G") | (syn.alt == "A"))
+    m4 = (syn.tri == "ATT") & ((syn.alt == "G") | (syn.alt == "A"))
 
-vep.loc[syn, "csq"] = "synonymous"
-vep.loc[mis, "csq"] = "missense"
-vep.loc[non, "csq"] = "nonsense"
+    syn = syn[~(m1 | m2 | m3 | m4)]
 
-vep = vep.drop("info", axis=1).dropna()  # Keep only syn/mis/non variants
+    logger.info(f"Synonymous variants after filtering: {len(syn)}")
 
-
-# Trinucleotide contexts
-tri = pd.read_csv("../data/cds_trinucleotide_contexts.tsv", sep="\t", dtype=datatypes)
-
-
-# gnomAD methylation data
-meth = pd.read_csv(
-    "../data/grch38_cpg_methylation.tsv",
-    sep="\t",
-    header=0,
-    names=["ix", "chr", "pos", "alleles", "lvl"],
-    usecols=["chr", "pos", "lvl"],
-)
-
-
-# Mutation rates
-mu = pd.read_csv(
-    "../data/gnomad_nc_mutation_rates.tsv",
-    sep="\t",
-    names=[
-        "tri",
-        "ref",
-        "alt",
-        "lvl",
-        "variant_type",
-        "mu",
-        "pos",
-        "obs",
-        "po",
-        "ppo",
-    ],
-    header=0,
-    usecols=["tri", "ref", "alt", "lvl", "mu", "variant_type"],
-)
-
-# Mutation rates are only available for 32 codons. We need to reverse-complement for the remainder.
-complement = {"A": "T", "C": "G", "G": "C", "T": "A"}
-# Replace ref and alt alleles
-_mu = mu.copy().replace(complement)
-# Reverse-complement trinucleotide contexts
-_mu["tri"] = pd.Series(["".join([complement[y] for y in x])[::-1] for x in mu.tri])
-mu = pd.concat([mu, _mu])
-
-
-nmd = pd.read_csv(
-    "../data/nmd_annotations.tsv",
-    sep="\t",
-    usecols=["chr", "pos", "transcript_id", "nmd_definitive"],
-).rename(columns={"transcript_id": "enst", "nmd_definitive": "nmd"})
-
-
-# ## Merge annotations
-
-
-# Merge VEP, context, NMD, and observed variant annotations
-df = vep.merge(tri, how="left")
-df = df.merge(nmd, how="left")
-df = df.merge(obs, how="left").fillna(0)
-
-
-# Merge methylation annotations
-variant_types = mu[["tri", "ref", "alt", "variant_type"]].drop_duplicates()
-df = df.merge(variant_types, how="left")
-df = df.merge(meth, how="left")
-
-# All non-CpG sites have lvl 0
-df.loc[df["variant_type"] != "CpG", "lvl"] = 0
-df.lvl = df.lvl.astype(int)
-df.obs = df.obs.astype(int)
-
-# Merge with mutability data
-df = df.merge(mu, how="left")
-
-
-# ## Summarise the data
-
-
-# ### Synonymous proportion singletons by variant context
+    return syn
 
 
 def get_ps(dfg):
-    """
-    Get mean mutability and proportion of singletons.
-    """
+    """Get mean mutability and proportion of singletons."""
+
     mu = dfg["mu"].mean()
-    ns = dfg["ac"].apply(lambda x: (x==1).sum()).rename("n_singletons")
+    ns = dfg["ac"].apply(lambda x: (x == 1).sum()).rename("n_singletons")
     no = dfg["ac"].count().rename("n_obs")
-    
+
     ps = pd.concat([mu, ns, no], axis=1).reset_index()
-    
+
     ps["ps"] = ps["n_singletons"] / ps["n_obs"]
-    
+
     return ps
 
 
-# Subset to synonymous variants only
-syn = df[df["csq"] == "synonymous"].copy()
+def main():
+    """Run as script."""
 
-# Mask contexts in which a synonymous variant is generally not possible.
-# (NB synonymous variants in these contexts can only occur at exon-intron junctions)
-m1 = (syn.tri == "AGT") & ((syn.alt == "C") | (syn.alt == "T"))
-m2 = (syn.tri == "AAT") & ((syn.alt == "C") | (syn.alt == "T"))
-m3 = (syn.tri == "ACT") & ((syn.alt == "G") | (syn.alt == "A"))
-m4 = (syn.tri == "ATT") & ((syn.alt == "G") | (syn.alt == "A"))
+    df = (
+        get_variant_annotations(C.ALL_VARIANTS_MERGED_ANNOTATIONS)
+        .pipe(get_valid_synonymous_variants)
+        .groupby(["tri", "ref", "alt", "variant_type", "lvl"])
+        .pipe(get_ps)
+    )
 
-# Mask variants which are not observed
-m5 = syn["ac"] == 0
+    # Write to output
+    df.to_csv(C.PS_SYN_CONTEXT, sep="\t", index=False)
 
-# Apply filters
-syn_obs = syn[~(m1 | m2 | m3 | m4 | m5)]
-
-# Get proportion of singletons per context for observed variants
-syn_g = syn_obs.groupby(["tri", "ref", "alt", "variant_type", "lvl"])
-
-ps = get_ps(syn_g)
-
-ps.to_csv("../outputs/proportion_singletons_synonymous_by_context.tsv", sep="\t", index=False)
+    return df  #! Testing
 
 
-# ### Proportion of singletons by csq
+if __name__ == "__main__":
+    main()
 
 
-m1 = df["ac"] != 0
-m2 = df["variant_type"] != "CpG"
-m3 = df["csq"] == "nonsense"
+# ps.to_csv("../outputs/proportion_singletons_synonymous_by_context.tsv", sep="\t", index=False)
 
 
-# #### Synonymous, missense, and nonsense
+# # ### Proportion of singletons by csq
 
 
-# CpG only
-ps_csq_cpg = get_ps(df[m1 & ~m2].groupby("csq"))
-
-# Exclude CpG
-ps_csq_no_cpg = get_ps(df[m1 & m2].groupby("csq"))
+# m1 = df["ac"] != 0
+# m2 = df["variant_type"] != "CpG"
+# m3 = df["csq"] == "nonsense"
 
 
-# #### Nonsense, by NMD region
+# # #### Synonymous, missense, and nonsense
 
 
-# CpG only
-ps_region_cpg = get_ps(df[m1 & m3 & ~m2].groupby("nmd"))
+# # CpG only
+# ps_csq_cpg = get_ps(df[m1 & ~m2].groupby("csq"))
 
-# Exclude CpG
-ps_region_no_cpg = get_ps(df[m1 & m2 & m3].groupby("nmd"))
-
-
-# ### Combine CSQ and Region results
+# # Exclude CpG
+# ps_csq_no_cpg = get_ps(df[m1 & m2].groupby("csq"))
 
 
-# Reformat column names
-ps_region_cpg = ps_region_cpg.rename(columns={"nmd":"csq"})
-ps_region_no_cpg = ps_region_no_cpg.rename(columns={"nmd":"csq"})
-
-for a, b, c in zip([ps_csq_cpg, ps_csq_no_cpg], [ps_region_cpg, ps_region_no_cpg], ["cpg","no_cpg"]):
-    ps = pd.concat([a,b])
-    ps.to_csv(f"../outputs/proportion_singletons_by_csq_and_region_{c}.tsv", sep="\t", index=False)
-    print(f"{c}\n{ps}\n\n")
+# # #### Nonsense, by NMD region
 
 
+# # CpG only
+# ps_region_cpg = get_ps(df[m1 & m3 & ~m2].groupby("nmd"))
+
+# # Exclude CpG
+# ps_region_no_cpg = get_ps(df[m1 & m2 & m3].groupby("nmd"))
 
 
+# # ### Combine CSQ and Region results
+
+
+# # Reformat column names
+# ps_region_cpg = ps_region_cpg.rename(columns={"nmd":"csq"})
+# ps_region_no_cpg = ps_region_no_cpg.rename(columns={"nmd":"csq"})
+
+# for a, b, c in zip([ps_csq_cpg, ps_csq_no_cpg], [ps_region_cpg, ps_region_no_cpg], ["cpg","no_cpg"]):
+#     ps = pd.concat([a,b])
+#     ps.to_csv(f"../outputs/proportion_singletons_by_csq_and_region_{c}.tsv", sep="\t", index=False)
+#     print(f"{c}\n{ps}\n\n")
