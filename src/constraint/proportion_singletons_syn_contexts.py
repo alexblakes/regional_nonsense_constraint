@@ -20,6 +20,8 @@ logger = setup_logger(Path(__file__).stem)
 def get_variant_annotations(path):
     """Get merged annotations for all variants."""
 
+    logger.info("Getting variant annotations.")
+
     df = (
         pd.read_csv(
             path,
@@ -66,6 +68,8 @@ def get_valid_synonymous_variants(df):
 
 def get_ps(dfg):
     """Get mean mutability and proportion of singletons."""
+
+    logger.info("Getting proportion of singletons.")
 
     mu = dfg["mu"].mean()
     ns = dfg["ac"].apply(lambda x: (x == 1).sum()).rename("n_singletons")
