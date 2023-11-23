@@ -145,3 +145,10 @@ data/final/regional_nonsense_constraint.tsv : src/constraint/constraint_statisti
 											  data/raw/gnomad.v4.0.constraint_metrics.tsv
 	python3 -m src.constraint.constraint_statistics
 	python3 -m src.constraint.regional_nonsense_constraint
+
+# Get proportion of singletons for synonymous variant contexts
+data/interim/proportion_singletons_synonymous_by_context.tsv : data/final/all_variants_merged_annotations.tsv \
+                                                               src/constraint/proportion_singletons_syn_contexts.py
+	python3 -m src.constraint.proportion_singletons_syn_contexts
+
+# Next 
