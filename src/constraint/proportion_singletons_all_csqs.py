@@ -17,28 +17,44 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def main():
-    """Run as script."""
+def get_ps_per_consequence(df):
+    return df.groupby("csq").pipe(ps.get_ps)
 
-    # Read variant annotations
-    df = ps.get_variant_annotations(C.ALL_VARIANTS_MERGED_ANNOTATIONS)
 
-    # Get PS per consequence
-    ps_csq = df.groupby("csq").pipe(ps.get_ps)
-
-    # For nonsense variants, get PS per region
-    ps_region = (
+def get_ps_per_region(df):
+    return (
         df[df["csq"] == "stop_gained"]
         .groupby("region")
         .pipe(ps.get_ps)
         .rename(columns={"region": "csq"})
     )
 
+
+def main():
+    """Run as script."""
+
+    # Read variant annotations
+    df = ps.get_variant_annotations(C.ALL_VARIANTS_MERGED_ANNOTATIONS)
+
+    # Split by variant type
+    cpg = df[df.variant_type == "CpG"]
+    non = df[df.variant_type == "non-CpG"]
+
+    # Get PS per consequence
+    cpg_csq = get_ps_per_consequence(cpg)
+    non_csq = get_ps_per_consequence(non)
+
+    # For nonsense variants, get PS per region
+    cpg_region = get_ps_per_region(cpg)
+    non_region = get_ps_per_region(non)
+
     # Combine datasets
-    df = pd.concat([ps_csq, ps_region])
+    cpg = pd.concat([cpg_csq, cpg_region])
+    non = pd.concat([non_csq, non_region])
 
     # Write to output
-    df.to_csv(C.PS_REGIONS, sep="\t", index=False)
+    cpg.to_csv(C.PS_REGIONS_CPG, sep="\t", index=False)
+    non.to_csv(C.PS_REGIONS_NON_CPG, sep="\t", index=False)
 
     return df  #! Testing
 
