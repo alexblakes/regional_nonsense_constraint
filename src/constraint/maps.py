@@ -18,9 +18,12 @@ logger = setup_logger(Path(__file__).stem)
 
 # Functions
 def maps_model(syn, deg):
-    """Fit a second degree polynomial to PS vs mu for synonymous contexts.
+    """Fit a polynomial regression to PS vs mu for synonymous contexts.
 
     See notebooks/02_maps_model_choices.ipynb for further information.
+
+    Args:
+        deg (int): Degree of the polynomial, passed to np.polyfit().
     """
 
     x = syn.mu
@@ -71,6 +74,7 @@ def main():
         pd.read_csv(C.PS_SYN_CONTEXT, sep="\t")
         .query("n_singletons > 0")
         .query("n_obs >= 1000")
+        .query("mu < (9 * 10 ** -8)")
     )
 
     # Split into CpG and non-CpG contexts
@@ -80,5 +84,8 @@ def main():
     # Calculate MAPS separately for CpG and non-CpG variants
     cpg = pd.read_csv(C.PS_REGIONS_CPG, sep="\t").pipe(maps, cpg_p)
     non = pd.read_csv(C.PS_REGIONS_NON_CPG, sep="\t").pipe(maps, non_p)
+
+    # p = maps_model(syn, deg=2)
+    # joint = pd.read_csv(C.PS_REGIONS, sep="\t").pipe(maps, p)
 
     return cpg, non  #! Testing
