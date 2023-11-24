@@ -16,6 +16,8 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
 	   data/final/expected_variants_all_regions.tsv \
 	   data/final/regional_constraint_stats.tsv \
 	   data/final/regional_nonsense_constraint.tsv \
+	   data/interim/proportion_singletons_synonymous_by_context.tsv \
+	   data/interim/proportion_singletons_by_csq.tsv \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
@@ -150,5 +152,10 @@ data/final/regional_nonsense_constraint.tsv : src/constraint/constraint_statisti
 data/interim/proportion_singletons_synonymous_by_context.tsv : data/final/all_variants_merged_annotations.tsv \
                                                                src/constraint/proportion_singletons_syn_contexts.py
 	python3 -m src.constraint.proportion_singletons_syn_contexts
+
+# Get proportion singletons for all variant consequences
+data/interim/proportion_singletons_by_csq.tsv : src/constraint/proportion_singletons_syn_contexts.py \
+                                                src/constraint/proportion_singletons_all_csqs.py
+	python3 -m src.constraint.proportion_singletons_all_csqs
 
 # Next 
