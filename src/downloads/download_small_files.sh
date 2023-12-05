@@ -42,3 +42,7 @@ wget -P data/raw/ https://storage.googleapis.com/gcp-public-data--gnomad/release
 
 # gnomAD non-coding mutation rates
 wget -P data/raw/ https://storage.googleapis.com/gnomad-nc-constraint-v31-paper/mutation_rate_by_context_methyl.txt
+
+# SNV-level Alpha Missense scores
+wget -O - https://storage.googleapis.com/dm_alphamissense/AlphaMissense_hg38.tsv.gz | \
+gunzip -c > data/raw/AlphaMissense_hg38.tsv
