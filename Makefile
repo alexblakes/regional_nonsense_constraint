@@ -29,6 +29,8 @@ medium : data/interim/cds_counts_and_coords.tsv \
 		 data/interim/gnomad_v4_pass_snvs.tsv \
 		 data/interim/observed_variants_counts_regions_cov_20.tsv \
 		 data/interim/observed_variants_counts_synonymous_cov_20.tsv \
+		 data/interim/pext_37.bed \
+		 data/interim/pext_38.bed \
 
 # Files which take hours to create
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
@@ -157,5 +159,17 @@ data/interim/proportion_singletons_synonymous_by_context.tsv : data/final/all_va
 data/interim/proportion_singletons_by_csq.tsv : src/constraint/proportion_singletons_syn_contexts.py \
                                                 src/constraint/proportion_singletons_all_csqs.py
 	python3 -m src.constraint.proportion_singletons_all_csqs
+
+# Get pext scores (hg19) in bed format
+data/interim/pext_37.bed : data/raw/all.baselevel.021620.tsv \
+                           src/functional_clinical/pext_tidy.py
+	python3 -m src.functional_clinical.pext_tidy
+
+# Liftover pext scores to hg38
+data/interim/pext_38.bed : data/interim/pext_37.bed \
+                           src/functional_clinical/pext_liftover.sh
+	$(CONDA_ACTIVATE) bio
+	bash src/functional_clinical/pext_liftover.sh
+	$(CONDA_ACTIVATE) ukb
 
 # Next 
