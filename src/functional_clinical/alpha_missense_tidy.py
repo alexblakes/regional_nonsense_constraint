@@ -1,5 +1,5 @@
 """ 
-Module docstring. 
+Get the lowest Alpha Missense score per site / transcript.
 """
 
 # Imports
