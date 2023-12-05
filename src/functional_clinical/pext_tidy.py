@@ -44,7 +44,7 @@ def reformat_to_bed(df):
 
     locus = df.locus.str.split(":")
 
-    df["chr"] = "chr" + locus.str[0]
+    df["chr"] = "chr" + locus.str[0] # Sites are mapped to GRCh37/hg19
     df["end"] = locus.str[1].astype("int32")
     df["start"] = df["end"] - 1
 
