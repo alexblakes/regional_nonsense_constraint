@@ -20,6 +20,7 @@ GNOMAD_COVERAGE = f"{GNOMAD_DIR}/coverage/gnomad.exomes.v4.0.coverage.summary.ts
 
 ## Data
 ### Raw
+ALPHA_MISSENSE = f"{RAW_DIR}/AlphaMissense_hg38.tsv"
 CLINVAR_VARIANT_SUMMARY = f"{RAW_DIR}/variant_summary.txt"
 G2P_CARDIAC = f"{RAW_DIR}/CardiacG2P_23_8_2023.csv"
 G2P_DD = f"{RAW_DIR}/DDG2P_23_8_2023.csv"
@@ -28,12 +29,13 @@ G2P_SKELETAL = f"{RAW_DIR}/SkeletalG2P_23_8_2023.csv"
 G2P_SKIN = f"{RAW_DIR}/SkinG2P_23_8_2023.csv"
 GENCODE_GTF = f"{RAW_DIR}/gencode.v39.annotation.gtf"
 GNOMAD_LOEUF_CONSTRAINT = f"{RAW_DIR}/supplementary_dataset_11_full_constraint_metrics.tsv"
-OMIM_GENEMAP = f"{RAW_DIR}/genemap2.txt"
 GNOMAD_V4_CONSTRAINT = f"{RAW_DIR}/gnomad.v4.0.constraint_metrics.tsv"
 GNOMAD_NC_MUTABILITY = f"{RAW_DIR}/mutation_rate_by_context_methyl.txt"
 GNOMAD_NC_METHYLATION = f"{RAW_DIR}/grch38_cpg_methylation.tsv"
+OMIM_GENEMAP = f"{RAW_DIR}/genemap2.txt"
 
 ### Interim
+ALPHA_MISSENSE_TIDY = f"{INTERIM_DIR}/alpha_missense_tidy.tsv"
 CANONICAL_CDS_BED = f"{INTERIM_DIR}/gencode_v39_canonical_cds.bed"
 CANONICAL_CDS_FASTA = f"{INTERIM_DIR}/gencode_v39_canonical_cds_seq.tsv"
 CANONICAL_CDS_GENE_IDS = f"{INTERIM_DIR}/gene_ids.tsv"
