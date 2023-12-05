@@ -1,4 +1,4 @@
-"""Tidy pext scores prior to liftover."""
+"""Reformat pext scores to bed file for liftover."""
 
 # Imports
 from pathlib import Path
@@ -17,27 +17,55 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
+def read_pext_data(path):
+    """Read pext data to memory."""
+
+    logger.info("Reading pext data.")
+
+    df = (
+        pd.read_csv(
+            path,
+            sep="\t",
+            # nrows=100000,  #! Testing
+        )
+        .dropna()
+        .reset_index(drop=True)
+    )
+
+    logger.info(f"pext annotations: {len(df)}")
+
+    return df
+
+
+def reformat_to_bed(df):
+    """Reformat to bed."""
+
+    locus = df.locus.str.split(":")
+
+    df["chr"] = "chr" + locus.str[0]
+    df["end"] = locus.str[1].astype("int32")
+    df["start"] = df["end"] - 1
+
+    df = df.rename(columns={"mean_proportion": "mean_pext"})
+
+    df = df[["chr", "start", "end", "ensg", "mean_pext"]]
+
+    logger.info(f"Unique chr values: {df.chr.unique()}")
+
+    return df
+
 
 def main():
     """Run as script."""
 
-    df = pd.read_csv("C.", sep="\t").dropna().reset_index()
-    
+    df = read_pext_data(C.PEXT_RAW).pipe(reformat_to_bed)
 
-    return df #! Testing
+    # Write to .bed output
+    logger.info("Writing bed file to output.")
+    df.to_csv(C.PEXT_BED_37, sep="\t", index=False, header=False)
 
-df = pd.read_csv("../outputs/pext_37.tsv", sep="\t").dropna().reset_index()
-
-
-_ = pd.DataFrame([x.split(":") for x in df.locus], columns=["chr","end"])
-
-df["chr"] = "chr" + _["chr"]
-df["end"] = _["end"].astype(int)
-df["start"] = df["end"] - 1
-df = df.rename(columns={"ensg":"name", "mean_proportion":"score"})
-
-df = df[["chr","start","end","name","score"]]
-
-df.to_csv("../outputs/pext_37.bed", sep="\t", index=False, header=False)
+    return df  #! Testing
 
 
+if __name__ == "__main__":
+    main()
