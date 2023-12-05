@@ -40,6 +40,8 @@ def read_pext_data(path):
 def reformat_to_bed(df):
     """Reformat to bed."""
 
+    logger.info("Reformating to bed.")
+
     locus = df.locus.str.split(":")
 
     df["chr"] = "chr" + locus.str[0]
