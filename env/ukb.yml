@@ -5,7 +5,7 @@ channels:
   - conda-forge
 dependencies:
   - _libgcc_mutex=0.1
-  - _openmp_mutex=5.1
+  - _openmp_mutex=4.5
   - ansiwrap=0.8.4
   - anyio=3.7.1
   - appdirs=1.4.4
@@ -26,8 +26,9 @@ dependencies:
   - brotli=1.0.9
   - brotli-bin=1.0.9
   - brotlipy=0.7.0
-  - ca-certificates=2023.08.22
-  - certifi=2023.7.22
+  - c-ares=1.23.0
+  - ca-certificates=2023.11.17
+  - certifi=2023.11.17
   - cffi=1.15.1
   - chardet=4.0.0
   - click=8.1.7
@@ -84,18 +85,22 @@ dependencies:
   - libbrotlidec=1.0.9
   - libbrotlienc=1.0.9
   - libclang=10.0.1
+  - libcurl=7.87.0
   - libdeflate=1.17
   - libedit=3.1.20221030
+  - libev=4.33
   - libevent=2.1.12
   - libffi=3.4.4
-  - libgcc-ng=11.2.0
+  - libgcc-ng=13.2.0
   - libgfortran-ng=11.2.0
   - libgfortran5=11.2.0
-  - libgomp=11.2.0
+  - libgomp=13.2.0
   - libllvm10=10.0.1
+  - libnghttp2=1.47.0
   - libpng=1.6.39
   - libpq=12.15
   - libsodium=1.0.18
+  - libssh2=1.10.0
   - libstdcxx-ng=11.2.0
   - libtiff=4.5.0
   - libuuid=1.41.5
@@ -105,6 +110,7 @@ dependencies:
   - libxkbcommon=1.0.1
   - libxml2=2.9.14
   - libxslt=1.1.35
+  - libzlib=1.2.13
   - lz4-c=1.9.4
   - markupsafe=2.1.1
   - matplotlib=3.7.1
@@ -156,6 +162,7 @@ dependencies:
   - psutil=5.9.0
   - ptyprocess=0.7.0
   - pure_eval=0.2.2
+  - pybigwig=0.3.18
   - pycparser=2.21
   - pygments=2.15.1
   - pyopenssl=22.0.0
