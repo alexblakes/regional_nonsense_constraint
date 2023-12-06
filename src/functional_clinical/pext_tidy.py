@@ -53,6 +53,7 @@ def reformat_to_bed(df):
     df = df[["chr", "start", "end", "ensg", "mean_pext"]]
 
     logger.info(f"Unique chr values: {df.chr.unique()}")
+    logger.info(f"Duplicated by pos / ensg: {df.duplicated(['chr','end','ensg']).sum()}")
 
     return df
 
