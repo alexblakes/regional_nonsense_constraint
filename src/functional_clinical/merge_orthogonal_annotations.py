@@ -1,6 +1,7 @@
 """Merge NMD, phyloP, AlphaMissense, and pext annotations."""
 
 # Imports
+from locale import D_T_FMT
 from pathlib import Path
 
 import numpy as np
@@ -8,6 +9,7 @@ import pandas as pd
 
 from src import constants as C
 from src import setup_logger
+from src.functional_clinical.alpha_missense_tidy import read_alpha_missense
 
 
 # Module constants
@@ -26,7 +28,7 @@ def read_nmd_annotations(path):
     nmd = pd.read_csv(
         path,
         sep="\t",
-        nrows=100,  #! Testing
+        nrows=10000,  #! Testing
         usecols=["chr", "pos", "transcript_id", "nmd_definitive"],
     ).rename(columns={"nmd_definitive": "region", "transcript_id": "enst"})
 
@@ -46,7 +48,7 @@ def read_phylop_annotations(path):
     phylop = pd.read_csv(
         path,
         sep="\t",
-        nrows=100,  #! Testing
+        nrows=10000,  #! Testing
     )
 
     logger.info(f"phyloP annotations: {len(phylop)}")
@@ -62,7 +64,7 @@ def read_pext_annotations(path):
     pext = pd.read_csv(
         path,
         sep="\t",
-        nrows=100,  #! Testing
+        nrows=10000,  #! Testing
         header=None,
         names=["chr", "start", "pos", "ensg", "pext"],
         usecols=["chr", "pos", "ensg", "pext"],
@@ -85,6 +87,78 @@ def read_gene_ids(path):
     return ids
 
 
+def read_alpha_missense(path):
+    """Get tidied AlphaMissense scores."""
+    am = pd.read_csv(
+        path,
+        sep="\t",
+        nrows=10000,  #! Testing
+    )
+
+    logger.info(f"AlphaMissense annotations: {len(am)}")
+
+    return am
+
+
+def read_regional_nonsense_constraint(path):
+    """Get regional nonsense constraint annotations."""
+
+    constraint = pd.read_csv(path, sep="\t", usecols=["enst", "region", "constraint"])
+
+    return constraint
+
+
+def se(p, n):
+    """Calculate the standard error of a propotion."""
+    return np.sqrt((p * (1 - p)) / n)
+
+def find_sites_meeting_condition(df, annotation, condition):
+    """Find sites at which the values for an annotation meet the given condition."""
+
+    df = df[["region", "constraint", annotation]].copy().dropna(subset=annotation)
+    df[annotation] = condition(df[annotation])
+
+    return df
+
+def get_proportion_meeting_condition(df, group_on_constraint=False):
+    """Find the proportion of sites which fulfil the condition."""
+
+    annotation = df.columns.drop(["region","constraint"])[0]
+
+    if not group_on_constraint:
+        df = df.groupby("region")
+    elif group_on_constraint:
+        df = df.groupby(["region", "constraint"])
+
+    df = df[annotation].agg(["mean","count"]).set_axis([annotation,"n"], axis=1).reset_index(drop=False)
+
+    if not group_on_constraint:
+        df.assign(constraint="full_transcript")
+
+    return df
+
+def get_95_ci(df):
+    
+
+# # Regions, ignoring constraint annotation
+# r = (
+#     p.groupby("region")
+#     .agg(phylop=("phylop","mean"), n=("phylop","count"))
+#     .assign(constraint="all")
+#     .reset_index(drop=False)
+# )
+
+# # Regions and constraint annotation
+# rc = (
+#     p.groupby(["region","constraint"])
+#     .agg(phylop=("phylop","mean"), n=("phylop","count"))
+#     .reset_index(drop=False)
+# )
+
+# # Combine
+# _p = pd.concat([rc,r])
+# _p["ci95"] = 1.96 * se(_p["phylop"], _p["n"])
+
 def main():
     """Run as script."""
 
@@ -92,125 +166,64 @@ def main():
     phylop = read_phylop_annotations(C.PHYLOP_CDS_SCORES)
     pext = read_pext_annotations(C.PEXT_BED_38)
     ids = read_gene_ids(C.CANONICAL_CDS_GENE_IDS)
-    
-    return ids  #! Testing
+    am = read_alpha_missense(C.ALPHA_MISSENSE_TIDY)
+    constraint = read_regional_nonsense_constraint(C.REGIONAL_NONSENSE_CONSTRAINT)
+
+    # Merge the annotations
+
+    ## PhyloP
+    logger.info("Merging NMD and phylop annotations.")
+    df = nmd.merge(phylop, how="left")
+    logger.info(f"Merged NMD and phyloP annotations: {len(df)}")
+    logger.info(f"Sites with a phyloP annotation: {len(df) - df.phylop.isna().sum()}")
+
+    ## pext
+    logger.info("Getting transcript IDs for pext annotations.")
+    pext = pext.merge(ids, how="inner").drop("ensg", axis=1)
+    logger.info(f"Remaining pext annotations after getting transcript IDs: {len(pext)}")
+
+    logger.info("Merging pext annotations.")
+    df = df.merge(pext, how="left")
+    logger.info(f"Sites after merging pext annotations: {len(df)}")
+    logger.info(f"Sites with a pext annotation: {len(df) - df.pext.isna().sum()}")
+
+    ## AlphaMissense
+    logger.info("Merging AlphaMissense annotations.")
+    df = df.merge(am, how="left")
+    logger.info(f"Sites after merging with AlphaMissense scores: {len(df)}")
+    logger.info(
+        f"Sites with an AlphaMissense score: {len(df) - df.alpha_missense_min.isna().sum()}"
+    )
+
+    ## Constraint annotations
+    ### Get transcript-level annotations
+    logger.info("Adding 'transcript' to the set of regions.")
+    df = pd.concat([df, df.copy().assign(region="transcript")])
+    logger.info(f"Sites after adding 'transcript' to the set of regions: {len(df)}")
+
+    logger.info("Merging constraint annotations.")
+    df = df.merge(constraint, how="inner")
+    logger.info(f"Sites after merging with constraint annotations: {len(df)}")
+    logger.info(
+        f"Sites per region and constraint annotation:\n{df.groupby('region').constraint.value_counts(dropna=False)}"
+    )
+
+    # Statistics for each annotation
+    _p = find_sites_meeting_condition(df, "phylop", lambda x: x > 2.27)
+    _p = pd.concat([get_proportion_meeting_condition(_p), get_proportion_meeting_condition(_p, True)])
+
+
+
+    return _p  #! Testing
 
 
 if __name__ == "__main__":
     main()
 
 
-# pext = pext.merge(ids, how="inner").drop("ensg", axis=1)
-# print(f"Valid pext annotations in genes with a MANE transcript: {len(pext)}")
-
-
-# # ### HMC annotations
-# hmc = (
-#     pd.read_csv(
-#         "../outputs/hmc_38.tsv",
-#         sep="\t",
-#         header=None,
-#         names=["chr","pos","hmc"]
-#     )
-#     .sort_values(["chr","pos","hmc"])
-#     .drop_duplicates(["chr","pos"]) # Keep the lowest HMC score (most constrained) per site
-# )
-# print(f"Number of HMC annotations: {len(hmc)}")
-
-
-# # ### Constraint annotations
-
-# # Read the constraint data into memory
-# constraint = (
-#     pd.read_csv(
-#         "../outputs/expected_variants_all_regions_no_cpg_stats.tsv",
-#         sep="\t",
-#         usecols=["region", "enst", "csq", "n_obs", "oe", "z", "p", "fdr_p"],
-#     )
-#     .pivot( # We need, for example, synonymous Z-scores for later filtering
-#         index=["region", "enst"],
-#         columns="csq",
-#         values=["n_obs", "oe", "z", "p", "fdr_p"],
-#     )
-#     .swaplevel(
-#         axis=1,
-#     )
-#     .reset_index(
-#         drop=False,
-#     )
-# )
-
-
-# # Find constrained and unconstrained regions
-
-# ## The columns are a multi-index which need to be merged
-# constraint.columns = ["_".join(x).strip("_") for x in constraint.columns.values]
-
-# ## Keep only the relevant columns
-# constraint = constraint[
-#     [
-#         "region",
-#         "enst",
-#         "nonsense_n_obs",
-#         "nonsense_oe",
-#         "synonymous_z",
-#         "nonsense_p",
-#         "nonsense_fdr_p",
-#     ]
-# ]
-
-# ## Filter for constrained and unconstrained regions / transcripts
-# m1 = constraint["nonsense_oe"] < 0.35
-# m2 = constraint["synonymous_z"] > -1
-# m3 = constraint["nonsense_fdr_p"] < 0.05
-
-# m4 = constraint["nonsense_p"] >= 0.05
-# m5 = constraint["nonsense_n_obs"] >= 1
-
-# constraint.loc[m1 & m2 & m3, "constraint"] = "constrained"
-# constraint.loc[m4 & m5, "constraint"] = "unconstrained"
-
-# ## Drop irrelevant columns
-# constraint = constraint[["region", "enst", "constraint"]]
-
-# ## Print the counts of constrained and unconstrained regions
-# print(constraint.groupby(["region"])["constraint"].value_counts())
-
-
-# # ## Merge annotations
-
-
-# # NMD and phyloP
-# df = nmd.merge(phylop, how="left")
-# print(f"Sites after merging NMD and phyloP annotations: {len(df)}")
-# print(f"Sites with a phyloP annotation: {len(df) - df.phylop.isna().sum()}")
-
-# # pext
-# df = df.merge(pext, how="left")
-# print(f"Sites after merging pext annotations: {len(df)}")
-# print(f"Sites with a pext annotation: {len(df) - df.pext.isna().sum()}")
-
-# # hmc
-# df = df.merge(hmc, how="left")
-# print(f"Sites after merging with HMC annotation: {len(df)}")
-# print(f"Sites with an HMC annotation: {len(df) - df.hmc.isna().sum()}")
-
-
-# # In order to get transcript-level statistics, we copy the dataframe and overwrite the "region" annotation.
-# _ = df.copy().assign(region="transcript")
-# df = pd.concat([df, _])
-
-
-# # Merge with constraint annotations
-# df = df.merge(constraint, how="inner")
 
 
 # # ## Statistics
-
-
-# def se(p, n):
-#     """Calculate the standard error of a propotion."""
-#     return np.sqrt((p * (1 - p))/n)
 
 
 # # ### phyloP
