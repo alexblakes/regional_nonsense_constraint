@@ -45,7 +45,7 @@ def panel_label(ax, s, x=-0.05, y=1.05):
         x,
         y,
         s,
-        transform=a.transAxes,
+        transform=ax.transAxes,
         va="bottom",
         ha="right",
         fontsize=8,
