@@ -23,7 +23,6 @@ def read_cds_bed(path):
 
     logger.info("Reading CDS bed file.")
 
-    #! NB mitochondrial contigs are dropped; they are "out of bounds" in the phyloP file.
     bed = pd.read_csv(
         path,
         sep="\t",
@@ -31,14 +30,17 @@ def read_cds_bed(path):
         names=["chr", "start", "end", "id", "score", "strand"],
         usecols=["chr", "start", "end"],
         # nrows=100,  #! Testing
-    ).query("chr != 'chrM'")
-
+    )
 
     return bed
 
 
 def annotate_phylop_scores(bed, bw):
     """Annotate CDS sites with phyloP scores."""
+
+    #! chrM sites are dropped; they are "out of bounds" in the phyloP bw file.
+    logger.info("Dropping mitochondrial sites.")
+    bed = bed.query("chr != 'chrM'")
 
     logger.info("Annotating CDS sites with phyloP scores.")
 
