@@ -172,4 +172,10 @@ data/interim/pext_38.bed : data/interim/pext_37.bed \
 	bash src/functional_clinical/pext_liftover.sh
 	$(CONDA_ACTIVATE) ukb
 
+# Annotate CDS sites with phyloP scores
+data/interim/phylop_cds_sites.tsv : data/raw/hg38.cactus241way.phyloP.bw \
+                                    data/interim/gencode_v39_canonical_cds.bed \
+									src/functional_clinical/phylop_extract_scores.py
+	python3 -m src.functional_clinical.phylop_extract_scores
+
 # Next 
