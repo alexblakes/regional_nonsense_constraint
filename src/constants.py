@@ -44,6 +44,7 @@ CANONICAL_CDS_GENE_IDS = f"{INTERIM_DIR}/gene_ids.tsv"
 CDS_ALL_SNVS_TRI_CONTEXT = f"{INTERIM_DIR}/cds_trinucleotide_contexts.tsv"
 CDS_ALL_SNVS_VCF = f"{INTERIM_DIR}/cds_all_possible_snvs.vcf"
 CDS_COUNTS_AND_COORDS = f"{INTERIM_DIR}/cds_counts_and_coords.tsv"
+CDS_PHYLOP_PEXT_MISSENSE = f"{INTERIM_DIR}/cds_sites_phylop_pext_missense.tsv"
 NMD_ANNOTATIONS = f"{INTERIM_DIR}/nmd_annotations.tsv"
 GNOMAD_NC_MUTABILITY_TIDY = f"{INTERIM_DIR}/mutation_rate_by_context_methyl_tidy.tsv"
 GNOMAD_PASS_SNVS = f"{INTERIM_DIR}/gnomad_v4_pass_snvs.tsv"
@@ -67,6 +68,7 @@ ALL_VARIANTS_MERGED_ANNOTATIONS = f"{FINAL_DIR}/all_variants_merged_annotations.
 EXPECTED_VARIANTS_ALL_REGIONS = f"{FINAL_DIR}/expected_variants_all_regions.tsv"
 REGIONAL_CONSTRAINT_STATS = f"{FINAL_DIR}/regional_constraint_stats.tsv"
 REGIONAL_NONSENSE_CONSTRAINT = f"{FINAL_DIR}/regional_nonsense_constraint.tsv"
+PHYLOP_PEXT_MISSENSE_STATS = f"{FINAL_DIR}/phylop_pext_missense_annotations_stats.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
