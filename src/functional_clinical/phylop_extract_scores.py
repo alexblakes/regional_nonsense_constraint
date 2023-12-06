@@ -40,7 +40,7 @@ def annotate_phylop_scores(bed, bw):
 
     #! chrM sites are dropped; they are "out of bounds" in the phyloP bw file.
     logger.info("Dropping mitochondrial sites.")
-    bed = bed.query("chr != 'chrM'")
+    bed = bed.query("chr != 'chrM'").copy()
 
     logger.info("Annotating CDS sites with phyloP scores.")
 
