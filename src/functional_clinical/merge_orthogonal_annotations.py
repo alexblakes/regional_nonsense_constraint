@@ -73,46 +73,32 @@ def read_pext_annotations(path):
     return pext
 
 
+def read_gene_ids(path):
+    """Get gene / transcript IDs."""
+
+    ids = pd.read_csv(
+        path,
+        sep="\t",
+        usecols=["gene_id", "transcript_id"],
+    ).set_axis(["ensg", "enst"], axis=1)
+
+    return ids
+
+
 def main():
     """Run as script."""
+
     nmd = read_nmd_annotations(C.NMD_ANNOTATIONS)
     phylop = read_phylop_annotations(C.PHYLOP_CDS_SCORES)
     pext = read_pext_annotations(C.PEXT_BED_38)
-
-    return pext  #! Testing
+    ids = read_gene_ids(C.CANONICAL_CDS_GENE_IDS)
+    
+    return ids  #! Testing
 
 
 if __name__ == "__main__":
     main()
 
-
-# # Read pext data into memory
-# pext = (
-#     pd.read_csv(
-#         "../outputs/pext_38.bed",
-#         sep="\t", header=None, names=["chr","start","end","ensg","pext"],
-#         usecols=["chr","end","ensg","pext"]
-#     )
-#     .rename(columns={"end":"pos"})
-#     .drop_duplicates()
-#     .drop_duplicates(["chr","pos","ensg"], keep=False)
-# )
-# print(f"Valid pext annotations: {len(pext)}")
-
-# # Read gene and transcript ids into memory
-# ids = (
-#     pd.read_csv(
-#         "../outputs/gene_ids.tsv",
-#         sep="\t",
-#         header=0,
-#         names=["ensg","enst","hgnc"],
-#         usecols=["ensg","enst"]
-#     )
-# )
-# ids["ensg"] = ids["ensg"].str.split(".").str[0]
-# ids["enst"] = ids["enst"].str.split(".").str[0]
-
-# ids = ids.drop_duplicates()
 
 # pext = pext.merge(ids, how="inner").drop("ensg", axis=1)
 # print(f"Valid pext annotations in genes with a MANE transcript: {len(pext)}")
