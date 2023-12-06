@@ -25,7 +25,7 @@ def read_nmd_annotations(path):
     nmd = pd.read_csv(
         path,
         sep="\t",
-        nrows=10000,  #! Testing
+        # nrows=10000,  #! Testing
         usecols=["chr", "pos", "transcript_id", "nmd_definitive"],
     ).rename(columns={"nmd_definitive": "region", "transcript_id": "enst"})
 
@@ -45,7 +45,7 @@ def read_phylop_annotations(path):
     phylop = pd.read_csv(
         path,
         sep="\t",
-        nrows=10000,  #! Testing
+        # nrows=10000,  #! Testing
     )
 
     logger.info(f"phyloP annotations: {len(phylop)}")
@@ -61,7 +61,7 @@ def read_pext_annotations(path):
     pext = pd.read_csv(
         path,
         sep="\t",
-        nrows=10000,  #! Testing
+        # nrows=10000,  #! Testing
         header=None,
         names=["chr", "start", "pos", "ensg", "pext"],
         usecols=["chr", "pos", "ensg", "pext"],
@@ -86,10 +86,13 @@ def read_gene_ids(path):
 
 def read_alpha_missense(path):
     """Get tidied AlphaMissense scores."""
+
+    logger.info("Getting AlphaMissense annotations.")
+
     am = pd.read_csv(
         path,
         sep="\t",
-        nrows=10000,  #! Testing
+        # nrows=10000,  #! Testing
     ).rename(columns={"alpha_missense_min": "alpha_mis"})
 
     logger.info(f"AlphaMissense annotations: {len(am)}")
