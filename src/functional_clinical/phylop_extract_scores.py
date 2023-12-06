@@ -29,7 +29,7 @@ def read_cds_bed(path):
         header=None,
         names=["chr", "start", "end", "id", "score", "strand"],
         usecols=["chr", "start", "end"],
-        nrows=100,  #! Testing
+        # nrows=100,  #! Testing
     )
 
     #! NB includes mitochondrial contigs (chrM)
@@ -75,7 +75,7 @@ def main():
 
     # Write to output
     logger.info("Writing to output.")
-    df.to_csv(PHYLOP_CDS_SCORES, sep="\t", index=False)
+    df.to_csv(C.PHYLOP_CDS_SCORES, sep="\t", index=False)
 
     return df  #! Testing
 
