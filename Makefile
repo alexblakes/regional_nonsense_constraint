@@ -31,6 +31,7 @@ medium : data/interim/cds_counts_and_coords.tsv \
 		 data/interim/observed_variants_counts_synonymous_cov_20.tsv \
 		 data/interim/pext_37.bed \
 		 data/interim/pext_38.bed \
+		 data/interim/phylop_cds_sites.tsv \
 
 # Files which take hours to create
 slow : data/interim/cds_all_possible_snvs_vep.vcf \
