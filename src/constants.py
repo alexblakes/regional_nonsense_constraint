@@ -33,6 +33,7 @@ GNOMAD_V4_CONSTRAINT = f"{RAW_DIR}/gnomad.v4.0.constraint_metrics.tsv"
 GNOMAD_NC_MUTABILITY = f"{RAW_DIR}/mutation_rate_by_context_methyl.txt"
 GNOMAD_NC_METHYLATION = f"{RAW_DIR}/grch38_cpg_methylation.tsv"
 OMIM_GENEMAP = f"{RAW_DIR}/genemap2.txt"
+OMIM_GENEMAP_PARSED = f"{INTERIM_DIR}/genemap2_parsed.tsv"
 PEXT_RAW = f"{RAW_DIR}/all.baselevel.021620.tsv"
 PHYLOP_BW = f"{RAW_DIR}/hg38.cactus241way.phyloP.bw"
 
