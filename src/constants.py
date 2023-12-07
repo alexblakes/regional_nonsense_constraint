@@ -15,6 +15,9 @@ RAW_DIR = f"{DATA_DIR}/raw"
 STATISTICS_DIR = f"{DATA_DIR}/statistics"
 
 # Files
+## GEL exports
+DNMS = f"{RDS_DIR}/gel_exports/dnms_for_export_2.tsv"
+
 ## RDS
 GNOMAD_COVERAGE = f"{GNOMAD_DIR}/coverage/gnomad.exomes.v4.0.coverage.summary.tsv"
 
