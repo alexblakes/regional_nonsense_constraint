@@ -18,6 +18,8 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
 	   data/final/regional_nonsense_constraint.tsv \
 	   data/interim/proportion_singletons_synonymous_by_context.tsv \
 	   data/interim/proportion_singletons_by_csq.tsv \
+	   data/interim/genemap2_parsed.tsv \
+	   data/interim/genemap2_simple.tsv \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
@@ -194,5 +196,15 @@ data/final/phylop_pext_missense_annotations_stats.tsv : data/interim/alpha_misse
 														data/interim/pext_38.bed \
 														src/functional_clinical/merge_orthogonal_annotations.py
 	python3 -m src.functional_clinical.merge_orthogonal_annotations
+
+# Parse genemap2.txt data
+data/interim/genemap2_parsed.tsv : data/raw/genemap2.txt \
+                                   src/functional_clinical/omim_parse_genemap.py
+	python3 -m src.functional_clinical.omim_parse_genemap
+
+# Simplify genemap2.txt data
+data/interim/genemap2_simple.tsv : data/interim/genemap2_parsed.tsv \
+                                   src/functional_clinical/omim_simplify_genemap.py
+	python3 -m src.functional_clinical.omim_simplify_genemap
 
 # Next 
