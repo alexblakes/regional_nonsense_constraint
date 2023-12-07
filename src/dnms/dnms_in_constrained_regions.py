@@ -54,11 +54,11 @@ def main():
     omim = pd.read_csv(C.OMIM_GENEMAP_SIMPLE, sep="\t").pipe(
         condense_phenotypes_and_inheritance
     )
+    nmd = moa.read_nmd_annotations(C.NMD_ANNOTATIONS, nrows=100000)
+    constraint = moa.read_regional_nonsense_constraint(C.REGIONAL_NONSENSE_CONSTRAINT)
 
     return omim  #! Testing
 
-    nmd = moa.read_nmd_annotations(C.NMD_ANNOTATIONS)
-    constraint = moa.read_regional_nonsense_constraint(C.REGIONAL_NONSENSE_CONSTRAINT)
 
 
 if __name__ == "__main__":

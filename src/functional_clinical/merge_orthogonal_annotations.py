@@ -17,7 +17,7 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def read_nmd_annotations(path):
+def read_nmd_annotations(path, **kwargs):
     """Get per-site NMD annotations."""
 
     logger.info("Getting NMD annotations.")
@@ -27,6 +27,7 @@ def read_nmd_annotations(path):
         sep="\t",
         # nrows=10000,  #! Testing
         usecols=["chr", "pos", "transcript_id", "nmd_definitive"],
+        **kwargs,
     ).rename(columns={"nmd_definitive": "region", "transcript_id": "enst"})
 
     logger.info(f"NMD annotations: {len(nmd)}")
