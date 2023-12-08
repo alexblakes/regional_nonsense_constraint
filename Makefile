@@ -20,6 +20,7 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
 	   data/interim/proportion_singletons_by_csq.tsv \
 	   data/interim/genemap2_parsed.tsv \
 	   data/interim/genemap2_simple.tsv \
+	   data/interim/dnms_annotated.tsv \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
