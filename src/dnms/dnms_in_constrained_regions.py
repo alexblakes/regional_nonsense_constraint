@@ -11,6 +11,7 @@ from src import constants as C
 from src import setup_logger
 from src.functional_clinical import merge_orthogonal_annotations as moa
 
+
 # Module constants
 
 
@@ -22,7 +23,11 @@ logger = setup_logger(Path(__file__).stem)
 def read_dnm_data(path):
     """Read DNM data exported from GEL to memory."""
 
-    dnms = pd.read_csv(path, sep="\t").drop(["n_truncating", "constraint"], axis=1)
+    dnms = (
+        pd.read_csv(path, sep="\t")
+        .drop(["n_truncating", "constraint"], axis=1)
+        .rename(columns={"nmd": "region"})
+    )
 
     logger.info(f"Number of DNMs: {len(dnms)}")
 
@@ -56,8 +61,20 @@ def main():
     )
     constraint = moa.read_regional_nonsense_constraint(C.REGIONAL_NONSENSE_CONSTRAINT)
 
-    return constraint  #! Testing
+    # Merge datasets
+    df = dnms.merge(omim, how="left")
+    logger.info(f"DNMs after merging with OMIM annotation: {len(df)}")
 
+    df = df.merge(constraint, how="left")
+    logger.info(f"DNMs after merging with constraint annotation: {len(df)}")
+
+    logger.info(f"Missing values:\n{df.isna().sum()}")
+
+    # Write to output
+    logger.info("Writing to output.")
+    df.to_csv(C.DNMS_ANNOTATED, sep="\t", index=False)
+
+    return df  #! Testing
 
 
 if __name__ == "__main__":
