@@ -207,4 +207,11 @@ data/interim/genemap2_simple.tsv : data/interim/genemap2_parsed.tsv \
                                    src/functional_clinical/omim_simplify_genemap.py
 	python3 -m src.functional_clinical.omim_simplify_genemap
 
+# Annotate DNMs
+data/interim/dnms_annotated.tsv : /mnt/bmh01-rds/Ellingford_gene/gel_exports/dnms_for_export_2.tsv \
+                                  data/interim/genemap2_simple.tsv \
+								  data/final/regional_nonsense_constraint.tsv \
+								  src/dnms/dnms_in_constrained_regions.py
+python3 -m src.dnms.dnms_in_constrained_regions
+
 # Next 
