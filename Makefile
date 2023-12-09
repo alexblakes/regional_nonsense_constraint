@@ -27,6 +27,7 @@ medium : data/interim/cds_counts_and_coords.tsv \
          data/interim/gene_ids.tsv \
          data/interim/nmd_annotations.tsv \
 	     data/interim/cds_all_possible_snvs.vcf \
+		 data/interim/cds_all_possible_snvs_vep.tsv \
 	     data/interim/cds_trinucleotide_contexts.tsv \
 		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
 		 data/interim/gnomad_v4_pass_snvs.tsv \
@@ -40,7 +41,7 @@ medium : data/interim/cds_counts_and_coords.tsv \
 		 data/final/phylop_pext_missense_annotations_stats.tsv \
 
 # Files which take hours to create
-slow : data/interim/cds_all_possible_snvs_vep.vcf \
+slow : data/interim/vep_all_snvs/out_29.tsv \
        data/final/all_variants_merged_annotations.tsv \
 
 # Notebooks
@@ -105,13 +106,15 @@ data/interim/gnomad_v4_pass_snvs.tsv : data/interim/gencode_v39_canonical_cds.be
 
 # Annotate all possible CDS SNVs with VEP
 # This script runs over ~ 10 hours
-data/interim/cds_all_possible_snvs_vep.vcf : data/interim/cds_all_possible_snvs.vcf \
-                                             src/data/vep_all_snvs.sh
-	$(CONDA_ACTIVATE) bio
-	bash src/data/vep_all_snvs.sh
-	$(CONDA_ACTIVATE) ukb
-	# qsub -hold_jid "vep_snvs_*"
-	# Concatenate the data (? remove headers)
+data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
+									   src/data/batch_vep_all_snvs.sh \
+									   src/data/vep_all_snvs.sh
+	bash src/data/batch_vep_all_snvs.sh
+	qsub -hold_jid "vep_snvs_*"
+
+# Combine the split VEP outputs
+data/interim/cds_all_possible_snvs_vep.tsv : data/interim/vep_all_snvs/out_29.tsv
+	cat data/interim/vep_all_snvs/out_*.tsv | grep -v "^#" > data/interim/cds_all_possible_snvs_vep.tsv
 
 # Tidy the VEP-annotated SNVs and log the results
 data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep.vcf \
