@@ -1,12 +1,16 @@
-#! usr/bin/env bash
+#!/bin/bash
 
-# This script annotates the ClinVar variants with VEP 105
-# Run this script in the "vep" conda environment
+# Annotate SNVs with VEP
 
-# head -n $1 data/interim/cds_all_possible_snvs.vcf | \
+# Load conda environment for vep
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate
+conda activate vep
+
+# Run VEP
 vep \
-    --input_file data/interim/cds_all_possible_snvs.vcf \
-    --output_file data/interim/cds_all_possible_snvs_vep.vcf \
+    --input_file data/interim/vep_all_snvs/in_$1.vcf \
+    --output_file data/interim/vep_all_snvs/out_$1.tsv \
     --species homo_sapiens \
     --assembly GRCh38 \
     --offline \
@@ -21,7 +25,8 @@ vep \
     --minimal \
     --allele_number \
     --show_ref_allele \
-    --per_gene \
-    --pick_order canonical \
     --coding_only \
     --fields "Location,REF_ALLELE,Allele,Consequence,Feature"
+
+    # --per_gene \
+    # --pick_order canonical \

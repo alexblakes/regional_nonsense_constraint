@@ -110,6 +110,8 @@ data/interim/cds_all_possible_snvs_vep.vcf : data/interim/cds_all_possible_snvs.
 	$(CONDA_ACTIVATE) bio
 	bash src/data/vep_all_snvs.sh
 	$(CONDA_ACTIVATE) ukb
+	# qsub -hold_jid "vep_snvs_*"
+	# Concatenate the data (? remove headers)
 
 # Tidy the VEP-annotated SNVs and log the results
 data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep.vcf \
