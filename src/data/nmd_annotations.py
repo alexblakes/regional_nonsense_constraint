@@ -255,6 +255,7 @@ def main():
     )
 
     # Write to output
+    logger.info("Writing to output.")
     df.to_csv(C.NMD_ANNOTATIONS, sep="\t", index=False)
 
     return df  # TODO Testing
