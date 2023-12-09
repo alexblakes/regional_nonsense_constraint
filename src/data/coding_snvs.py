@@ -8,9 +8,15 @@ It takes the output of a bedtools getfasta command (tsv) as input.
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 
 from src import setup_logger
 from src import constants as C
+
+
+# Module constants
+_CHUNKS = 30
+
 
 # Logging
 logger = setup_logger(Path(__file__).stem)
@@ -157,17 +163,17 @@ def get_all_possible_alt_alleles(df):
     logger.info(f"Possible SNVs: {len(df)}")
 
     # Sort by chromosome and position for use with VEP
-    df = df[["chr","pos","ref","alt","tri"]].sort_index()
+    df = df[["chr", "pos", "ref", "alt", "tri"]].sort_index()
 
     return df
 
 
 def convert_to_vcf(df):
     """Convert a DataFrame to VCF format."""
-    
-    for col in ["ID","QUAL","FILTER","INFO"]:
+
+    for col in ["ID", "QUAL", "FILTER", "INFO"]:
         df[col] = pd.Categorical(["."] * len(df))
-    
+
     df = df[["chr", "pos", "ID", "ref", "alt", "QUAL", "FILTER", "INFO"]]
 
     return df
@@ -194,7 +200,18 @@ def main():
     df = convert_to_vcf(df)
     df.to_csv(C.CDS_ALL_SNVS_VCF, sep="\t", index=False, header=False)
 
+    # Split output for VEP annotation
+    logger.info("Splitting output for parallel VEP annotation")
+    for idx, chunk in enumerate(np.array_split(df, _CHUNKS)):
+        chunk.to_csv(
+            f"{C.VEP_ALL_SNVS_DIR}/in_{idx}.vcf",
+            sep="\t",
+            index=False,
+            header=False,
+        )
+
     logger.info("Done.")
+
 
 if __name__ == "__main__":
     main()
