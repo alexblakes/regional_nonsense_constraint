@@ -6,4 +6,3 @@
 
 # Except for these files
 !.gitignore
-!vep_all_snvs/
