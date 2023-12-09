@@ -97,8 +97,8 @@ data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical
 
 # Extract SNVs from gnomAD
 data/interim/gnomad_v4_pass_snvs.tsv : data/interim/gencode_v39_canonical_cds.bed \
-                                       src/data/extract_pass_variants.sh \
-									   src/data/batch_extract_pass_variants.sh \
+                                       src/data/batch_extract_pass_variants.sh \
+									   src/data/extract_pass_variants.sh \
 									   src/data/combine_pass_snvs.sh
 	bash src/data/batch_extract_pass_variants.sh
 	qsub src/data/combine_pass_snvs.sh
@@ -213,6 +213,6 @@ data/interim/dnms_annotated.tsv : /mnt/bmh01-rds/Ellingford_gene/gel_exports/dnm
                                   data/interim/genemap2_simple.tsv \
 								  data/final/regional_nonsense_constraint.tsv \
 								  src/dnms/dnms_in_constrained_regions.py
-python3 -m src.dnms.dnms_in_constrained_regions
+	python3 -m src.dnms.dnms_in_constrained_regions
 
 # Next 
