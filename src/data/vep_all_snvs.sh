@@ -15,8 +15,8 @@ vep \
     --assembly GRCh38 \
     --offline \
     --cache \
-    --dir_cache ~/.vep \
-    --fork $(nproc) \
+    --dir_cache /mnt/bmh01-rds/Ellingford_gene/.vep \
+    --fork 8 \
     --buffer_size 50000 \
     --force_overwrite \
     --format vcf \
