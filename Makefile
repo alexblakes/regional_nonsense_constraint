@@ -112,7 +112,7 @@ data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
 	bash src/data/batch_vep_all_snvs.sh
 	qsub -hold_jid "vep_snvs_*"
 
-# Combine the split VEP outputs
+# Combine and tidy the split VEP outputs
 data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/vep_all_snvs/out_29.tsv \
                                                   data/interim/transcript_ids.tsv \
                                                   src/data/vep_all_snvs_tidy.sh \
