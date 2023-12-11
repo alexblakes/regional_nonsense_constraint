@@ -27,8 +27,8 @@ medium : data/interim/cds_counts_and_coords.tsv \
          data/interim/gene_ids.tsv \
          data/interim/nmd_annotations.tsv \
 	     data/interim/cds_all_possible_snvs.vcf \
-		 data/interim/cds_all_possible_snvs_vep.tsv \
 	     data/interim/cds_trinucleotide_contexts.tsv \
+		 data/interim/cds_all_possible_snvs_vep_combined.tsv \
 		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
 		 data/interim/gnomad_v4_pass_snvs.tsv \
 		 data/interim/observed_variants_counts_regions_cov_20.tsv \
@@ -113,11 +113,12 @@ data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
 	qsub -hold_jid "vep_snvs_*"
 
 # Combine the split VEP outputs
-data/interim/cds_all_possible_snvs_vep.tsv : data/interim/vep_all_snvs/out_29.tsv
-	cat data/interim/vep_all_snvs/out_*.tsv | grep -v "^#" > data/interim/cds_all_possible_snvs_vep.tsv
+data/interim/cds_all_possible_snvs_vep_combined.tsv : data/interim/vep_all_snvs/out_29.tsv \
+                                                      src/data/vep_all_snvs_combined.sh
+	bash src/data/vep_all_snvs_combined.sh
 
 # Tidy the VEP-annotated SNVs and log the results
-data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep.vcf \
+data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep_combined.tsv \
                                                   src/data/vep_all_snvs_tidy.sh
 	bash src/data/vep_all_snvs_tidy.sh
 	python3 -m src.data.vep_all_snvs_tidy_log

@@ -1,8 +1,8 @@
 #! usr/bin/env bash
 
-# Tidy VEP-annotated SNVs
+# Combine VEP-annotated SNVs
 #
-# Tidy the VEP annotation of all possible CDS SNVs, such that:
+# Combine the VEP annotation of all possible CDS SNVs, such that:
 # 1. The header, starting with '#', is removed
 # 2. Only variants with "stop_gained", "missense", or "synonymous" consequences are kept
 # 3. The "location" column is split into "chr" and "pos" columns
@@ -11,10 +11,13 @@
 #
 # Save the result to a TSV.
 
-grep -v '^#' data/interim/cds_all_possible_snvs_vep.vcf | \
+cat data/interim/vep_all_snvs/out_*.tsv | \
+head -n 100000 | \
+grep -v '^#' | \
+grep -f data/interim/transcript_ids.txt | \
 grep -E 'stop_gained|missense|synonymous' | \
 awk -F '[:\t]' -v OFS='\t' '{ $1=$1; print $0 }' | \
 awk -F '\t' -v OFS='\t' '{ sub(".*missense.*", "missense_variant", $5); print $0 }' | \
 awk -F '\t' -v OFS='\t' '{ sub(".*synonymous.*", "synonymous_variant", $5); print $0 }' | \
 awk -F '\t' -v OFS='\t' '{ sub(".*stop_gained.*", "stop_gained", $5); print $0 }' > \
-data/interim/cds_all_possible_snvs_vep_tidy.tsv
+data/interim/cds_all_possible_snvs_vep_combined.tsv
