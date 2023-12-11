@@ -63,19 +63,24 @@ def filter_covered_sites(df, coverage):
 
     logger.info(f"Filtering for sites with coverage >= {coverage}.")
 
+    def covered_sites_logging(df):
+        logger.info(f"Qualifying variants: {len(df)}")
+        logger.info(f"Qualifying variants by consequence:\n{df.csq.value_counts()}")
+        logger.info(
+            f"Qualifying variants by observed / consequence: {df.groupby('obs').csq.value_counts()}"
+        )
+
     # Some sites have NaN values for coverage.
     # If coverage == 0, do not exclude even these.
     if coverage == 0:
-        logger.info(f"Qualifying variants: {len(df)}")
         logger.info(
             f"Variants where coverage is NaN: {df.median_coverage.isna().sum()}"
         )
-        logger.info(f"Qualifying variants by consequence:\n{df.csq.value_counts()}")
+        covered_sites_logging(df)
         return df
 
     df = df[df.median_coverage >= coverage]
-    logger.info(f"Qualifying variants: {len(df)}")
-    logger.info(f"Qualifying variants by consequence:\n{df.csq.value_counts()}")
+    covered_sites_logging(df)
 
     return df
 
@@ -159,8 +164,8 @@ def main():
         )
 
         # Get variants by region for constraint calculations.
-        #? Should we limit to rare variants only?
-        #* We need to group by chr for PAR transcripts on chrX & chrY
+        # ? Should we limit to rare variants only?
+        # * We need to group by chr for PAR transcripts on chrX & chrY
         transcript = agg_counts_and_mutability(
             df_min_coverage, ["chr", "enst", "csq", "variant_type"]
         ).assign(region="transcript")
