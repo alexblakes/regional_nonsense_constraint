@@ -65,6 +65,7 @@ def filter_covered_sites(df, coverage):
 
     def covered_sites_logging(df):
         logger.info(f"Qualifying variants: {len(df)}")
+        logger.info(f"Observed variants: {df.obs.sum()}")
         logger.info(f"Qualifying variants by consequence:\n{df.csq.value_counts()}")
         logger.info(
             f"Qualifying variants by observed / consequence: {df.groupby('obs').csq.value_counts()}"

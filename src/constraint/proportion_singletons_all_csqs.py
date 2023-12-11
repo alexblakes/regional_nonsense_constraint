@@ -53,6 +53,7 @@ def main():
     non = pd.concat([non_csq, non_region])
 
     # Write to output
+    logger.info("Writing to output.")
     cpg.to_csv(C.PS_REGIONS_CPG, sep="\t", index=False)
     non.to_csv(C.PS_REGIONS_NON_CPG, sep="\t", index=False)
 

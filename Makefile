@@ -28,7 +28,6 @@ medium : data/interim/cds_counts_and_coords.tsv \
          data/interim/nmd_annotations.tsv \
 	     data/interim/cds_all_possible_snvs.vcf \
 	     data/interim/cds_trinucleotide_contexts.tsv \
-		 data/interim/cds_all_possible_snvs_vep_combined.tsv \
 		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
 		 data/interim/gnomad_v4_pass_snvs.tsv \
 		 data/interim/observed_variants_counts_regions_cov_20.tsv \
@@ -54,7 +53,7 @@ notebooks :
 	done
 
 # All files
-all : downloads fast medium slow notebooks
+all : downloads fast medium slow
 
 
 # Extract canonical CDS from GTF file
@@ -166,7 +165,8 @@ data/interim/proportion_singletons_synonymous_by_context.tsv : data/final/all_va
 	python3 -m src.constraint.proportion_singletons_syn_contexts
 
 # Get proportion singletons for all variant consequences
-data/interim/proportion_singletons_by_csq.tsv : src/constraint/proportion_singletons_syn_contexts.py \
+data/interim/proportion_singletons_by_csq.tsv : data/final/all_variants_merged_annotations.tsv \
+                                                src/constraint/proportion_singletons_syn_contexts.py \
                                                 src/constraint/proportion_singletons_all_csqs.py
 	python3 -m src.constraint.proportion_singletons_all_csqs
 
