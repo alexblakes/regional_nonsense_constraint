@@ -261,6 +261,7 @@ def main():
     log_summary_data(df)
 
     # Write to output
+    logger.info("Writing to output.")
     df.to_csv(C.ALL_VARIANTS_MERGED_ANNOTATIONS, sep="\t", index=False)
 
     return df  #! Testing
