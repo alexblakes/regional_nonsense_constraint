@@ -114,8 +114,9 @@ data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
 
 # Combine the split VEP outputs
 data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/vep_all_snvs/out_29.tsv \
-                                                      src/data/vep_all_snvs_tidy.sh \
-													  src/data/vep_all_snvs_tidy_log.py
+                                                  data/interim/transcript_ids.tsv \
+                                                  src/data/vep_all_snvs_tidy.sh \
+												  src/data/vep_all_snvs_tidy_log.py
 	bash src/data/vep_all_snvs_tidy.sh
 	python3 -m src.data.vep_all_snvs_tidy_log
 
