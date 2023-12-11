@@ -65,18 +65,14 @@ def main():
     gene_ids = pd.read_csv(C.CANONICAL_CDS_GENE_IDS, sep="\t", dtype="category")
 
     # Log key results
-    logger.info(f"Number of VEP-annotated SNVs: {count_vep_vars(C.VEP_ALL_SNVS)}")
     logger.info(f"Number of SNVs after tidying: {len(vep)}")
     logger.info(f"Duplicated SNVs: {vep.duplicated().sum()}")
-    logger.info(
-        f"Number of SNVs in canonical transcripts: {(vep.enst.isin(gene_ids.transcript_id)).sum()}"
-    )
     logger.info("NB all possible SNVs in the CDS include start codon variants, which are not recorded in the VEP output.")
     logger.info(
-        f"Number of canonical transcripts in VEP annotation: {vep[vep.enst.isin(gene_ids.transcript_id)].enst.nunique()}"
+        f"Number of canonical transcripts in VEP annotation: {vep.enst.nunique()}"
     )
     logger.info(
-        f"Variant counts in canonical transcripts:\n{vep[vep.enst.isin(gene_ids.transcript_id)].csq.value_counts()}"
+        f"Variant counts in canonical transcripts:\n{vep.csq.value_counts()}"
     )
 
 
