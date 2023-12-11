@@ -42,11 +42,19 @@ def get_gene_ids(df):
 def main():
     """Run the script."""
 
-    (
+    df = (
         gtfparse.read_gtf(C.GENCODE_GTF, features="CDS")
         .pipe(ccds.get_canonical)
         .pipe(get_gene_ids)
-        .to_csv(C.CANONICAL_CDS_GENE_IDS, sep="\t", index=False)
+    )
+
+    # Write to output.
+    logger.info("Writing gene IDs to output.")
+    df.to_csv(C.CANONICAL_CDS_GENE_IDS, sep="\t", index=False)
+
+    logger.info("Writing transcript IDs to output.")
+    df.transcript_id.to_csv(
+        C.CANONICAL_CDS_TRANSCRIPT_IDS, sep="\t", index=False, header=None
     )
 
 
