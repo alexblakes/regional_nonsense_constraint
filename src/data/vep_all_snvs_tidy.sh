@@ -20,4 +20,4 @@ awk -F '[:\t]' -v OFS='\t' '{ $1=$1; print $0 }' | \
 awk -F '\t' -v OFS='\t' '{ sub(".*missense.*", "missense_variant", $5); print $0 }' | \
 awk -F '\t' -v OFS='\t' '{ sub(".*synonymous.*", "synonymous_variant", $5); print $0 }' | \
 awk -F '\t' -v OFS='\t' '{ sub(".*stop_gained.*", "stop_gained", $5); print $0 }' > \
-data/interim/cds_all_possible_snvs_vep_combined.tsv
+data/interim/cds_all_possible_snvs_vep_tidy.tsv

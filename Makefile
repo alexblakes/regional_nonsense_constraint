@@ -113,13 +113,9 @@ data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
 	qsub -hold_jid "vep_snvs_*"
 
 # Combine the split VEP outputs
-data/interim/cds_all_possible_snvs_vep_combined.tsv : data/interim/vep_all_snvs/out_29.tsv \
-                                                      src/data/vep_all_snvs_combined.sh
-	bash src/data/vep_all_snvs_combined.sh
-
-# Tidy the VEP-annotated SNVs and log the results
-data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/cds_all_possible_snvs_vep_combined.tsv \
-                                                  src/data/vep_all_snvs_tidy.sh
+data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/vep_all_snvs/out_29.tsv \
+                                                      src/data/vep_all_snvs_tidy.sh \
+													  src/data/vep_all_snvs_tidy_log.py
 	bash src/data/vep_all_snvs_tidy.sh
 	python3 -m src.data.vep_all_snvs_tidy_log
 

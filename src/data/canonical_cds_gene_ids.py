@@ -33,7 +33,7 @@ def get_gene_ids(df):
     logger.info(f"Unique transcript ids: {df.transcript_id.nunique()}")
     logger.info(f"Unique gene names: {df.gene_name.nunique()}")
     logger.info(f"Duplicated gene ids: {df.duplicated('gene_id').sum()}")
-    logger.info(f"Duplicated gene ids: {df.duplicated('transcript_id').sum()}")
+    logger.info(f"Duplicated transcript ids: {df.duplicated('transcript_id').sum()}")
     logger.info(f"Duplicated gene names:\n{df[df.duplicated('gene_name', keep=False)]}")
 
     return df
