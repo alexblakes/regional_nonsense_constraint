@@ -16,16 +16,23 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Useful functions
-def colour_palette():
-    """Define the default colour palette."""
+def color_palette(style="default"):
+    """Choose a color palette."""
 
-    # Choose style sheet(s)
-    plt.style.use(C.DEFAULT_MPL)
-    sns.color_palette()
+    if not style in ["default","regions"]:
+        raise ValueError("style must be one of 'default' or 'regions'.")
+    
+    if style == "default":
+        labels = "blue green orange red light_blue pink grey black"
+        plt.style.use(C.COLOR_VIBRANT)
+
+    if style == "regions":
+        labels = "transcript nmd_target start_proximal long_exon distal"
+        plt.style.use(C.COLOR_REGIONS)
 
     # Assign the color palette to a variable.
-    # Individual colors can be selected by index (e.g. C[0])
-    cp = namedtuple("color_palette", "blue green orange red light_blue pink grey black")
+    # Colors can be selected by index or name (e.g. cp[0], cp.red)
+    cp = namedtuple("color_palette", labels)
     cp = cp(*sns.color_palette().as_hex())
 
     return cp
@@ -37,6 +44,7 @@ def adjust_lightness(color, amount=0.5):
     except:
         c = color
     c = colorsys.rgb_to_hls(*mc.to_rgb(c))
+
     return colorsys.hls_to_rgb(c[0], max(0, min(1, amount * c[1])), c[2])
 
 
