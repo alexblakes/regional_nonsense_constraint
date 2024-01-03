@@ -20,7 +20,8 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
 	   data/interim/proportion_singletons_by_csq.tsv \
 	   data/interim/genemap2_parsed.tsv \
 	   data/interim/genemap2_simple.tsv \
-	   data/interim/dnms_annotated.tsv \
+	   data/interim/clinvar_variants_selected.tsv \
+	   data/interim/clinvar_variants_selected.vcf \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
@@ -211,11 +212,10 @@ data/interim/genemap2_simple.tsv : data/interim/genemap2_parsed.tsv \
                                    src/functional_clinical/omim_simplify_genemap.py
 	python3 -m src.functional_clinical.omim_simplify_genemap
 
-# Annotate DNMs
-data/interim/dnms_annotated.tsv : /mnt/bmh01-rds/Ellingford_gene/gel_exports/dnms_for_export_2.tsv \
-                                  data/interim/genemap2_simple.tsv \
-								  data/final/regional_nonsense_constraint.tsv \
-								  src/dnms/dnms_in_constrained_regions.py
-	python3 -m src.dnms.dnms_in_constrained_regions
+# Parse ClinVar summary text file
+data/interim/clinvar_variants_selected.tsv \
+data/interim/clinvar_variants_selected.vcf : data/raw/variant_summary.txt \
+                                             src/functional_clinical/clinvar_variants.py
+	python3 -m src.functional_clinical.clinvar_variants
 
 # Next 
