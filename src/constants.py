@@ -83,6 +83,6 @@ VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
 
 ## Visualisation
 CM = 1 / 2.54 # cm to inches conversion
-DEFAULT_MPL="src/visualisation/default.mplstyle"
-COLOR_VIBRANT="src/visualisation/color/vibrant.mpltstyle"
-COLOR_REGIONS="src/visualisation/color/regions_divergent.mpltstyle"
+DEFAULT_MPL="src/visualisation/styles/default.mplstyle"
+COLOR_VIBRANT="src/visualisation/styles/color/vibrant.mpltstyle"
+COLOR_REGIONS="src/visualisation/styles/color/regions_divergent.mpltstyle"
