@@ -82,5 +82,7 @@ PHYLOP_PEXT_MISSENSE_STATS = f"{FINAL_DIR}/phylop_pext_missense_annotations_stat
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
 
 ## Visualisation
-DEFAULT_MPL = "src/visualisation/default.mplstyle"
-CM = 1/ 2.54 # cm to inches conversion
+CM = 1 / 2.54 # cm to inches conversion
+DEFAULT_MPL="src/visualisation/default.mplstyle"
+COLOR_VIBRANT="src/visualisation/color/vibrant.mpltstyle"
+COLOR_REGIONS="src/visualisation/color/regions_divergent.mpltstyle"
