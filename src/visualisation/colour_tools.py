@@ -40,7 +40,7 @@ def adjust_lightness(color, amount=0.5):
     return colorsys.hls_to_rgb(c[0], max(0, min(1, amount * c[1])), c[2])
 
 
-def panel_label(ax, s, x=-0.05, y=1.05):
+def panel_label(ax, s, x=-0.05, y=1.05, **kwargs):
     ax.text(
         x,
         y,
@@ -50,6 +50,7 @@ def panel_label(ax, s, x=-0.05, y=1.05):
         ha="right",
         fontsize=8,
         fontweight="bold",
+        **kwargs,
     )
 
 
