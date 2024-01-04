@@ -3,7 +3,6 @@
 # Imports
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from src import constants as C
@@ -91,8 +90,9 @@ def main():
     df = df.merge(constraint, how="left")
 
     logger.info(f"Variants after merging constraint data: {len(df)}")
-    logger.info(f"Non-null values:\n{df.info()}")
+    logger.info(f"Null values:\n{df.isna().sum()}")
 
+    # Writr to output
     logger.info("Writing to output.")
     df.to_csv(C.CLINVAR_LOF_ANNOTATED, sep="\t", index=False)
 
