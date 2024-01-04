@@ -39,6 +39,7 @@ medium : data/interim/cds_counts_and_coords.tsv \
 		 data/interim/alpha_missense_tidy.tsv \
 		 data/interim/cds_sites_phylop_pext_missense.tsv \
 		 data/final/phylop_pext_missense_annotations_stats.tsv \
+		 data/interim/clinvar_variants_vep.tsv \
 
 # Files which take hours to create
 slow : data/interim/vep_all_snvs/out_29.tsv \
@@ -217,5 +218,12 @@ data/interim/clinvar_variants_selected.tsv \
 data/interim/clinvar_variants_selected.vcf : data/raw/variant_summary.txt \
                                              src/data/clinvar_variants.py
 	python3 -m src.data.clinvar_variants
+
+# VEP-annotate ClinVar variants
+data/interim/clinvar_variants_vep.tsv : data/interim/clinvar_variants_selected.vcf \
+                                        src/data/clinvar_vep.sh
+	$(CONDA_ACTIVATE) vep
+	bash src/data/clinvar_vep.sh
+	$(CONDA_ACTIVATE) ukb
 
 # Next 
