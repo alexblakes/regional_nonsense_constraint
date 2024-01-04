@@ -42,7 +42,7 @@ _NAMES = [
     "review",
 ]
 
-_CHROM = ["chr" + str(x) for x in list(range(1, 23))] + ["X", "Y"]
+_CHROM = ["chr" + str(x) for x in list(range(1, 23))] + ["chrX", "chrY"]
 
 _NULL_REVIEW = [
     "no assertion",
