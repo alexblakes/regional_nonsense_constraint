@@ -1,4 +1,4 @@
-"""Module docstring."""
+"""Tidy the VEP-annotated ClinVar variants."""
 
 # Imports
 from pathlib import Path
@@ -102,7 +102,7 @@ def filter_canonical_transcripts(df):
 def sanitise_vep_consequences(df):
     """Get one unambiguous consequence per variant."""
 
-    # The order matters.
+    # The order of the consequences matters.
     for c in _CONSEQUENCES:
         df.loc[df.csq.str.contains(c), "csq"] = c
 
