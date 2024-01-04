@@ -67,6 +67,14 @@ def split_fields(df):
     return df
 
 
+def tidy_positions(df):
+    """For indels, where 'pos' spans an interval, get the start position."""
+
+    df.pos = df.pos.str.split("-").str[0].astype(int)
+
+    return df
+
+
 def match_clinvar_symbol_to_vep_symbol(df):
     """Drop entries where ClinVar symbol does not match the VEP gene symbol."""
 
@@ -122,6 +130,7 @@ def main():
     df = (
         read_clinvar_vep(C.CLINVAR_VEP)
         .pipe(split_fields)
+        .pipe(tidy_positions)
         .pipe(match_clinvar_symbol_to_vep_symbol)
         .pipe(filter_canonical_transcripts)
         .pipe(sanitise_vep_consequences)
