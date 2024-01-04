@@ -1,4 +1,7 @@
-"""Process the ClinVar summary text file."""
+"""Parse the ClinVar summary text file.
+
+Save tidied data as TSV and VCF for downstream annotation with VEP.
+"""
 
 # Imports
 from pathlib import Path
@@ -69,7 +72,9 @@ _ACMG = [
 
 # Functions
 def read_clinvar_summary(path):
-    """Read ClinVar summary text file."""
+    """Read ClinVar summary text file.
+    
+    Keep only GRCh38 variants in main chromosomes."""
 
     logger.info("Reading ClinVar variants.")
 
@@ -149,12 +154,23 @@ def format_to_tsv(df):
 
 
 def format_to_vcf(df):
+    """Bespoke function to reformat ClinVar data to VCF."""
+
+    # Placeholder values for qual, filter, and info columns.
     df = df.assign(
-        _id=df.index,
         qual=".",
         _filter=".",
         _info=".",
-    )["chr pos _id ref alt qual _filter _info".split()]
+    )
+
+    # Put ClinVar annotations in the id column.
+    df["_id"] = [
+        "|".join([str(a), b, c, d])
+        for a, b, c, d in zip(df.index, df.hgnc, df.acmg, df.review)
+    ]
+
+    # Select columns for VCF format.
+    df = df["chr pos _id ref alt qual _filter _info".split()]
 
     return df
 
@@ -166,6 +182,8 @@ def write_tsv(df, path, **kwargs):
 
 
 def main():
+    """Run as script."""
+    
     clinvar = (
         read_clinvar_summary(C.CLINVAR_VARIANT_SUMMARY)
         .pipe(filter_clinvar_variants)
