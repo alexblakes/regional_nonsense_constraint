@@ -127,6 +127,9 @@ def main():
         .pipe(sanitise_vep_consequences)
     )[_COLUMNS]
 
+    logger.info("Writing output.")
+    df.to_csv(C.CLINVAR_VEP_TIDY, sep="\t", index=False)
+
     return df  #! Testing
 
 

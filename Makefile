@@ -22,6 +22,7 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
 	   data/interim/genemap2_simple.tsv \
 	   data/interim/clinvar_variants_selected.tsv \
 	   data/interim/clinvar_variants_selected.vcf \
+	   data/interim/clinvar_variants_vep_tidy.tsv \
 
 # Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
@@ -225,5 +226,10 @@ data/interim/clinvar_variants_vep.tsv : data/interim/clinvar_variants_selected.v
 	$(CONDA_ACTIVATE) vep
 	bash src/data/clinvar_vep.sh
 	$(CONDA_ACTIVATE) ukb
+
+# Tidy VEP-annotated ClinVar variants
+data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.tsv \
+                                             src/data/clinvar_vep_tidy.py
+	python3 -m src.data.clinvar_vep_tidy
 
 # Next 
