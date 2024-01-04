@@ -18,7 +18,7 @@ vep \
     --tab \
     --no_stats \
     --minimal \
-    --allele_number \
-    --show_ref_allele \
     --coding_only \
-    --fields "Location,REF_ALLELE,Allele,Consequence,Feature,Uploaded_variation"
+    --show_ref_allele \
+    --symbol \
+    --fields "Location,REF_ALLELE,Allele,Consequence,Feature,Uploaded_variation,SYMBOL"
