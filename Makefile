@@ -215,7 +215,7 @@ data/interim/genemap2_simple.tsv : data/interim/genemap2_parsed.tsv \
 # Parse ClinVar summary text file
 data/interim/clinvar_variants_selected.tsv \
 data/interim/clinvar_variants_selected.vcf : data/raw/variant_summary.txt \
-                                             src/functional_clinical/clinvar_variants.py
-	python3 -m src.functional_clinical.clinvar_variants
+                                             src/data/clinvar_variants.py
+	python3 -m src.data.clinvar_variants
 
 # Next 
