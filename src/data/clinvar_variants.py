@@ -10,6 +10,7 @@ import pandas as pd
 
 from src import constants as C
 from src import setup_logger
+from src.data import clinvar_vep_tidy
 
 
 # Logging
@@ -41,7 +42,7 @@ _NAMES = [
     "review",
 ]
 
-_CHROM = [str(x) for x in list(range(1, 23))] + ["X", "Y"]
+_CHROM = ["chr" + str(x) for x in list(range(1, 23))] + ["X", "Y"]
 
 _NULL_REVIEW = [
     "no assertion",
@@ -72,32 +73,26 @@ _ACMG = [
 
 # Functions
 def read_clinvar_summary(path):
-    """Read ClinVar summary text file.
-    
-    Keep only GRCh38 variants in main chromosomes."""
+    """Read ClinVar summary text file."""
 
     logger.info("Reading ClinVar variants.")
 
-    df = (
-        pd.read_csv(
-            path,
-            sep="\t",
-            usecols=_USECOLS,
-            low_memory=False,
-            dtype={"Chromosome": str},
-            na_values="na",
-        )
-        .rename(columns={x: y for x, y in zip(_USECOLS, _NAMES)})
-        .query(f"chr.isin({_CHROM})")
-        .query("assembly == 'GRCh38'")
-        .drop("assembly", axis=1)
-        .dropna()
-    )
+    df = pd.read_csv(
+        path,
+        sep="\t",
+        usecols=_USECOLS,
+        low_memory=False,
+        dtype={"Chromosome": str},
+        na_values="na",
+    ).rename(columns={x: y for x, y in zip(_USECOLS, _NAMES)})
 
-    # Add "chr" prefix to chromosome numbers
-    df["chr"] = "chr" + df["chr"]
+    logger.info(f"ClinVar entries: {len(df)}")
+    logger.info(f"NaN values:\n{df.isna().sum()}")
 
-    logger.info(f"GRCh38 ClinVar variants: {len(df)}")
+    # Drop entries with missing data.
+    df = df.dropna()
+
+    logger.info(f"Entries after dropping NaNs: {len(df)}")
     logger.info(
         f"Duplicated by variant: {df.duplicated('chr pos ref alt'.split()).sum()}"
     )
@@ -105,36 +100,58 @@ def read_clinvar_summary(path):
     return df
 
 
-def filter_clinvar_variants(df):
-    """Filter by review status and ACMG category."""
+def filter_grch38(df):
+    """Filter for entries in GRCh38."""
+
+    df = df.query("assembly == 'GRCh38'").drop("assembly", axis=1)
+
+    # Add "chr" prefix to chromosome numbers
+    df["chr"] = "chr" + df["chr"]
+
+    return df
+
+
+def filter_major_contigs(df):
+    """Filter for variants on the major chromosomes."""
+
+    df = df.query(f"chr.isin({_CHROM})")
+
+    logger.info(f"Variants on major contigs: {len(df)}")
+
+    return df
+
+
+def filter_null_annotations(df):
+    """Exclude variants with irrelevant review or ACMG annotations."""
 
     # Create masks for filtering
     m1 = ~df.review.str.lower().str.contains("|".join(_NULL_REVIEW))
     m2 = ~df.acmg.str.lower().str.contains("|".join(_NULL_ACMG))
 
     # Filter for irrelevant review or ACMG values
-    df = (
-        df[m1 & m2]
-        .replace(
-            {
-                "Benign/Likely benign": "Likely benign",
-                "Pathogenic/Likely pathogenic": "Likely pathogenic",
-            }
-        )
-        .sort_values(["chr", "pos"])  # Required for VEP
-        .reset_index()
-    )
+    df = df[m1 & m2]
 
     logger.info(
-        f"ClinVar variants with definitive review and ACMG annotations: {len(df)}"
+        f"ClinVar variants with relevant review and ACMG annotations: {len(df)}"
     )
     logger.info(
         f"Duplicated by variant: {df.duplicated('chr pos ref alt'.split()).sum()}"
     )
 
-    # Drop variants with conflicting ACMG entries
+    return df
+
+
+def drop_conflicting_acmg_annotations(df):
+    """Drop variants with conflicting ACMG entries."""
+
     df = (
-        df.drop_duplicates()
+        df.replace(
+            {
+                "Benign/Likely benign": "Likely benign",
+                "Pathogenic/Likely pathogenic": "Likely pathogenic",
+            }
+        )
+        .drop_duplicates()
         .drop_duplicates("chr pos ref alt hgnc acmg".split())
         .drop_duplicates("chr pos ref alt hgnc".split(), keep=False)
     )
@@ -142,14 +159,30 @@ def filter_clinvar_variants(df):
     logger.info(
         f"Variants remaining after dropping conflicting ACMG annotations: {len(df)}"
     )
-
     logger.info(f"ACMG value counts:\n{df.acmg.value_counts()}")
     logger.info(f"Review status value counts:\n{df.review.value_counts()}")
 
     return df
 
 
+def rationalise_gene_symbols(df):
+    """Keep only one HGNC gene symbol per variant."""
+
+    # Get HGNC symbols for canonical transcripts.
+    symbols = clinvar_vep_tidy.read_transcript_ids(C.CANONICAL_CDS_GENE_IDS).symbol
+
+    # Explode and filter any nested gene symbols.
+    df["hgnc"] = df["hgnc"].str.split(";")
+    df = df.explode("hgnc")
+    df = df[df.hgnc.isin(symbols)]
+
+    logger.info(f"ClinVar entries with HGNC symbols: {len(df)}")
+
+    return df
+
+
 def format_to_tsv(df):
+    df = df.sort_values(["chr", "pos"]).reset_index()  # Required for VEP
     return df[["chr", "pos", "ref", "alt", "hgnc", "acmg", "review"]]
 
 
@@ -183,10 +216,14 @@ def write_tsv(df, path, **kwargs):
 
 def main():
     """Run as script."""
-    
+
     clinvar = (
         read_clinvar_summary(C.CLINVAR_VARIANT_SUMMARY)
-        .pipe(filter_clinvar_variants)
+        .pipe(filter_grch38)
+        .pipe(filter_major_contigs)
+        .pipe(filter_null_annotations)
+        .pipe(drop_conflicting_acmg_annotations)
+        .pipe(rationalise_gene_symbols)
         .pipe(format_to_tsv)
     )
     vcf = format_to_vcf(clinvar)
