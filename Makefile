@@ -41,6 +41,7 @@ medium : data/interim/cds_counts_and_coords.tsv \
 		 data/interim/cds_sites_phylop_pext_missense.tsv \
 		 data/final/phylop_pext_missense_annotations_stats.tsv \
 		 data/interim/clinvar_variants_vep.tsv \
+		 data/interim/clinvar_variants_lof_with_nmd_annotation.tsv \
 
 # Files which take hours to create
 slow : data/interim/vep_all_snvs/out_29.tsv \
@@ -231,5 +232,10 @@ data/interim/clinvar_variants_vep.tsv : data/interim/clinvar_variants_selected.v
 data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.tsv \
                                              src/data/clinvar_vep_tidy.py
 	python3 -m src.data.clinvar_vep_tidy
+
+# Annotate ClinVar variants with regional constraint
+data/interim/clinvar_variants_lof_with_nmd_annotation.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
+                                                            src/functional_clinical/clinvar_variants_in_constrained_regions.py
+	python3 -m src.functional_clinical.clinvar_variants_in_constrained_regions
 
 # Next 
