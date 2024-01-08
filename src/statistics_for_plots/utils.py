@@ -3,7 +3,7 @@
 # Imports
 import pandas as pd
 
-from src.visualisation import plotting_constants as PC
+from src import constants as C
 
 # Module constants
 
@@ -12,18 +12,18 @@ from src.visualisation import plotting_constants as PC
 def categorical_regions_column(series):
     return pd.Categorical(
         series,
-        categories=PC.REGIONS,
+        categories=C.REGIONS,
         ordered=True,
-    ).rename_categories(PC.REGION_LABELS)
+    ).rename_categories(C.REGION_LABELS)
 
 
 def categorical_regions_index(index, name="region"):
     return pd.CategoricalIndex(
         index,
-        categories=PC.REGIONS,
+        categories=C.REGIONS,
         ordered=True,
         name=name,
-    ).rename_categories(PC.REGION_LABELS)
+    ).rename_categories(C.REGION_LABELS)
 
 
 def sort_region_column(df, column="region"):

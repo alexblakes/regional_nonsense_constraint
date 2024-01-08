@@ -7,18 +7,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from src import constants as C
+from src.visualisation import plotting_constants as PC
 from src import setup_logger
 from src.visualisation import color_tools as ct
 
 
 # Logging
 logger = setup_logger(Path(__file__).stem)
-
-
-# Color palettes
-VIBRANT_PALETTE = ct.color_palette("default")  # Vibrant palette
-REGIONS_PALETTE = ct.color_palette("regions")  # Regions palette
 
 
 # Functions
@@ -37,7 +32,7 @@ def plot_clinvar_bars(
     if xticks:
         ax.set_xticks(
             ticks=x / n,
-            labels=C.REGION_LABELS,
+            labels=PC.NMD_REGION_LABELS,
             rotation=45,
             rotation_mode="anchor",
             ha="right",
@@ -51,7 +46,7 @@ def plot_clinvar_bars(
 
     # Optional horizontal dashed grey line
     if axhline:
-        ax.axhline(y=axhline, linestyle="--", color=VIBRANT_PALETTE.grey)
+        ax.axhline(y=axhline, linestyle="--", color=ct.color_palette().grey)
 
     return None
 
