@@ -56,8 +56,13 @@ notebooks :
 		-p coverage $$N ; \
 	done
 
+# Statistics
+statistics : 
+	papermill notebooks/statistics/clinvar_ascertainment.ipynb papermill notebooks/statistics/clinvar_ascertainment.ipynb
+
+
 # All files
-all : downloads fast medium slow
+all : downloads fast medium slow statistics
 
 
 # Extract canonical CDS from GTF file
@@ -237,5 +242,8 @@ data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.t
 data/interim/clinvar_variants_lof_with_nmd_annotation.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
                                                             src/functional_clinical/clinvar_variants_in_constrained_regions.py
 	python3 -m src.functional_clinical.clinvar_variants_in_constrained_regions
+
+# Statistics
+
 
 # Next 
