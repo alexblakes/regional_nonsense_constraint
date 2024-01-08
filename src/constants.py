@@ -32,7 +32,9 @@ G2P_EYE = f"{RAW_DIR}/EyeG2P_23_8_2023.csv"
 G2P_SKELETAL = f"{RAW_DIR}/SkeletalG2P_23_8_2023.csv"
 G2P_SKIN = f"{RAW_DIR}/SkinG2P_23_8_2023.csv"
 GENCODE_GTF = f"{RAW_DIR}/gencode.v39.annotation.gtf"
-GNOMAD_LOEUF_CONSTRAINT = f"{RAW_DIR}/supplementary_dataset_11_full_constraint_metrics.tsv"
+GNOMAD_LOEUF_CONSTRAINT = (
+    f"{RAW_DIR}/supplementary_dataset_11_full_constraint_metrics.tsv"
+)
 GNOMAD_V4_CONSTRAINT = f"{RAW_DIR}/gnomad.v4.0.constraint_metrics.tsv"
 GNOMAD_NC_MUTABILITY = f"{RAW_DIR}/mutation_rate_by_context_methyl.txt"
 GNOMAD_NC_METHYLATION = f"{RAW_DIR}/grch38_cpg_methylation.tsv"
@@ -63,7 +65,9 @@ _OBS_COUNTS_SYN = f"{INTERIM_DIR}/observed_variants_counts_synonymous_cov_"
 _OBS_COUNTS_REGIONS = f"{INTERIM_DIR}/observed_variants_counts_regions_cov_"
 OBS_COUNTS_SYN_20 = f"{INTERIM_DIR}/observed_variants_counts_synonymous_cov_20.tsv"
 OBS_COUNTS_REGIONS_20 = f"{INTERIM_DIR}/observed_variants_counts_regions_cov_20.tsv"
-OBS_COUNTS_REGIONS_20_CLEAN = f"{INTERIM_DIR}/observed_variants_counts_regions_cov_20_clean.tsv"
+OBS_COUNTS_REGIONS_20_CLEAN = (
+    f"{INTERIM_DIR}/observed_variants_counts_regions_cov_20_clean.tsv"
+)
 OMIM_GENEMAP_PARSED = f"{INTERIM_DIR}/genemap2_parsed.tsv"
 OMIM_GENEMAP_SIMPLE = f"{INTERIM_DIR}/genemap2_simple.tsv"
 PEXT_BED_37 = f"{INTERIM_DIR}/pext_37.bed"
@@ -83,11 +87,16 @@ REGIONAL_CONSTRAINT_STATS = f"{FINAL_DIR}/regional_constraint_stats.tsv"
 REGIONAL_NONSENSE_CONSTRAINT = f"{FINAL_DIR}/regional_nonsense_constraint.tsv"
 PHYLOP_PEXT_MISSENSE_STATS = f"{FINAL_DIR}/phylop_pext_missense_annotations_stats.tsv"
 
+### Summary statistics
+STATS_NMD_FOOTPRINT = "data/statistics/nmd_footprint.tsv"
+STATS_CLINVAR_ASCERTAINMENT = "data/statistics/clinvar_ascertainment.tsv"
+STATS_CLINVAR_ACMG_REGION = "data/statistics/clinvar_acmg_by_region.tsv"
+
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
 
 ## Visualisation
-CM = 1 / 2.54 # cm to inches conversion
-DEFAULT_MPL="src/visualisation/styles/default.mplstyle"
-COLOR_VIBRANT="src/visualisation/styles/color/vibrant.mplstyle"
-COLOR_REGIONS="src/visualisation/styles/color/regions_divergent.mplstyle"
+CM = 1 / 2.54  # cm to inches conversion
+DEFAULT_MPL = "src/visualisation/styles/default.mplstyle"
+COLOR_VIBRANT = "src/visualisation/styles/color/vibrant.mplstyle"
+COLOR_REGIONS = "src/visualisation/styles/color/regions_divergent.mplstyle"
