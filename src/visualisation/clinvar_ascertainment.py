@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from src.visualisation import plotting_constants as PC
+from src import constants as C
 from src import setup_logger
 from src.visualisation import color_tools as ct
 
@@ -32,7 +32,7 @@ def plot_clinvar_bars(
     if xticks:
         ax.set_xticks(
             ticks=x / n,
-            labels=PC.NMD_REGION_LABELS,
+            labels=C.NMD_REGION_LABELS,
             rotation=45,
             rotation_mode="anchor",
             ha="right",
@@ -49,25 +49,3 @@ def plot_clinvar_bars(
         ax.axhline(y=axhline, linestyle="--", color=ct.color_palette().grey)
 
     return None
-
-
-# fig, ax = plt.subplots()
-# plot_clinvar_bars(footprint, ax, "footprint", "Proportion of CDS", xticks=True)
-
-
-# fig, ax = plt.subplots()
-# plot_clinvar_bars(
-#     asrtn,
-#     ax,
-#     "prop_norm",
-#     "Truncating variants\nin ClinVar (normalised)",
-#     bar_label=False,
-#     axhline=1,
-#     xticks=True,
-# )
-
-
-# fig, ax = plt.subplots()
-# plot_clinvar_bars(
-#     clin_vus, ax, "proportion", "Proportion VUS\n(truncating variants)", xticks=True
-# )
