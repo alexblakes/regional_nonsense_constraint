@@ -91,6 +91,7 @@ PHYLOP_PEXT_MISSENSE_STATS = f"{FINAL_DIR}/phylop_pext_missense_annotations_stat
 STATS_NMD_FOOTPRINT = "data/statistics/nmd_footprint.tsv"
 STATS_CLINVAR_ASCERTAINMENT = "data/statistics/clinvar_ascertainment.tsv"
 STATS_CLINVAR_ACMG_REGION = "data/statistics/clinvar_acmg_by_region.tsv"
+STATS_CLINVAR_VUS_REGION = "data/statistics/clinvar_vus_by_region.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
