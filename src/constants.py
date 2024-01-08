@@ -95,9 +95,3 @@ STATS_CLINVAR_VUS_REGION = "data/statistics/clinvar_vus_by_region.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
-
-## Visualisation
-CM = 1 / 2.54  # cm to inches conversion
-DEFAULT_MPL = "src/visualisation/styles/default.mplstyle"
-COLOR_VIBRANT = "src/visualisation/styles/color/vibrant.mplstyle"
-COLOR_REGIONS = "src/visualisation/styles/color/regions_divergent.mplstyle"

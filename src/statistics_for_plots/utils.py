@@ -3,39 +3,27 @@
 # Imports
 import pandas as pd
 
+from src.visualisation import plotting_constants as PC
+
 # Module constants
-_REGION_ORDER = [
-    "transcript",
-    "nmd_target",
-    "start_proximal",
-    "long_exon",
-    "distal_nmd",
-]
-_REGION_LABELS = [
-    "Whole transcript",
-    "NMD target",
-    "Start proximal",
-    "Long exon",
-    "Distal",
-]
 
 
 # Functions
 def categorical_regions_column(series):
     return pd.Categorical(
         series,
-        categories=_REGION_ORDER,
+        categories=PC.REGIONS,
         ordered=True,
-    ).rename_categories(_REGION_LABELS)
+    ).rename_categories(PC.REGION_LABELS)
 
 
 def categorical_regions_index(index, name="region"):
     return pd.CategoricalIndex(
         index,
-        categories=_REGION_ORDER,
+        categories=PC.REGIONS,
         ordered=True,
         name=name,
-    ).rename_categories(_REGION_LABELS)
+    ).rename_categories(PC.REGION_LABELS)
 
 
 def sort_region_column(df, column="region"):
