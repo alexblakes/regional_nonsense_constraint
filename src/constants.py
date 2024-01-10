@@ -118,5 +118,7 @@ STATS_CLINVAR_ASCERTAINMENT = "data/statistics/clinvar_ascertainment.tsv"
 STATS_CLINVAR_ACMG_REGION = "data/statistics/clinvar_acmg_by_region.tsv"
 STATS_CLINVAR_VUS_REGION = "data/statistics/clinvar_vus_by_region.tsv"
 
+
+
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"
