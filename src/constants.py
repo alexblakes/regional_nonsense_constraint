@@ -111,6 +111,7 @@ EXPECTED_VARIANTS_ALL_REGIONS = f"{FINAL_DIR}/expected_variants_all_regions.tsv"
 REGIONAL_CONSTRAINT_STATS = f"{FINAL_DIR}/regional_constraint_stats.tsv"
 REGIONAL_NONSENSE_CONSTRAINT = f"{FINAL_DIR}/regional_nonsense_constraint.tsv"
 PHYLOP_PEXT_MISSENSE_STATS = f"{FINAL_DIR}/phylop_pext_missense_annotations_stats.tsv"
+MAPS = "data/final/maps.tsv"
 
 ### Summary statistics
 STATS_NMD_FOOTPRINT = "data/statistics/nmd_footprint.tsv"
