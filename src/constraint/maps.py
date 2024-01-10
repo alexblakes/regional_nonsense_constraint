@@ -17,50 +17,49 @@ logger = setup_logger(Path(__file__).stem)
 
 
 # Functions
-def maps_model(syn, deg):
+def maps_model(mu, ps, n_obs, deg=1):
     """Fit a polynomial regression to PS vs mu for synonymous contexts.
 
     See notebooks/02_maps_model_choices.ipynb for further information.
 
     Args:
-        deg (int): Degree of the polynomial, passed to np.polyfit().
+        mu (float): Mutability.
+        ps (float): Proportion of singletons.
+        n_obs (int): Number of variants observed.
+        deg (optional, int): Degree of the polynomial, passed to np.polyfit().
     """
 
-    x = syn.mu
-    y = syn.ps
-    w = syn.n_obs
-
-    z = np.polyfit(x, y, w=w, deg=deg)
+    z = np.polyfit(mu, ps, w=n_obs, deg=deg)
     p = np.poly1d(z)
 
     return p
 
 
-# def fit_maps_model(syn):
-#     """Fit a second degree polynomial to PS vs sqrt(mu).
-
-#     See notebooks/02_maps_model_choices.ipynb for further information.
-#     """
-
-#     x = np.sqrt(syn.mu)
-#     y = syn.ps
-#     w = syn.n_obs
-
-#     z = np.polyfit(x, y, deg=2, w=w)
-#     p = np.poly1d(z)
-
-#     return p
-
-
-def maps(df, poly1d):
+def maps(poly1d, df, transform=False):
     """Calculate MAPS and confidence intervals.
 
     Args:
         poly1d (np.poly1d): Polynomial class to predict PS.
+        df (DataFrame): Dataframe containing the following columns:
+            "mu" (Float): Mutability
+            "ps" (Float): Proportion of singeltons
+            "n_obs" (Int): Number of observed variants
+        transform (optional, str): Type of transformation. Options:
+            "log_ps": Log transformation of "ps"
+            "sqrt_mu": Square root transformation of "mu"
+            
     """
 
-    df["ps_pred"] = poly1d(df.mu)
-    df["maps"] = (df["ps"] - df["ps_pred"]).pipe(np.round, 3)
+    if transform == "log_ps":
+        df["ps_pred"] = np.exp(poly1d(df["mu"]))
+
+    if transform == "sqrt_mu":
+        df["ps_pred"] = poly1d(np.sqrt(df["mu"]))
+
+    if not transform:
+        df["ps_pred"] = poly1d(df["mu"])
+    
+    df["maps"] = df["ps"] - df["ps_pred"]
     df["se"] = np.sqrt((df["ps"] * (1 - df["ps"])) / df["n_obs"])
     df["ci95"] = 1.96 * df["se"]
 
@@ -71,10 +70,9 @@ def main():
     """Run as script."""
 
     syn = (
-        pd.read_csv(C.PS_SYN_CONTEXT, sep="\t")
-        .query("n_singletons > 0")
-        .query("n_obs >= 1000")
-        .query("mu < (9 * 10 ** -8)")
+        pd.read_csv(C.PS_SYN_CONTEXT, sep="\t").query("n_singletons > 0")
+        # .query("n_obs >= 1000")
+        # .query("mu < (9 * 10 ** -8)")
     )
 
     # Split into CpG and non-CpG contexts
@@ -85,7 +83,10 @@ def main():
     cpg = pd.read_csv(C.PS_REGIONS_CPG, sep="\t").pipe(maps, cpg_p)
     non = pd.read_csv(C.PS_REGIONS_NON_CPG, sep="\t").pipe(maps, non_p)
 
-    # p = maps_model(syn, deg=2)
-    # joint = pd.read_csv(C.PS_REGIONS, sep="\t").pipe(maps, p)
+    p = maps_model(syn, deg=2)
+    joint = pd.read_csv(C.PS_REGIONS, sep="\t").pipe(maps, p)
 
-    return cpg, non  #! Testing
+    return cpg, non, joint  #! Testing
+
+if __name__ == "__main__":
+    cpg, non, joint = main()
