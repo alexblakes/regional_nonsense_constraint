@@ -1,4 +1,4 @@
-"""Colour tools."""
+"""Visualisation tools for regional nonsense constraint paper."""
 
 # Imports
 from collections import namedtuple
@@ -17,7 +17,7 @@ from src import setup_logger
 logger = setup_logger(Path(__file__).stem)
 
 
-# Useful functions
+# Functions
 def color_palette(style="default"):
     """Choose a color palette."""
 
@@ -34,10 +34,10 @@ def color_palette(style="default"):
 
     # Assign the color palette to a variable.
     # Colors can be selected by index or name (e.g. cp[0], cp.red)
-    cp = namedtuple("color_palette", labels)
-    cp = cp(*sns.color_palette().as_hex())
+    palette = namedtuple("color_palette", labels)
+    palette = palette(*sns.color_palette().as_hex())
 
-    return cp
+    return palette
 
 
 def adjust_lightness(color, amount=0.5):
@@ -62,54 +62,3 @@ def panel_label(ax, s, x=-0.05, y=1.05, **kwargs):
         fontweight="bold",
         **kwargs,
     )
-
-
-# Examples
-## Qualitative
-
-# # "Vibrant"
-# # This is the default palette in the default.mplstyle style sheet
-# # NB the red and magenta colours are hard to distinguish
-# sns.color_palette(
-#     [
-#         "#0077BB",
-#         "#009988",
-#         "#EE7733",
-#         "#CC3311",
-#         "#33BBEE",
-#         "#EE3377",
-#         "#BBBBBB",
-#         "#000000",
-#     ]
-# )
-
-
-# # "Bright"
-# # An alternative colour scheme where colours are easier to distinguish
-# # However, it lacks a good red
-# sns.color_palette(
-#     ["#4477AA", "#EE6677", "#228833", "#CCBB44", "#66CCEE", "#AA3377", "#BBBBBB"]
-# )
-
-
-# # The seaborn colorblind palette
-# sns.color_palette("colorblind")
-
-
-## Sequential
-
-# sns.color_palette("Reds", as_cmap=True)
-
-# # Using the "_r" suffix reverses the direction
-# sns.color_palette("Blues_r", as_cmap=True)
-
-# # Can also be a discrete scale, if the as_cmap argument is False (default)
-# sns.color_palette("Blues_r")
-
-
-## Divergent
-
-# sns.color_palette("RdBu", as_cmap=True)
-
-# # The number of values in a discrete scale can be set with the n_colors argument
-# sns.color_palette("RdBu_r", n_colors=9)
