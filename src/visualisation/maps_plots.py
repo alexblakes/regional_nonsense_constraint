@@ -1,45 +1,49 @@
 """Docstring."""
 
 # Imports
-import numpy as np
 import matplotlib.pyplot as plt
 
 
+# Module constants
+_TICK_NAMES = [
+    "synonymous",
+    "missense",
+    "nonsense",
+    "nmd_target",
+    "start_proximal",
+    "long_exon",
+    "distal",
+]
+_TICK_LABELS = [
+    "Synonymous",
+    "Missense",
+    "Nonsense\n(whole transcript)",
+    "Nonsense\n(NMD target)",
+    "Nonsense\n(start proximal)",
+    "Nonsense\n(long exon)",
+    "Nonsense\n(distal)",
+]
+
+
 # Functions
-def vertical_bars(df, ax, height, ylabel, bar_label=True, **kwargs):
-    n = len(df)  # Number of bars
-    x = np.arange(n)  # X ticks
-    h = df[height]  # Height of bars (y-axis value)
+def plot_maps(df, y, x, xerr, color, ax=None):
+    # Get current axis if not specified
+    if ax == None:
+        ax = plt.gca()
 
-    b = ax.bar(x=x / n, height=h, width=1 / (n + 1), **kwargs)
-
-    ax.set_ylabel(ylabel)
-
-    if bar_label:
-        ax.bar_label(b, fmt="%.2f")
-
-    # Add invisible x ticks
-    ax.set_xticks(ticks = x/n, labels=[])
-    ax.tick_params(axis="x", length=0)
+    # Point range plot
+    ax.scatter(y=y, x=x, c=color)
+    ax.errorbar(y=y, x=x, xerr=xerr, c=color, linestyle="None")
 
     return None
 
 
-def xticks(labels=[], ax=None, **kwargs):
+def yticks(ticks=_TICK_NAMES, labels=_TICK_LABELS, **kwargs):
+    # Get current axis if not specified
     if ax == None:
         ax = plt.gca()
 
-    if not labels:
-        ax.set_xticks([])
-
-    if labels:
-        ax.set_xticks(
-            ticks=ax.get_xticks(),
-            labels=labels,
-            rotation=45,
-            rotation_mode="anchor",
-            ha="right",
-            **kwargs,
-        )
+    # Set yticks
+    ax.set_yticks(ticks=ticks, labels=labels, **kwargs)
 
     return None
