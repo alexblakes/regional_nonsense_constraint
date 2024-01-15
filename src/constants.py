@@ -144,6 +144,9 @@ STATS_CLINVAR_ACMG_REGION = "data/statistics/clinvar_acmg_by_region.tsv"
 STATS_CLINVAR_VUS_REGION = "data/statistics/clinvar_vus_by_region.tsv"
 STATS_MAPS = "data/statistics/maps.tsv"
 STATS_OE = "data/statistics/oe_transcripts.tsv"
+STATS_Z_LOEUF = "data/statistics/z_loeuf.tsv"
+STATS_Z_REGIONS = "data/statistics/z_scores_per_region.tsv"
+STATS_UPSET_CONSTRAINT = "data/statistics/upset_constrained_regions.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"

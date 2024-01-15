@@ -60,6 +60,10 @@ notebooks :
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
 	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb
+	papermill src/statistics_for_plots/oe.ipynb src/statistics_for_plots/oe.ipynb
+	papermill src/statistics_for_plots/z_loeuf.ipynb src/statistics_for_plots/z_loeuf.ipynb
+	papermill src/statistics_for_plots/z_distributions.ipynb src/statistics_for_plots/z_distributions.ipynb
+	papermill src/statistics_for_plots/upset.ipynb src/statistics_for_plots/upset.ipynb
 
 # Figures
 figures :
