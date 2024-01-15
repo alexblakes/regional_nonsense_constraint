@@ -61,8 +61,12 @@ statistics :
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
 	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb
 
+# Figures
+figures :
+	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
+
 # All files
-all : downloads fast medium slow statistics
+all : downloads fast medium slow statistics figures
 
 
 # Extract canonical CDS from GTF file
