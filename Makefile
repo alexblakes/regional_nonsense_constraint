@@ -58,7 +58,7 @@ notebooks :
 
 # Statistics
 statistics : 
-	papermill notebooks/statistics/clinvar_ascertainment.ipynb papermill notebooks/statistics/clinvar_ascertainment.ipynb
+	papermill notebooks/statistics/clinvar_ascertainment.ipynb notebooks/statistics/clinvar_ascertainment.ipynb
 
 
 # All files
