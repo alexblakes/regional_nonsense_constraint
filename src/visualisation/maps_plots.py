@@ -3,30 +3,14 @@
 # Imports
 import matplotlib.pyplot as plt
 
+from src import constants as C
 
 # Module constants
-_TICK_NAMES = [
-    "synonymous",
-    "missense",
-    "nonsense",
-    "nmd_target",
-    "start_proximal",
-    "long_exon",
-    "distal",
-]
-_TICK_LABELS = [
-    "Synonymous",
-    "Missense",
-    "Nonsense\n(whole transcript)",
-    "Nonsense\n(NMD target)",
-    "Nonsense\n(start proximal)",
-    "Nonsense\n(long exon)",
-    "Nonsense\n(distal)",
-]
+
 
 
 # Functions
-def plot_maps(df, y, x, xerr, color, ax=None):
+def plot_maps(y, x, xerr, color, ax=None):
     # Get current axis if not specified
     if ax == None:
         ax = plt.gca()
@@ -38,7 +22,7 @@ def plot_maps(df, y, x, xerr, color, ax=None):
     return None
 
 
-def yticks(ticks=_TICK_NAMES, labels=_TICK_LABELS, **kwargs):
+def yticks(ticks=C.MAPS_LABELS, labels=C.MAPS_LABELS, **kwargs):
     # Get current axis if not specified
     if ax == None:
         ax = plt.gca()

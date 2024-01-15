@@ -21,8 +21,8 @@ logger = setup_logger(Path(__file__).stem)
 def color_palette(style="default"):
     """Choose a color palette."""
 
-    if not style in ["default","regions"]:
-        raise ValueError("style must be one of 'default' or 'regions'.")
+    if not style in ["default","regions", "maps"]:
+        raise ValueError("style must be one of 'default', 'regions', or 'maps'.")
     
     if style == "default":
         labels = "blue green orange red light_blue pink grey black"
@@ -31,6 +31,10 @@ def color_palette(style="default"):
     if style == "regions":
         labels = "transcript nmd_target start_proximal long_exon distal"
         plt.style.use(C.COLOR_REGIONS)
+
+    if style == "maps":
+        labels = C.MAPS_CONSEQUENCES
+        plt.style.use(C.COLOR_MAPS)
 
     # Assign the color palette to a variable.
     # Colors can be selected by index or name (e.g. cp[0], cp.red)

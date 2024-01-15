@@ -30,23 +30,24 @@ MAPS_CONSEQUENCES = [
     "start_proximal",
     "long_exon",
     "distal",
-]
+][::-1] # Reversed for plotting
 
 MAPS_LABELS = [
     "Synonymous",
     "Missense",
-    "Nonsense\n(whole transcript)",
+    "Nonsense\n(Whole transcript)",
     "Nonsense\n(NMD target)",
-    "Nonsense\n(start proximal)",
-    "Nonsense\n(long exon)",
-    "Nonsense\n(distal)",
-]
+    "Nonsense\n(Start proximal)",
+    "Nonsense\n(Long exon)",
+    "Nonsense\n(Distal)",
+][::-1] # Reversed for plotting
 
 ## Plotting
 CM = 1 / 2.54  # cm to inches conversion
 STYLE_DEFAULT = "src/visualisation/styles/default.mplstyle"
 COLOR_VIBRANT = "src/visualisation/styles/color/vibrant.mplstyle"
 COLOR_REGIONS = "src/visualisation/styles/color/regions_divergent.mplstyle"
+COLOR_MAPS = "src/visualisation/styles/color/maps_consequences.mplstyle"
 
 # Directories
 ## RDS
