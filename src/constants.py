@@ -3,7 +3,9 @@
 # Plotting and visualisation
 ## Labels and naming
 NMD_REGIONS = ["nmd_target", "start_proximal", "long_exon", "distal"]
+
 NMD_REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
+
 REGIONS = [
     "transcript",
     "nmd_target",
@@ -11,12 +13,33 @@ REGIONS = [
     "long_exon",
     "distal",
 ]
+
 REGION_LABELS = [
     "Whole transcript",
     "NMD target",
     "Start proximal",
     "Long exon",
     "Distal",
+]
+
+MAPS_CONSEQUENCES = [
+    "synonymous_variant",
+    "missense_variant",
+    "stop_gained",
+    "nmd_target",
+    "start_proximal",
+    "long_exon",
+    "distal",
+]
+
+MAPS_LABELS = [
+    "Synonymous",
+    "Missense",
+    "Nonsense\n(whole transcript)",
+    "Nonsense\n(NMD target)",
+    "Nonsense\n(start proximal)",
+    "Nonsense\n(long exon)",
+    "Nonsense\n(distal)",
 ]
 
 ## Plotting
@@ -118,8 +141,7 @@ STATS_NMD_FOOTPRINT = "data/statistics/nmd_footprint.tsv"
 STATS_CLINVAR_ASCERTAINMENT = "data/statistics/clinvar_ascertainment.tsv"
 STATS_CLINVAR_ACMG_REGION = "data/statistics/clinvar_acmg_by_region.tsv"
 STATS_CLINVAR_VUS_REGION = "data/statistics/clinvar_vus_by_region.tsv"
-
-
+STATS_MAPS = "data/statistics/maps.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS_DIR}/vep_all_snvs_tidy.log"

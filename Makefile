@@ -58,8 +58,8 @@ notebooks :
 
 # Statistics
 statistics : 
-	papermill notebooks/statistics/clinvar_ascertainment.ipynb notebooks/statistics/clinvar_ascertainment.ipynb
-
+	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
+	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb
 
 # All files
 all : downloads fast medium slow statistics

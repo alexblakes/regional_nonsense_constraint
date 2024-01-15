@@ -9,28 +9,30 @@ from src import constants as C
 
 
 # Functions
-def categorical_regions_column(series):
+def categorical_regions_column(series, categories=C.REGIONS, labels=C.REGION_LABELS):
     return pd.Categorical(
         series,
-        categories=C.REGIONS,
+        categories=categories,
         ordered=True,
-    ).rename_categories(C.REGION_LABELS)
+    ).rename_categories(labels)
 
 
-def categorical_regions_index(index, name="region"):
+def categorical_regions_index(
+    index, name="region", categories=C.REGIONS, labels=C.REGION_LABELS
+):
     return pd.CategoricalIndex(
         index,
-        categories=C.REGIONS,
+        categories=categories,
         ordered=True,
         name=name,
-    ).rename_categories(C.REGION_LABELS)
+    ).rename_categories(labels)
 
 
-def sort_region_column(df, column="region"):
-    df[column] = categorical_regions_column(df[column])
-    return df.sort_values("region")
+def sort_region_column(df, column="region", **kwargs):
+    df[column] = categorical_regions_column(df[column], **kwargs)
+    return df.sort_values(column)
 
 
-def sort_region_index(df):
-    df.index = categorical_regions_index(df.index)
+def sort_region_index(df, **kwargs):
+    df.index = categorical_regions_index(df.index, **kwargs)
     return df.sort_index()
