@@ -176,7 +176,7 @@ dependencies:
   - python-fastjsonschema=2.18.0
   - python_abi=3.8
   - pytz=2022.7.1
-  - pyyaml=6.0
+  - pyyaml=6.0.1
   - pyzmq=25.1.0
   - qt-main=5.15.2
   - qt-webengine=5.15.9
@@ -210,7 +210,6 @@ dependencies:
   - traitlets=5.7.1
   - typing-extensions=4.7.1
   - typing_extensions=4.7.1
-  - upsetplot=0.8.0
   - urllib3=1.26.16
   - wcwidth=0.2.5
   - webencodings=0.5.1
@@ -222,4 +221,6 @@ dependencies:
   - zipp=3.11.0
   - zlib=1.2.13
   - zstd=1.5.5
+  - pip:
+      - upsetplot==0.9.0
 prefix: /mnt/iusers01/bk01/m40482ab/miniforge3/envs/ukb
