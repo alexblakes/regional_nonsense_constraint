@@ -35,11 +35,11 @@ MAPS_CONSEQUENCES = [
 MAPS_LABELS = [
     "Synonymous",
     "Missense",
-    "Nonsense\n(Whole transcript)",
-    "Nonsense\n(NMD target)",
-    "Nonsense\n(Start proximal)",
-    "Nonsense\n(Long exon)",
-    "Nonsense\n(Distal)",
+    "Nonsense (Whole transcript)",
+    "Nonsense (NMD target)",
+    "Nonsense (Start proximal)",
+    "Nonsense (Long exon)",
+    "Nonsense (Distal)",
 ][::-1] # Reversed for plotting
 
 ## Plotting
