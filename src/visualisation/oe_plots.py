@@ -6,7 +6,7 @@ import seaborn as sns
 
 
 # Functions
-def oe(df, ax=None, x="n_exp", y="n_obs", drop_ttn=True, alpha=0.2, **kwargs):
+def oe(df, ax=None, x="n_exp", y="n_obs", drop_ttn=True, **kwargs):
     if not ax:
         ax = plt.gca()
 
@@ -19,7 +19,6 @@ def oe(df, ax=None, x="n_exp", y="n_obs", drop_ttn=True, alpha=0.2, **kwargs):
         x=x,
         y=y,
         ci=None,
-        scatter_kws=dict(alpha=alpha),
         **kwargs,
     )
 

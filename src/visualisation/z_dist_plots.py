@@ -21,7 +21,7 @@ def z_dist(df, ax=None, x="z", xmin=-5, xmax=5, **kwargs):
     return None
 
 
-def axis_labels(title, xlabel="Z score", ylabel=None, ax=None):
+def axis_labels(title, ax=None, xlabel="Z score", ylabel=None):
     if not ax:
         ax = plt.gca()
 
@@ -44,14 +44,14 @@ def extract_kde_line(ax=None):
     return xs, ys
 
 
-def fill_kde(ax=None, alpha=0.3):
+def fill_kde(ax=None, **kwargs):
     if not ax:
         ax = plt.gca()
 
     xs, ys = extract_kde_line(ax)
 
     # Add fill beneath KDE line
-    ax.fill_between(xs, 0, ys, alpha=alpha)
+    ax.fill_between(xs, 0, ys, **kwargs)
 
     return None
 
@@ -82,9 +82,9 @@ def fdr_line(df, ax=None, color="black", label="FDR < 0.05"):
         ax.text(
             x=sig_thresh,
             y=0.01,
-            ha="center",
+            ha="right",
             va="bottom",
-            s=f"\n\n{label}",
+            s=f"{label}",
             rotation=90,
         )
 
