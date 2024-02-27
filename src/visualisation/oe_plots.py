@@ -28,8 +28,10 @@ def oe(df, ax=None, x="n_exp", y="n_obs", drop_ttn=True, **kwargs):
 def add_x_eq_y_line(ax=None, **kwargs):
     if not ax:
         ax = plt.gca()
+    
+    kwargs.setdefault("color", "grey")
 
-    ax.axline((0, 0), (1, 1), color="grey", linestyle="--")
+    ax.axline((0, 0), (1, 1), linestyle="--", **kwargs)
 
     return None
 
