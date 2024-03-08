@@ -1,80 +1,55 @@
 # Data description
 Description of the datasets in the ./data/raw/ directory.
-   
-## 241-mammalian-2020v2.bigWig
-BigWig file containing phyloP scores from Zoonomia project, using multiple alignment of 241 mammals.
-This is the updated file (v2).
-From this URL: https://cgl.gi.ucsc.edu/data/cactus/241-mammalian-2020v2-hub/Homo_sapiens/241-mammalian-2020v2.bigWig
-Downloaded on 14/06/23.
-Note that due to its size (20Gb) this file is kept in the UKB RAP.
 
-## G2P
-### CardiacG2P_23_8_2023.csv -->
-Text file containing G2P disease gene annotations.
-Downloaded: 23/08/23
-From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+## all.baselevel.021620.tsv
+Base-level pext scores.
+Downloaded with: qsub src/downloads/download_pext.sh
+md5sum (not confirmed) d366d60e9e50ff2287ecd418219cb827
 
-### DDG2P_23_8_2023.csv
-Text file containing G2P disease gene annotations.
-Downloaded: 23/08/23
-From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+## AlphaMissense_hg38.tsv
+SNV-level AlphaMissense scores
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 178b56ce32b5529f0d28a46c03301b20
 
-### EyeG2P_23_8_2023.csv
+## CardiacG2P_23_8_2023.csv -->
 Text file containing G2P disease gene annotations.
-Downloaded: 23/08/23
-From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 96da2d56677384e71e1c9579aea5ba5e
 
-### SkeletalG2P_23_8_2023.csv
+## DDG2P_23_8_2023.csv
 Text file containing G2P disease gene annotations.
-Downloaded: 23/08/23
-From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 817b82ff899c9ba61816a526f63ad6a6
 
-### SkinG2P_23_8_2023.csv
+## EyeG2P_23_8_2023.csv
 Text file containing G2P disease gene annotations.
-Downloaded: 23/08/23
-From this URL: https://www.ebi.ac.uk/gene2phenotype/downloads
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 7258668829db523a7273e76ad06e4748
 
 ## GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
 FASTA file for reference human genome. 
-Downloaded: 13/10/23
-From this URL: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
+Downloaded with: qsub src/downloads/download_reference_fasta.sh
+md5sum (not confirmed) a6da8681616c05eb542f1d91606a7b2f
 
 ## GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai
 FASTA index for reference human genome. 
-Downloaded: 13/10/23
-From this URL: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai
+Downloaded with: qsub src/downloads/download_reference_fasta.sh
+md5sum (confirmed) 5fddbc109c82980f9436aa5c21a57c61
 
 ## gencode.v39.annotation.gtf
 GENCODE v39 comprehensive gene annotation (GTF format)
-Downloaded: 04/10/23
-From this URL: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_39/gencode.v39.annotation.gtf.gz
+Downloaded with: qsub src/downloads/download_gencode.sh
+md5sum (not confirmed) 1efe634b076160b5b9d7027c91a4a518
 
 ## genemap2.txt
 A tab-delimited file containing OMIM's Synopsis of the Human Gene Map including additional information such as genomic coordinates and inheritance.
-Downloaded: 25/08/23
-From this URL: https://omim.org/downloads (registration is required)
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 16a5c38b1734d48cc1809ca9a2a618a6
 
-## hg19ToHg38.over.chain.gz
-UCSC liftover chain file for hg19 to hg38 annotations.
-Downloaded: 19/06/23
-From this URL: http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz
-
-## hmc_wst_uniquevar_outputforshare_v2.txt.gz
-Gzipped text file containing homologous missense constraint annotations for hg19 and hg38 sites.
-Reference: Zhang, X. et al. Genetic constraint at single amino acid resolution improves missense variant prioritisation and gene discovery. medRxiv 2022.02.16.22271023 (2022) doi:10.1101/2022.02.16.22271023.
-Downloaded: 19/06/23
-From this URL: https://doi.org/10.5281/zenodo.6392153
-
-## pext.all.baselevel.021620.tsv.bgz
-bgzipped tsv file containing pext annotations (hg19) for coding sites.
-Reference: Cummings, B. B. et al. Transcript expression-aware annotation improves rare variant interpretation. Nature 581, 452–458 (2020).
-Downloaded: 19/06/23
-From this URL: https://storage.googleapis.com/gcp-public-data--gnomad/papers/2019-tx-annotation/gnomad_browser/all.baselevel.021620.tsv.bgz
-
-## variant_summary.txt
-Text file containing ClinVar variant summary data.
-Downloaded: 04/10/23
-From this URL: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz
+## gnomad.v4.0.constraint_metrics.tsv
+gnomAD v4 constraint metrics.
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 612f3899a85a1b7c6513a9dd65b00485
 
 ## grch38_cpg_methylation.tsv
 Text file containing methylation level annotations for CpG sites.
@@ -85,3 +60,39 @@ This data is derived from a publicly available Hail table at:
 The methylation data was extracted using Hail. This task cannot be done on the University of Manchester computer cluster owing to software availability. Therefore, these scripts were run on a Spark cluster on the UKB Research Analysis Platform, and subsequently downloaded to the UoM CSF. The relevant UKB RAP scripts are here:
 - src/downloads/get_ht.sh
 - src/downloads/get_methylation.ipynb
+
+md5sum (not confirmed) d1871d99a0b9c3cdb2738c011477c50d
+
+## hg19ToHg38.over.chain.gz
+UCSC liftover chain file for hg19 to hg38 annotations.
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 9267c9fef79b54962da8efadd0ddf6b6
+
+## hg38.cactus241way.phyloP.bw
+BigWig file containing base-level 241-way phyloP scores from Zoonomia project.
+Downloaded with: qsub src/downloads/download_phylop.sh
+md5sum (confirmed) fffa7057e9afa1e177090108775d6418
+
+## mutation_rate_by_context_methyl.txt
+Text file with trinucleotide context mutation rates.
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) ed3e599d57dc49a25738a97dbea2c651
+
+## SkeletalG2P_23_8_2023.csv
+Text file containing G2P disease gene annotations.
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 958ed6bbdcb39fa3573362243a69a397
+
+## SkinG2P_23_8_2023.csv
+Text file containing G2P disease gene annotations.
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 01552c7a0681c9dae4ff5227d39eb5ff
+
+## variant_summary.txt
+Text file containing ClinVar variant summary data.
+Downloaded with: qsub src/downloads/download_small_files.sh
+md5sum (not confirmed) 1e9eb39d6f8856809c65b83268e37b56
+
+## whole_genome_SNVs.tsv.gz
+
+## whole_genome_SNVs.tsv.gz.tbi
