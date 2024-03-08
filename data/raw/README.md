@@ -94,5 +94,11 @@ Downloaded with: qsub src/downloads/download_small_files.sh
 md5sum (not confirmed) 1e9eb39d6f8856809c65b83268e37b56
 
 ## whole_genome_SNVs.tsv.gz
+CADD scores for all SNVs in GRCh38.
+Downloaded with: qsub src/downloads/download_cadd.sh
+md5sum (confirmed) 88577a55f1cd519d44e0f415ba248eb9
 
 ## whole_genome_SNVs.tsv.gz.tbi
+Tabix index for GRCh38 CADD scores.
+Downloaded with: qsub src/downloads/download_cadd.sh
+md5sum (confirmed) 347df8fac17ea374c4598f4f44c7ce8b
