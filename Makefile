@@ -77,6 +77,8 @@ all : downloads fast medium slow statistics figures
 data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf \
                                              src/data/canonical_cds.py
 	python3 -m src.data.canonical_cds
+	# Remove "chr" prefix
+	sed 's/^chr//' data/interim/gencode_v39_canonical_cds.bed > data/interim/gencode_v39_canonical_cds_no_chr.bed
 
 # Get CDS counts and coordinates
 data/interim/cds_counts_and_coords.tsv : data/raw/gencode.v39.annotation.gtf \
