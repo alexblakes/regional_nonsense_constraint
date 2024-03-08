@@ -18,6 +18,7 @@ big_files = data/raw/hg38.cactus241way.phyloP.bw \
             data/raw/gencode.v39.annotation.gtf \
             data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
 	        data/raw/all.baselevel.021620.tsv \
+			data/raw/whole_genome_SNVs.tsv.gz \
 
 small : ${small_files}
 
@@ -44,3 +45,6 @@ data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna :
 
 data/raw/all.baselevel.021620.tsv :
 	qsub src/downloads/download_pext.sh
+
+data/raw/whole_genome_SNVs.tsv.gz :
+	qsub src/downloads/download_cadd.sh
