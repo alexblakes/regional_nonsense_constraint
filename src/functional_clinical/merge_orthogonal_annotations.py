@@ -101,10 +101,15 @@ def read_alpha_missense(path):
     return am
 
 
-def read_regional_nonsense_constraint(path):
+def read_regional_nonsense_constraint(path, **kwargs):
     """Get regional nonsense constraint annotations."""
 
-    constraint = pd.read_csv(path, sep="\t", usecols=["enst", "region", "constraint"])
+    constraint = pd.read_csv(
+        path,
+        sep="\t",
+        usecols=["enst", "region", "constraint"],
+        **kwargs,
+    )
 
     return constraint
 

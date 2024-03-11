@@ -44,7 +44,7 @@ def get_trinucleotide_contexts(path):
     return tri
 
 
-def get_vep_annotations(path):
+def get_vep_annotations(path, **kwargs):
     """Retreive VEP annotations of all possible SNVs."""
 
     logger.info("Getting VEP annotations for all possible SNVs.")
@@ -56,6 +56,7 @@ def get_vep_annotations(path):
         header=None,
         names=["chr", "pos", "ref", "alt", "csq", "enst"],
         dtype=_DATATYPES,
+        **kwargs
         # nrows=10000  # ! Testing
     )
 
