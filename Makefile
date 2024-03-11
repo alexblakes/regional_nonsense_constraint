@@ -56,6 +56,10 @@ notebooks :
 		-p coverage $$N ; \
 	done
 
+# CADD
+cadd : 
+	make -f src/cadd/Makefile all
+
 # Statistics
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
@@ -70,7 +74,7 @@ figures :
 	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
 # All files
-all : downloads fast medium slow statistics figures
+all : downloads fast medium slow statistics figures cadd
 
 
 # Extract canonical CDS from GTF file
