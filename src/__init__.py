@@ -4,26 +4,30 @@ import logging
 
 from src import constants as C
 
-def setup_logger(name):
-    """Start a separate logger for each script."""
-
-    formatter = logging.Formatter(
-        fmt="[%(asctime)s] %(levelname)s %(funcName)s(): %(message)s", 
-        datefmt='%d-%b-%y %H:%M:%S',
-        )
-
-    file_handler = logging.FileHandler(f"{C.LOGS_DIR}/{name}.log", "w")
+# Functions
+def log_to_file():
+    file_handler = logging.FileHandler(f"data/logs/testing.log", "w")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)        
-    
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
-    stream_handler.setFormatter(formatter)
 
-    logger = logging.getLogger(name)
-    if logger.hasHandlers(): logger.handlers.clear()
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(stream_handler)
-    logger.addHandler(file_handler)
+    logging.addHandler(file_handler)
 
-    return logger
+
+# Logging configuration
+formatter = logging.Formatter(
+    fmt="[%(asctime)s] %(levelname)s %(funcName)s(): %(message)s", 
+    datefmt='%d-%b-%y %H:%M:%S',
+    )
+
+file_handler = logging.FileHandler(f"data/logs/testing.log", "w")
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)        
+
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_handler.setFormatter(formatter)
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+root.addHandler(stream_handler)
+root.addHandler(file_handler)
