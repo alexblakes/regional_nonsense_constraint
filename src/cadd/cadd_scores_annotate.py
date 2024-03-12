@@ -127,6 +127,7 @@ def main():
     logger.info(f"Remaining variants: {len(df)}")
 
     # Write to output
+    logger.info("Writing to output.")
     df.to_csv(args.outfile, sep="\t", index=False)
 
     return df
