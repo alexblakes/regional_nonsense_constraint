@@ -52,3 +52,9 @@ def setup_logger(
 
 
 root_logger = setup_logger("", logfile="data/logs/_all_python_modules.log")
+
+modules = ["src.cadd.log_test1", "src.cadd.log_test2", "src.cadd.log_test3"]
+
+for m in modules:
+    logger = logging.getLogger(m)
+    logger = add_filehandler(logger, f"data/logs/{m}.log")
