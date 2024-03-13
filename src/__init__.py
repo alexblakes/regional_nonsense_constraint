@@ -4,30 +4,34 @@ import logging
 
 from src import constants as C
 
+
 # Functions
-def log_to_file():
-    file_handler = logging.FileHandler(f"data/logs/testing.log", "w")
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)        
+def setup_logger(name, propagate=True, logfile=None,):
+    """Create a new logger."""
+    
+    logger = logging.getLogger(name)
+    logger.propagate = propagate
+    logger.setLevel(logging.DEBUG)
 
-    logging.addHandler(file_handler)
-
-
-# Logging configuration
-formatter = logging.Formatter(
-    fmt="[%(asctime)s] %(levelname)s %(funcName)s(): %(message)s", 
-    datefmt='%d-%b-%y %H:%M:%S',
+    formatter = logging.Formatter(
+        fmt="[%(asctime)s] %(levelname)s %(name)s %(funcName)s(): %(message)s",
+        datefmt="%d-%b-%y %H:%M:%S",
     )
 
-file_handler = logging.FileHandler(f"data/logs/testing.log", "w")
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)        
+    # Log to file
+    if logfile:
+        file_handler = logging.FileHandler(logfile)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)
-stream_handler.setFormatter(formatter)
+    # Log to std err
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
 
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
-root.addHandler(stream_handler)
-root.addHandler(file_handler)
+    return logger
+
+root_logger = setup_logger("", logfile="data/logs/_all_python_modules.log")
+
