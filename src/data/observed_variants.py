@@ -6,24 +6,27 @@ methylation, and mutability for all observed and possible SNVs.
 """
 
 # Imports
+import logging
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from src import setup_logger
+import src
 from src import constants as C
+
 
 # Module constants
 _VCF_HEADER = ["chr", "pos", "id", "ref", "alt", "qual", "filter", "info"]
 _DATATYPES = defaultdict(lambda: "str").update(
     {"pos": np.int32, "ac": np.int32, "an": np.int32}
 )
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
 
 # Logging
-logger = setup_logger(Path(__file__).stem)
+logger = logging.getLogger(__name__)
 
 
 # Functions
@@ -269,4 +272,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = src.module_logger(_LOGFILE)
     main()

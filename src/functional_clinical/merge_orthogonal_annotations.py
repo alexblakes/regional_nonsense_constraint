@@ -1,19 +1,22 @@
 """Merge NMD, phyloP, AlphaMissense, and pext annotations."""
 
 # Imports
+import logging
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
+import src
 from src import constants as C
-from src import setup_logger
+
 
 # Module constants
 _METRICS = ["phylop", "pext", "alpha_mis"]
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 
 # Logging
-logger = setup_logger(Path(__file__).stem)
+logger = logging.getLogger(__name__)
 
 
 # Functions
@@ -215,4 +218,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = src.module_logger(_LOGFILE)
     main()
