@@ -2,20 +2,26 @@
 
 # Imports
 import argparse
+import logging
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
-from src import setup_logger
+import src
 from src.functional_clinical import merge_orthogonal_annotations as moa
 from src.data import observed_variants
 
+
 # Module constants
-_CADD_HEADER = "chr pos ref alt cadd_raw cad_phred".split()
-_CADD_USECOLS = "chr pos ref alt cad_phred".split()
+_CADD_HEADER = "chr pos ref alt cadd_raw cadd_phred".split()
+_CADD_USECOLS = "chr pos ref alt cadd_phred".split()
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_DTYPES = {"pos":np.int32, "cadd_phred":np.float16,}
+
 
 # Logging
-logger = setup_logger(Path(__file__).stem)
+logger = logging.getLogger(__name__)
 
 
 # Functions
@@ -32,6 +38,7 @@ def read_cadd(path, **kwargs):
         names=_CADD_HEADER,
         usecols=_CADD_USECOLS,
         low_memory=False,
+        dtype=_DTYPES,
         **kwargs,
     )
 
@@ -110,16 +117,18 @@ def main():
     # Read the data
     cadd = read_cadd(args.cadd).pipe(tidy_cadd)
     vep = observed_variants.get_vep_annotations(args.vep)
-    nmd = moa.read_nmd_annotations(args.nmd)
+    nmd = moa.read_nmd_annotations(args.nmd, dtype=_DTYPES)
     constraint = moa.read_regional_nonsense_constraint(args.constraint)
 
     # Merge annotations
     logger.info("Merging VEP and CADD annotations.")
     df = vep.merge(cadd, how="inner", validate="many_to_one")
+    del vep, cadd # Manage memory
     logger.info(f"Remaining variants: {len(df)}")
 
     logger.info("Merging NMD annotations.")
     df = df.merge(nmd, how="inner", validate="many_to_one")
+    del nmd # Manage memory
     logger.info(f"Remaining variants: {len(df)}")
 
     logger.info("Merging constraint annotations.")
@@ -129,9 +138,12 @@ def main():
     # Write to output
     logger.info("Writing to output.")
     df.to_csv(args.outfile, sep="\t", index=False)
+    
+    logger.info("Done.")
 
     return df
 
 
 if __name__ == "__main__":
+    logger = src.module_logger(_LOGFILE)
     main()
