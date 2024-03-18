@@ -103,8 +103,8 @@ def main():
 
     # Concatenate the regional and transcript-level data
     syn = concat_cds_data(syn, cds, "synonymous_variant").pipe(tidy_region_names)
-    mis = concat_cds_data(syn, cds, "missense_variant").pipe(tidy_region_names)
-    non = concat_cds_data(syn, cds, "stop_gained").pipe(tidy_region_names)
+    mis = concat_cds_data(mis, cds, "missense_variant").pipe(tidy_region_names)
+    non = concat_cds_data(non, cds, "stop_gained").pipe(tidy_region_names)
 
     # Outputs
     for df, path, csq in zip(
