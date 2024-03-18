@@ -44,7 +44,7 @@ def read_cadd_annotations(path):
             dtype=_DTYPE,
             usecols=_USECOLS,
             low_memory=False,
-            # nrows=10000000,
+            nrows=5000000,
         )
         .dropna(subset="constraint")
         .replace({"region": "distal_nmd"}, value="distal")
@@ -102,9 +102,6 @@ def main():
         tidy_region_names, labels=_REGION_LABELS
     )
     syn, mis, stop = [cat_sort(x) for x in [syn, mis, stop]]
-    logger.debug(f"{syn}")
-    logger.debug(f"{mis}")
-    logger.debug(f"{stop}")
 
     # Outputs
     for df, path, csq in zip(
