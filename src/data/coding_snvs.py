@@ -204,7 +204,7 @@ def main():
     logger.info("Splitting output for parallel VEP annotation")
     for idx, chunk in enumerate(np.array_split(df, _CHUNKS)):
         chunk.to_csv(
-            f"{C.VEP_ALL_SNVS_DIR}/in_{idx}.vcf",
+            f"{C.VEP}/in_{idx}.vcf",
             sep="\t",
             index=False,
             header=False,

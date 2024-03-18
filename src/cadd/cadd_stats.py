@@ -91,7 +91,10 @@ def main():
     syn, mis, stop = [cat_sort(x) for x in [syn, mis, stop]]
 
     # Write to output, log T test statistics
-    for df, csq in zip([syn, mis, stop], ["synonymous", "missense", "nonsense"]):
+    for df, csq in zip(
+        [syn, mis, stop],
+        [C.STATS_CADD_SYN, C.STATS_CADD_MIS, C.STATS_CADD_NON],
+    ):
         df.to_csv(f"data/statistics/cadd_{csq}.tsv", sep="\t")
 
         logger.info(
