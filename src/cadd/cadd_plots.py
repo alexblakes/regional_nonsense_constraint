@@ -23,7 +23,14 @@ logger = logging.getLogger(__name__)
 def read_data(path):
     return pd.read_csv(path)
 
+
 def main():
+    
+    # Read data
+    syn = read_data(C.STATS_CADD_SYN)
+    mis = read_data(C.STATS_CADD_MIS)
+    non = read_data(C.STATS_CADD_NON)
+    
     pass
 
 

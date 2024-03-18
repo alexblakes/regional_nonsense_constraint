@@ -16,6 +16,7 @@ from src import statistics_for_plots
 _DTYPE = {"pos": np.int32, "cadd_phred": np.float16}
 _USECOLS = ["csq", "cadd_phred", "region", "constraint"]
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_CSQS = "synonymous missense nonsense".split()
 
 
 # Logging
@@ -90,13 +91,16 @@ def main():
     cat_sort = lambda x: concat_transcript_data(x, whole_transcript).pipe(sort_region)
     syn, mis, stop = [cat_sort(x) for x in [syn, mis, stop]]
 
-    # Write to output, log T test statistics
-    for df, csq in zip(
+    # Outputs
+    for df, path, csq in zip(
         [syn, mis, stop],
         [C.STATS_CADD_SYN, C.STATS_CADD_MIS, C.STATS_CADD_NON],
+        _CSQS
     ):
-        df.to_csv(f"data/statistics/cadd_{csq}.tsv", sep="\t")
+        # Write to output
+        df.to_csv(path, sep="\t")
 
+        # Log T test statistics
         logger.info(
             f"T test statistics for {csq} variants:\n"
             f"{statistics_for_plots.test_constrained_vs_unconstrained(df)}"
