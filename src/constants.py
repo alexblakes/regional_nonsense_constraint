@@ -140,9 +140,9 @@ MAPS = "data/final/maps.tsv"
 
 ### Summary statistics
 STATS_NMD_FOOTPRINT = "data/statistics/nmd_footprint.tsv"
-STATS_CADD_SYN = f"{STATS}/data/statistics/cadd_synonymous.tsv"
-STATS_CADD_MIS = f"{STATS}/data/statistics/cadd_missense.tsv"
-STATS_CADD_NON = f"{STATS}/data/statistics/cadd_nonsense.tsv"
+STATS_CADD_SYN = f"{STATS}/cadd_synonymous.tsv"
+STATS_CADD_MIS = f"{STATS}/cadd_missense.tsv"
+STATS_CADD_NON = f"{STATS}/cadd_nonsense.tsv"
 STATS_CLINVAR_ASCERTAINMENT = "data/statistics/clinvar_ascertainment.tsv"
 STATS_CLINVAR_ACMG_REGION = "data/statistics/clinvar_acmg_by_region.tsv"
 STATS_CLINVAR_VUS_REGION = "data/statistics/clinvar_vus_by_region.tsv"

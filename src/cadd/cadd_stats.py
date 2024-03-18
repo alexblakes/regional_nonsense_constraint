@@ -17,7 +17,17 @@ _DTYPE = {"pos": np.int32, "cadd_phred": np.float16}
 _USECOLS = ["csq", "cadd_phred", "region", "constraint"]
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _CSQS = "synonymous missense nonsense".split()
-
+_REGION_LABELS = [
+    "Synonymous (Whole CDS)",
+    "Missense (Whole CDS)",
+    "Nonsense (Whole CDS)",
+    "NMD target",
+    "Start proximal",
+    "Long exon",
+    "Distal",
+][
+    ::-1
+]  # Reversed for plotting
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -34,7 +44,7 @@ def read_cadd_annotations(path):
             dtype=_DTYPE,
             usecols=_USECOLS,
             low_memory=False,
-            # nrows=1000000,
+            # nrows=10000000,
         )
         .dropna(subset="constraint")
         .replace({"region": "distal_nmd"}, value="distal")
@@ -45,14 +55,13 @@ def get_cadd_stats(df, groupby=["constraint", "region"]):
     """Get summary stats of CADD scores by region and constraint."""
 
     # Lambda functions for 95% confidence intervals
-    ci_l = lambda x: x["mean"] - 1.96 * x["sem"]
-    ci_r = lambda x: x["mean"] + 1.96 * x["sem"]
+    ci_95 = lambda x: 1.96 * x["sem"]
 
     # Get statistics
     stats = (
         df.groupby(groupby)["cadd_phred"]
         .agg(n="count", mean="mean", std=np.std, sem="sem")
-        .assign(ci_l=ci_l, ci_r=ci_r)
+        .assign(ci_95=ci_95)
     )
 
     return stats
@@ -62,9 +71,10 @@ def concat_transcript_data(df1, df2):
     return pd.concat([df1, df2], axis=0).sort_index()
 
 
-def sort_region(df, **kwargs):
+def tidy_region_names(df, **kwargs):
     kwargs.setdefault("categories", C.MAPS_CONSEQUENCES)
     kwargs.setdefault("labels", C.MAPS_LABELS)
+
     return (
         df.reset_index()
         .pipe(statistics_for_plots.sort_region_column, **kwargs)
@@ -88,14 +98,17 @@ def main():
     ).rename_axis(["constraint", "region"])
 
     # Concatenate the regional and transcript-level data
-    cat_sort = lambda x: concat_transcript_data(x, whole_transcript).pipe(sort_region)
+    cat_sort = lambda x: concat_transcript_data(x, whole_transcript).pipe(
+        tidy_region_names, labels=_REGION_LABELS
+    )
     syn, mis, stop = [cat_sort(x) for x in [syn, mis, stop]]
+    logger.debug(f"{syn}")
+    logger.debug(f"{mis}")
+    logger.debug(f"{stop}")
 
     # Outputs
     for df, path, csq in zip(
-        [syn, mis, stop],
-        [C.STATS_CADD_SYN, C.STATS_CADD_MIS, C.STATS_CADD_NON],
-        _CSQS
+        [syn, mis, stop], [C.STATS_CADD_SYN, C.STATS_CADD_MIS, C.STATS_CADD_NON], _CSQS
     ):
         # Write to output
         df.to_csv(path, sep="\t")
