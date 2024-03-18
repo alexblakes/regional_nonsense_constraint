@@ -15,7 +15,8 @@ data/interim/cadd_scores_coding.tsv : src/cadd/cadd_coding_snvs.sh
 	$(CONDA_ACTIVATE) ukb
 
 # Annotate coding sites with CADD scores
-data/interim/cadd_scores_coding_annotated.tsv : src/cadd/cadd_scores_annotate.py
+data/interim/cadd_scores_coding_annotated.tsv : src/cadd/cadd_scores_annotate.py \
+                                                data/interim/cadd_scores_coding.tsv
 	python3 -m src.cadd.cadd_scores_annotate
 
 # Next
