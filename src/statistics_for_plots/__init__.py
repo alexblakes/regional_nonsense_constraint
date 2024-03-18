@@ -8,6 +8,7 @@ from src import constants as C
 
 
 # Functions
+## Sort by categorical columns / indices
 def categorical_regions_column(series, categories=C.REGIONS, labels=C.REGION_LABELS):
     """Create a categorical column."""
     return pd.Categorical(
@@ -15,6 +16,13 @@ def categorical_regions_column(series, categories=C.REGIONS, labels=C.REGION_LAB
         categories=categories,
         ordered=True,
     ).rename_categories(labels)
+
+
+def sort_region_column(df, column="region", **kwargs):
+    """Sort a DataFrame by a categorical column."""
+
+    df[column] = categorical_regions_column(df[column], **kwargs)
+    return df.sort_values(column)
 
 
 def categorical_regions_index(
@@ -29,13 +37,6 @@ def categorical_regions_index(
     ).rename_categories(labels)
 
 
-def sort_region_column(df, column="region", **kwargs):
-    """Sort a DataFrame by a categorical column."""
-
-    df[column] = categorical_regions_column(df[column], **kwargs)
-    return df.sort_values(column)
-
-
 def sort_region_index(df, **kwargs):
     """Sort a DataFrame by a categorical column."""
 
@@ -43,12 +44,13 @@ def sort_region_index(df, **kwargs):
     return df.sort_index()
 
 
+## Statistical tests
 def test_constrained_vs_unconstrained(df, **kwargs):
     """Welch's T-test of mean values in constrained vs unconstrained regions."""
 
     # Default arguments (can be overriden)
-    kwargs.setdefault("equal_var", False) # Welch's T test
-    kwargs.setdefault("alternative","two-sided")
+    kwargs.setdefault("equal_var", False)  # Welch's T test
+    kwargs.setdefault("alternative", "two-sided")
 
     constrained = df.loc["constrained"]
     unconstrained = df.loc["unconstrained"]
