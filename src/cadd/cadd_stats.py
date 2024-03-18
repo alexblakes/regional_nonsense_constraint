@@ -17,17 +17,13 @@ _DTYPE = {"pos": np.int32, "cadd_phred": np.float16}
 _USECOLS = ["csq", "cadd_phred", "region", "constraint"]
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _CSQS = "synonymous missense nonsense".split()
-_REGION_LABELS = [
-    "Synonymous (Whole CDS)",
-    "Missense (Whole CDS)",
-    "Nonsense (Whole CDS)",
-    "NMD target",
-    "Start proximal",
-    "Long exon",
-    "Distal",
-][
+_REGION_CATEGORIES = "whole_cds nmd_target start_proximal long_exon distal".split()[
     ::-1
 ]  # Reversed for plotting
+_REGION_LABELS = ["Whole CDS", "NMD target", "Start proximal", "Long exon", "Distal"][
+    ::-1
+]  # Reversed for plotting
+
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -44,7 +40,7 @@ def read_cadd_annotations(path):
             dtype=_DTYPE,
             usecols=_USECOLS,
             low_memory=False,
-            nrows=5000000,
+            # nrows=2000000,
         )
         .dropna(subset="constraint")
         .replace({"region": "distal_nmd"}, value="distal")
@@ -67,13 +63,21 @@ def get_cadd_stats(df, groupby=["constraint", "region"]):
     return stats
 
 
-def concat_transcript_data(df1, df2):
-    return pd.concat([df1, df2], axis=0).sort_index()
+def concat_cds_data(region, cds, csq):
+    # Subset CDS data by consequence
+    cds = (
+        cds.xs(csq, level="region", drop_level=False)
+        .reset_index("region")
+        .assign(region="whole_cds")
+        .set_index("region", append=True)
+    )
+
+    return pd.concat([region, cds], axis=0).sort_index()
 
 
 def tidy_region_names(df, **kwargs):
-    kwargs.setdefault("categories", C.MAPS_CONSEQUENCES)
-    kwargs.setdefault("labels", C.MAPS_LABELS)
+    kwargs.setdefault("categories", _REGION_CATEGORIES)
+    kwargs.setdefault("labels", _REGION_LABELS)
 
     return (
         df.reset_index()
@@ -90,22 +94,21 @@ def main():
     # Synonymous, missense, and nonsense by region
     syn = df[df["csq"] == "synonymous_variant"].copy().pipe(get_cadd_stats)
     mis = df[df["csq"] == "missense_variant"].copy().pipe(get_cadd_stats)
-    stop = df[df["csq"] == "stop_gained"].copy().pipe(get_cadd_stats)
+    non = df[df["csq"] == "stop_gained"].copy().pipe(get_cadd_stats)
 
     # Variants across the whole transcript
-    whole_transcript = df.pipe(
-        get_cadd_stats, groupby=["constraint", "csq"]
-    ).rename_axis(["constraint", "region"])
+    cds = df.pipe(get_cadd_stats, groupby=["constraint", "csq"]).rename_axis(
+        ["constraint", "region"]
+    )
 
     # Concatenate the regional and transcript-level data
-    cat_sort = lambda x: concat_transcript_data(x, whole_transcript).pipe(
-        tidy_region_names, labels=_REGION_LABELS
-    )
-    syn, mis, stop = [cat_sort(x) for x in [syn, mis, stop]]
+    syn = concat_cds_data(syn, cds, "synonymous_variant").pipe(tidy_region_names)
+    mis = concat_cds_data(syn, cds, "missense_variant").pipe(tidy_region_names)
+    non = concat_cds_data(syn, cds, "stop_gained").pipe(tidy_region_names)
 
     # Outputs
     for df, path, csq in zip(
-        [syn, mis, stop], [C.STATS_CADD_SYN, C.STATS_CADD_MIS, C.STATS_CADD_NON], _CSQS
+        [syn, mis, non], [C.STATS_CADD_SYN, C.STATS_CADD_MIS, C.STATS_CADD_NON], _CSQS
     ):
         # Write to output
         df.to_csv(path, sep="\t")
