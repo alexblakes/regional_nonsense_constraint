@@ -93,6 +93,7 @@ PHYLOP_BW = f"{RAW_DIR}/hg38.cactus241way.phyloP.bw"
 
 ### Interim
 ALPHA_MISSENSE_TIDY = f"{INTERIM_DIR}/alpha_missense_tidy.tsv"
+CADD_ANNOTATED = f"{INTERIM_DIR}/cadd_scores_coding_annotated.tsv"
 CANONICAL_CDS_BED = f"{INTERIM_DIR}/gencode_v39_canonical_cds.bed"
 CANONICAL_CDS_FASTA = f"{INTERIM_DIR}/gencode_v39_canonical_cds_seq.tsv"
 CANONICAL_CDS_GENE_IDS = f"{INTERIM_DIR}/gene_ids.tsv"
