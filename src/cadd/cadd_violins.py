@@ -22,7 +22,9 @@ _METRIC = "CADD Phred"
 _CSQS = ["Synonymous", "Missense", "Nonsense"]
 _CONSTRAINT = ["Constrained", "Unconstrained"]
 _FIGSIZE = (12 * C.CM, 6 * C.CM)
-_REGION_LABELS = ["Whole CDS", "NMD target", "Start proximal", "Long exon", "Distal"][::-1] # Reversed for plotting
+_REGION_LABELS = ["Whole CDS", "NMD target", "Start proximal", "Long exon", "Distal"][
+    ::-1
+]  # Reversed for plotting
 # Logging
 logger = logging.getLogger(__name__)
 
@@ -86,14 +88,17 @@ def figure(df):
     )
     axs = axs.flatten()
 
+    # Violin plots
     for ax, (constraint, csq) in zip(axs, itertools.product(_CONSTRAINT, _CSQS)):
+        
+        # Split data
         m1 = df["constraint"] == constraint
         m2 = df["csq"] == csq
         data = df[m1 & m2]
 
         data_split = [
             data.loc[data["region"] == r, "cadd_phred"] for r in _REGION_LABELS
-        ]       
+        ]
 
         # Plot violins
         violins = ax.violinplot(
@@ -110,7 +115,9 @@ def figure(df):
             body.set_alpha(1)
 
         # Add box and whisker
-        quantiles = [np.percentile(data_split[n], [25, 50, 75]) for n in range(len(data_split))]
+        quantiles = [
+            np.percentile(data_split[n], [25, 50, 75]) for n in range(len(data_split))
+        ]
         q25 = [quantiles[n][0] for n in range(len(quantiles))]
         q50 = [quantiles[n][1] for n in range(len(quantiles))]
         q75 = [quantiles[n][2] for n in range(len(quantiles))]
@@ -121,23 +128,38 @@ def figure(df):
         ax.hlines(y=indices, xmin=q25, xmax=q75, color="black", linewidth=2)
 
         # Add y tick labels
-        ax.set_yticks([n + 1 for n in range(len(_REGION_LABELS))], labels=_REGION_LABELS)
+        ax.set_yticks(
+            [n + 1 for n in range(len(_REGION_LABELS))], labels=_REGION_LABELS
+        )
 
-        # sns.violinplot(
-        #     data,
-        #     x="cadd_phred",
-        #     y="region",
-        #     ax=ax,
-        #     order=_REGION_LABELS,
-        #     cut=1,
-        #     linewidth=0.8,
-        #     width=1.1,
-        # )
+    # Figure-level adjustments
+        
+    # Add x label
+    for ax, csq in zip(axs[-len(_CSQS):], _CSQS):
+        ax.set_xlabel(f"CADD Phred\n({csq})")
 
-        break
+    # Add Axes titles
+    for ax in axs[: len(_CSQS)]:
+        ax.set_title("Constrained")
+    
+    for ax in axs[-len(_CSQS):]:
+        ax.set_title("Unconstrained")
 
+    # Trim x limits
+    for ax in [axs[0], axs[3]]:
+        ax.set_xlim(0, 20)
+
+    for ax in [axs[1], axs[4]]:
+        ax.set_xlim(10, 35)
+
+    for ax in [axs[2], axs[5]]:
+        ax.set_xlim(25, 50)
+
+
+    # Save figure
     plt.savefig("data/plots/cadd.svg")
     plt.savefig("data/plots/cadd.png", dpi=600)
+    
     plt.close()
 
     return None
