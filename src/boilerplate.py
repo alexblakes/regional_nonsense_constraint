@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Functions
 def main():
+    """Run as script."""
     pass
 
 
