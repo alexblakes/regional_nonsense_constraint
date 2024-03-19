@@ -125,7 +125,7 @@ def figure(df):
         indices = np.arange(1, len(quantiles) + 1)
 
         ax.scatter(x=q50, y=indices, marker="o", color="white", s=2, zorder=3)
-        ax.hlines(y=indices, xmin=q25, xmax=q75, color="black", linewidth=2)
+        ax.hlines(y=indices, xmin=q25, xmax=q75, color="black", linewidth=1.5)
 
         # Add y tick labels
         ax.set_yticks(
@@ -150,10 +150,10 @@ def figure(df):
         ax.set_xlim(0, 20)
 
     for ax in [axs[1], axs[4]]:
-        ax.set_xlim(10, 35)
+        ax.set_xlim(10, 30)
 
     for ax in [axs[2], axs[5]]:
-        ax.set_xlim(25, 50)
+        ax.set_xlim(30, 45)
 
 
     # Save figure
