@@ -8,23 +8,22 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 import src
 from src import constants as C
 from src import visualisation as vis
-from src.visualisation import maps_plots
 
 # Module constants
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _PALETTE = vis.color_palette("regions")[::-1]
-_METRIC = "CADD Phred"
 _CSQS = ["Synonymous", "Missense", "Nonsense"]
 _CONSTRAINT = ["Constrained", "Unconstrained"]
 _FIGSIZE = (12 * C.CM, 6 * C.CM)
 _REGION_LABELS = ["Whole CDS", "NMD target", "Start proximal", "Long exon", "Distal"][
     ::-1
 ]  # Reversed for plotting
+
+
 # Logging
 logger = logging.getLogger(__name__)
 
@@ -75,7 +74,61 @@ def get_whole_cds_data(df):
     return pd.concat([df, cds])
 
 
-def figure(df):
+def violinh(data, ax=None, palette=_PALETTE, **kwargs):
+    """Horizontal violinplot with matplotlib."""
+
+    # Default arguments to ax.violinplot
+    kwargs.setdefault("vert", False)
+    kwargs.setdefault("widths", 1)
+    kwargs.setdefault("showmedians", False)
+    kwargs.setdefault("showextrema", False)
+    kwargs.setdefault("points", 1000)
+
+    # Use current Axes by default
+    if not ax:
+        ax = plt.gca()
+
+    # Plot violins
+    violins = ax.violinplot(data, **kwargs)
+
+    # Customise violin color
+    for body, color in zip(violins["bodies"], palette):
+        body.set_facecolor(color)
+        body.set_alpha(1)
+
+    return None
+
+
+def violinh_quantiles(data, ax=None, quantiles=[25, 50, 75], size=2):
+    """Annotate quantiles for horizontal violin plots."""
+
+    # Get current axis by default
+    if not ax:
+        ax = plt.gca()
+
+    quantiles = [np.percentile(data[n], quantiles) for n in range(len(data))]
+    qmin = [quantiles[n][0] for n in range(len(quantiles))]
+    qmed = [quantiles[n][1] for n in range(len(quantiles))]
+    qmax = [quantiles[n][2] for n in range(len(quantiles))]
+
+    # Y axis coords
+    indices = np.arange(1, len(quantiles) + 1)
+
+    # Median point
+    ax.scatter(x=qmed, y=indices, marker="o", color="white", s=size, zorder=3)
+
+    # Min / max quantiles line
+    ax.hlines(y=indices, xmin=qmin, xmax=qmax, color="black", linewidth=size / 2)
+
+    return None
+
+
+def main():
+    """Run as script."""
+
+    # Process the data
+    df = read_data(C.CADD_ANNOTATED).pipe(tidy_data).pipe(get_whole_cds_data)
+
     # Instantiate the figure
     fig, axs = plt.subplots(
         len(_CONSTRAINT),
@@ -88,9 +141,8 @@ def figure(df):
     )
     axs = axs.flatten()
 
-    # Violin plots
+    # Plot violins
     for ax, (constraint, csq) in zip(axs, itertools.product(_CONSTRAINT, _CSQS)):
-        
         # Split data
         m1 = df["constraint"] == constraint
         m2 = df["csq"] == csq
@@ -100,73 +152,38 @@ def figure(df):
             data.loc[data["region"] == r, "cadd_phred"] for r in _REGION_LABELS
         ]
 
-        # Plot violins
-        violins = ax.violinplot(
-            data_split,
-            vert=False,
-            widths=1,
-            showmedians=False,
-            showextrema=False,
-        )
+        violinh(data_split, ax=ax)
+        violinh_quantiles(data_split, ax=ax)
 
-        # Customise violin color
-        for body, color in zip(violins["bodies"], _PALETTE):
-            body.set_facecolor(color)
-            body.set_alpha(1)
-
-        # Add box and whisker
-        quantiles = [
-            np.percentile(data_split[n], [25, 50, 75]) for n in range(len(data_split))
-        ]
-        q25 = [quantiles[n][0] for n in range(len(quantiles))]
-        q50 = [quantiles[n][1] for n in range(len(quantiles))]
-        q75 = [quantiles[n][2] for n in range(len(quantiles))]
-
-        indices = np.arange(1, len(quantiles) + 1)
-
-        ax.scatter(x=q50, y=indices, marker="o", color="white", s=2, zorder=3)
-        ax.hlines(y=indices, xmin=q25, xmax=q75, color="black", linewidth=1.5)
-
-        # Add y tick labels
+    # Adjust the figure
+    ## Add y ticks
+    for ax in axs:
         ax.set_yticks(
             [n + 1 for n in range(len(_REGION_LABELS))], labels=_REGION_LABELS
         )
 
-    # Figure-level adjustments
-        
-    # Add x label
-    for ax, csq in zip(axs[-len(_CSQS):], _CSQS):
+    ## Add x label
+    for ax, csq in zip(axs[-len(_CSQS) :], _CSQS):
         ax.set_xlabel(f"CADD Phred\n({csq})")
 
-    # Add Axes titles
+    ## Add Axes titles
     for ax in axs[: len(_CSQS)]:
         ax.set_title("Constrained")
-    
-    for ax in axs[-len(_CSQS):]:
+    for ax in axs[-len(_CSQS) :]:
         ax.set_title("Unconstrained")
 
-    # Trim x limits
+    ## Custom x limits
     for ax in [axs[0], axs[3]]:
         ax.set_xlim(0, 20)
-
     for ax in [axs[1], axs[4]]:
         ax.set_xlim(10, 30)
-
     for ax in [axs[2], axs[5]]:
         ax.set_xlim(30, 45)
-
 
     # Save figure
     plt.savefig("data/plots/cadd.svg")
     plt.savefig("data/plots/cadd.png", dpi=600)
-    
     plt.close()
-
-    return None
-
-
-def main():
-    df = read_data(C.CADD_ANNOTATED).pipe(tidy_data).pipe(get_whole_cds_data)
 
     return df
 
