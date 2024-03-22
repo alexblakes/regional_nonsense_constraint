@@ -50,8 +50,8 @@ def main():
     logger.info(f"gnomAD constrained gene ids: {len(_gnomad_strong)}")
 
     # Write to output
-    _all.to_csv(C.GENE_LIST_ALL, index=False)
-    _gnomad_strong.to_csv(C.GENE_LIST_GNOMAD_CST, index=False)
+    _all.to_csv(C.GENE_LIST_ALL, index=False, header=None)
+    _gnomad_strong.to_csv(C.GENE_LIST_GNOMAD_CST, index=False, header=None)
 
     return gene_ids, gnomad, _gnomad_strong
 
