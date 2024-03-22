@@ -2,6 +2,7 @@
 
 
 # Imports
+import logging
 from pathlib import Path
 
 import pandas as pd
@@ -18,10 +19,11 @@ from src import constants as C
 _TRANSCRIPT = ["transcript"]
 _REGIONS = ["distal_nmd", "nmd_target", "long_exon", "start_proximal"]
 _CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
 
 # Logging
-logger = setup_logger(Path(__file__).stem)
+logger = logging.getLogger(__name__)
 
 
 # Functions
@@ -147,4 +149,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     main()
