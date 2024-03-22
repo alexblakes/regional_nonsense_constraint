@@ -189,7 +189,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.module_logger(_LOGFILE)
+    logger = src.setup_logger(_LOGFILE)
     plt.style.use(C.STYLE_DEFAULT)
     plt.style.use(C.COLOR_REGIONS)
     main()
