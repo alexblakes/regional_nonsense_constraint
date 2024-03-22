@@ -25,5 +25,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.module_logger(_LOGFILE)
+    logger = src.setup_logger(_LOGFILE)
     main()

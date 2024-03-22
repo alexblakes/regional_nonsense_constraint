@@ -3,31 +3,24 @@
 import logging
 
 
-# Formatters
-_FORMATTER_ROOT = logging.Formatter(
-    fmt="[%(asctime)s] %(levelname)s %(pathname)s %(funcName)s(): %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-_FORMATTER_SRC = logging.Formatter(
+_FORMATTER = logging.Formatter(
     fmt="[%(asctime)s] %(levelname)s %(filename)s %(funcName)s(): %(message)s",
     datefmt="%d-%b-%y %H:%M:%S",
 )
 
-# Log file paths
-_LOGFILE_ROOT = "data/logs/_root.log"
-_LOGFILE_SRC = "data/logs/_src.log"
-
 
 def setup_logger(
-    name="src",
-    formatter=_FORMATTER_SRC,
     logfile=None,
     mode="w",
+    name="src",
+    formatter=_FORMATTER,
     stream=False,
     level=logging.DEBUG,
 ):
-    """Create a new logger."""
+    """Retrieve a new or existing logger and optionally add handler(s) to it."""
+
     logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
 
     # Log to file
     if logfile:
@@ -46,13 +39,5 @@ def setup_logger(
     return logger
 
 
-# Set up the root logger
-root_logger = setup_logger(
-    name="", logfile=_LOGFILE_ROOT, formatter=_FORMATTER_ROOT, stream=False, mode="a"
-)
-root_logger = setup_logger(
-    name="", formatter=_FORMATTER_ROOT, stream=True, level=logging.INFO
-)
-
-# Set up the src logger
-src_logger = setup_logger(logfile=_LOGFILE_SRC, mode="a")
+root_logger = setup_logger(name="") # Sponge for logging output from external packages
+src_logger = setup_logger(stream=True) # Main logger for the package
