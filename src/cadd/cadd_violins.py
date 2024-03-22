@@ -181,8 +181,8 @@ def main():
         ax.set_xlim(30, 45)
 
     # Save figure
-    plt.savefig("data/plots/cadd.svg")
-    plt.savefig("data/plots/cadd.png", dpi=600)
+    plt.savefig("data/plots/cadd_violins.svg")
+    plt.savefig("data/plots/cadd_violins.png", dpi=600)
     plt.close()
 
     return df

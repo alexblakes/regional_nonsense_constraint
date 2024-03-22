@@ -6,7 +6,8 @@ CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda act
 
 all : data/interim/cadd_scores_coding.tsv \
       data/interim/cadd_scores_coding_annotated.tsv \
-	  data/statistics/cadd_nonsense \
+	  data/statistics/cadd_nonsense.tsv \
+	  data/plots/cadd_violins.png \
 	  
 
 # Filter for CADD scores of coding SNVs
