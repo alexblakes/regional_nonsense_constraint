@@ -21,8 +21,13 @@ data/interim/cadd_scores_coding_annotated.tsv : src/cadd/cadd_scores_annotate.py
 	python3 -m src.cadd.cadd_scores_annotate
 
 # Calculate CADD score statistics
-data/statistics/cadd_nonsense : src/cadd/cadd_stats.py \
-                                data/interim/cadd_scores_coding_annotated.tsv
+data/statistics/cadd_nonsense.tsv : src/cadd/cadd_stats.py \
+                                    data/interim/cadd_scores_coding_annotated.tsv
 	python3 -m src.cadd.cadd_stats
+
+# Plot CADD score violins
+data/plots/cadd_violins.png : src/cadd/cadd_violins.py \
+                              data/interim/cadd_scores_coding_annotated.tsv
+	python3 -m src.cadd.cadd_violins
 
 # Next
