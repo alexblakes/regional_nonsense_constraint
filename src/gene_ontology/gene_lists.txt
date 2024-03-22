@@ -1,0 +1,10 @@
+These are the gene lists we want:
+- Genes for all protein-coding canonical transcripts in GENCODE v39
+- Genes with strong pLI or LOEUF scores
+- Genes with transcript-level constraint
+- Genes with NMD target constraint
+- Genes with Start proximal constraint
+- Genes with Long exon constraint
+- Genes with distal constraint
+
+ENSG identifiers

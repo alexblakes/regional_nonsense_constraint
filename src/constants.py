@@ -133,10 +133,12 @@ VEP_ALL_SNVS_TIDY = f"{INTERIM}/cds_all_possible_snvs_vep_tidy.tsv"
 ### Final
 ALL_VARIANTS_MERGED_ANNOTATIONS = f"{FINAL}/all_variants_merged_annotations.tsv"
 EXPECTED_VARIANTS_ALL_REGIONS = f"{FINAL}/expected_variants_all_regions.tsv"
+GENE_LIST_ALL = f"{FINAL}/gene_list_all.txt"
+GENE_LIST_ALL = f"{FINAL}/gene_list_gnomad_constrained.txt"
+MAPS = "data/final/maps.tsv"
 REGIONAL_CONSTRAINT_STATS = f"{FINAL}/regional_constraint_stats.tsv"
 REGIONAL_NONSENSE_CONSTRAINT = f"{FINAL}/regional_nonsense_constraint.tsv"
 PHYLOP_PEXT_MISSENSE_STATS = f"{FINAL}/phylop_pext_missense_annotations_stats.tsv"
-MAPS = "data/final/maps.tsv"
 
 ### Summary statistics
 STATS_NMD_FOOTPRINT = "data/statistics/nmd_footprint.tsv"
