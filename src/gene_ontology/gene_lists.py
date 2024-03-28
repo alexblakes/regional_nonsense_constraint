@@ -25,6 +25,27 @@ def read_gene_ids(path):
     )
 
 
+def get_constrained_gnomad_genes(gnomad, gene_ids):
+
+    # Find constrained transcripts
+    m1 = gnomad.pli > 0.9
+    m2 = gnomad.loeuf < 0.6
+
+    gnomad_strong = gnomad[m1 | m2]["enst"].drop_duplicates()
+
+    logger.info(f"gnomAD constrained transcripts: {len(gnomad_strong)}")
+
+    # Get gene ids
+    gnomad_strong = gene_ids.merge(gnomad_strong, how="inner", validate="one_to_one")[
+        "ensg"
+    ]
+    assert gnomad_strong.duplicated().sum() == 0, "Duplicated ENSG IDs."
+
+    logger.info(f"gnomAD constrained gene ids: {len(gnomad_strong)}")
+
+    return gnomad_strong
+
+
 def main():
     """Run as script."""
 
@@ -37,23 +58,16 @@ def main():
     _all = gene_ids["ensg"].drop_duplicates()
     logger.info(f"All genes: {len(_all)}")
 
-    ## Genes with strong pLI / LOEUF scores
-    m1 = gnomad.pli > 0.9
-    m2 = gnomad.loeuf < 0.6
+    ## Constrained genes in gnomAD
+    gnomad_strong = get_constrained_gnomad_genes(gnomad, gene_ids)
 
-    _gnomad_strong = gnomad[m1 | m2]["enst"].drop_duplicates()
-    logger.info(f"gnomAD constrained transcripts: {len(_gnomad_strong)}")
 
-    _gnomad_strong = gene_ids.merge(_gnomad_strong, how="inner", validate="one_to_one")[
-        "ensg"
-    ]
-    logger.info(f"gnomAD constrained gene ids: {len(_gnomad_strong)}")
 
     # Write to output
     _all.to_csv(C.GENE_LIST_ALL, index=False, header=None)
-    _gnomad_strong.to_csv(C.GENE_LIST_GNOMAD_CST, index=False, header=None)
+    gnomad_strong.to_csv(C.GENE_LIST_GNOMAD_CST, index=False, header=None)
 
-    return gene_ids, gnomad, _gnomad_strong
+    return gene_ids, gnomad, gnomad_strong
 
 
 if __name__ == "__main__":
