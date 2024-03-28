@@ -62,7 +62,7 @@ cadd :
 
 # Gene ontology
 go :
-	make -f src/gene_ontology/Makefile all
+	make -f src/gene_enrichment/Makefile all
 
 # Statistics
 statistics : 
