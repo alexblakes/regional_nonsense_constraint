@@ -60,6 +60,10 @@ notebooks :
 cadd : 
 	make -f src/cadd/Makefile all
 
+# Gene ontology
+go :
+	make -f src/gene_ontology/Makefile all
+
 # Statistics
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
@@ -74,7 +78,7 @@ figures :
 	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
 # All files
-all : downloads fast medium slow statistics figures cadd
+all : downloads fast medium slow statistics figures cadd go
 
 
 # Extract canonical CDS from GTF file
