@@ -27,8 +27,8 @@ dependencies:
   - brotli-bin=1.0.9
   - brotlipy=0.7.0
   - c-ares=1.23.0
-  - ca-certificates=2023.11.17
-  - certifi=2023.11.17
+  - ca-certificates=2024.2.2
+  - certifi=2024.2.2
   - cffi=1.15.1
   - chardet=4.0.0
   - click=8.1.7
@@ -52,6 +52,7 @@ dependencies:
   - freetype=2.12.1
   - giflib=5.2.1
   - glib=2.69.1
+  - gprofiler-official=1.0.0
   - gst-plugins-base=1.14.1
   - gstreamer=1.14.1
   - gtfparse=1.2.1
