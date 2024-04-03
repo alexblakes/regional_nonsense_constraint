@@ -10,14 +10,15 @@ import src
 from src import constants as C
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
-_PATHS = [
+_CONSTRAINED_PATHS = [
     C.GENE_LIST_GNOMAD_CST,
     C.GENE_LIST_NMD_TARGET,
     C.GENE_LIST_START_PROX,
     C.GENE_LIST_LONG_EXON,
     C.GENE_LIST_DISTAL,
 ]
-_NAMES = ["gnomAD", "NMD target", "Start proximal", "Long exon", "Distal"]
+_CONSTRAINED_NAMES = ["gnomAD", "NMD target", "Start proximal", "Long exon", "Distal"]
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,45 +36,76 @@ def gost(query, background, **kwargs):
         query=query,
         background=background,
         **kwargs,
-    )  # [["source","native","name","p_value", "query", "highlight"]]
+    )
 
     return profile
+
+
+def get_enrichment_stats(profile, keep_rank=10):
+    """Quantify and rank relative enrichment of terms."""
+
+    profile["enrichment"] = (profile["intersection_size"] / profile["query_size"]) / (
+        profile["term_size"] / profile["effective_domain_size"]
+    )
+
+    profile["enrichment_rank"] = profile.groupby(["query", "source"])[
+        "enrichment"
+    ].rank(ascending=False, method="first")
+
+    # Keep only top-ranking terms
+    profile = profile[profile["enrichment_rank"].le(keep_rank)]
+
+    return profile
+
+
+def tidy_data(profile, background="all_genes"):
+    profile = profile.assign(background=background)[
+        [
+            "query",
+            "background",
+            "source",
+            "native",
+            "name",
+            "enrichment",
+            "enrichment_rank",
+            "p_value",
+        ]
+    ].sort_values(["source", "query", "enrichment_rank"])
+
+    return profile
+
+
+def gene_set_enrichment():
+    return None
 
 
 def main():
     """Run as script."""
 
-    gene_sets = [pd.read_csv(p).iloc[:, 0].tolist() for p in _PATHS]
-    gene_sets = dict(zip(_NAMES, gene_sets))
+    # Read gene lists
+    list_genes = lambda x: pd.read_csv(x).iloc[:, 0].tolist()
 
-    background_genes = pd.read_csv(C.GENE_LIST_ALL).iloc[:, 0].tolist()
+    _all = list_genes(C.GENE_LIST_ALL)
+    gnomad = list_genes(C.GENE_LIST_GNOMAD_CST)
+    target = list_genes(C.GENE_LIST_NMD_TARGET)
+    start = list_genes(C.GENE_LIST_START_PROX)
+    long_exon = list_genes(C.GENE_LIST_LONG_EXON)
+    distal = list_genes(C.GENE_LIST_DISTAL)
 
-    profile = gost(gene_sets, background_genes)
+    # Gene set enrichment: constrained genes vs all genes
+    profile = gost(distal, _all)#.pipe(get_enrichment_stats).pipe(tidy_data)
 
-    profile["p_value_rank"] = profile.groupby(["query", "source"])["p_value"].rank(
-        method="dense"
-    )
-    profile["enrichment"] = (profile["intersection_size"] / profile["query_size"]) / (
-        profile["term_size"] / profile["effective_domain_size"]
-    )
-    profile["enrichment_rank"] = profile.groupby(["query", "source"])[
-        "enrichment"
-    ].rank(ascending=False, method="dense")
+    # Regional constraint vs gnomAD
+    # regional_gene_sets = [pd.read_csv(p).iloc[:, 0].tolist() for p in _REGIONAL_PATHS]
+    # regional_gene_sets = dict(zip(_REGIONAL_NAMES, regional_gene_sets))
 
-    profile = profile[
-        [
-            "query",
-            "source",
-            "native",
-            "name",
-            "p_value",
-            "p_value_rank",
-            "enrichment",
-            "enrichment_rank",
-        ]
-    ]
+    # gnomad_constrained_genes = pd.read_csv(C.GENE_LIST_GNOMAD_CST).iloc[:, 0].tolist()
 
-    # profile = profile[profile["rank"].le(10)]
+    # region_profile = (
+    #     gost(regional_gene_sets, gnomad_constrained_genes)
+    #     .pipe(get_enrichment_stats)
+    #     .pipe(tidy_data, "gnomad")
+    # )
 
     return profile
 
@@ -81,3 +113,5 @@ def main():
 if __name__ == "__main__":
     logger = src.setup_logger(_LOGFILE)
     main()
+
+# Don't bother with under-representation analysis - the numbers are too low.
