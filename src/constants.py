@@ -158,6 +158,7 @@ STATS_Z_LOEUF = "data/statistics/z_loeuf.tsv"
 STATS_Z_REGIONS = "data/statistics/z_scores_per_region.tsv"
 STATS_UPSET_CONSTRAINT = "data/statistics/upset_constrained_regions.tsv"
 STATS_PHYLOP_MISSENSE_PEXT = "data/statistics/phylop_missense_pext_scores.tsv"
+STATS_GENE_SET_ENRICHMENT = "data/statistics/gene_set_enrichment.tsv"
 
 ### Logs
 VEP_ALL_SNVS_TIDY_LOG = f"{LOGS}/vep_all_snvs_tidy.log"
