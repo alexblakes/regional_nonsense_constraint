@@ -1,4 +1,4 @@
-"""Module docstring."""
+"""Plot Venn diagrams of newly constrained transcripts."""
 
 import logging
 from pathlib import Path
@@ -15,25 +15,9 @@ _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
 logger = logging.getLogger(__name__)
 
-def plot_venn(ax=None):
-    if not ax: 
-        ax = plt.gca()
-    
-    mv.venn2(
-        ax=ax,
-        subsets=[gnomad, target],
-        set_labels=["gnomAD", "NMD target"],
-        set_colors=[palette[0], palette[1]]
-    )
-
-    return ax
 
 def main():
     """Run as script."""
-
-    # Set plot style
-    plt.style.use(C.STYLE_DEFAULT)
-    plt.style.use(C.COLOR_REGIONS)
 
     # Read gene lists
     gene_set = lambda x: set(pd.read_csv(x, header=None).iloc[:, 0].to_list())
@@ -44,25 +28,34 @@ def main():
     long_exon = gene_set(C.GENE_LIST_LONG_EXON)
     distal = gene_set(C.GENE_LIST_DISTAL)
 
-    fig, axs = plt.subplots(2, 2, figsize=(8.9 * C.CM, 8.9 * C.CM), layout="constrained")
-    
+    # Set plot style
+    plt.style.use(C.STYLE_DEFAULT)
+    plt.style.use(C.COLOR_REGIONS)
+
+    # Instantiate the figure
+    fig, axs = plt.subplots(
+        2, 2, figsize=(8.9 * C.CM, 8.9 * C.CM), layout="constrained"
+    )
+
+    # Get parameters for Venn diagrams
     axs = axs.flatten()
     gene_sets = [target, start, long_exon, distal]
-    gene_labels = ["NMD target","Start proximal","Long exon","Distal"]
     colors = sns.color_palette()[1:]
 
-    for ax, _set, label, color in zip(axs, gene_sets, gene_labels, colors):
+    # Plot Venn diagrams
+    for ax, _set, label, color in zip(axs, gene_sets, C.NMD_REGION_LABELS, colors):
         v = mv.venn2_unweighted(
             ax=ax,
             subsets=[gnomad, _set],
             set_labels=["gnomAD", label],
             set_colors=[sns.color_palette()[0], color],
         )
-        
+
         v.get_label_by_id("A").set(color=sns.color_palette()[0])
         v.get_label_by_id("B").set(color=color)
 
     plt.savefig("data/plots/constraint/venn.png", dpi=600)
+    plt.savefig("data/plots/constraint/venn.svg")
     plt.close("all")
 
     return None
