@@ -12,12 +12,18 @@ gene_lists = data/final/gene_list_all.txt \
              data/final/gene_list_distal_constrained.txt \
 
 all : $(gene_lists) \
-
+      data/plots/constraint/venn.png \
+	  
 # Get constrained gene lists
 $(gene_lists) : data/raw/gnomad.v4.0.constraint_metrics.tsv \
                 data/interim/gene_ids.tsv \
                 data/final/regional_nonsense_constraint.tsv \
 				src/constraint/gene_lists.py
 	python3 -m src.constraint.gene_lists
+
+# Plot Venn diagrams
+data/plots/constraint/venn.png : $(gene_lists) \
+                                 src/constraint/venn_diagrams.py
+	python3 -m src.constraint.venn_diagrams
 
 # Next
