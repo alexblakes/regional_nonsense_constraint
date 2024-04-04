@@ -94,7 +94,7 @@ def main():
     """Run as script."""
 
     # Read gene lists
-    list_genes = lambda x: pd.read_csv(x).iloc[:, 0].tolist()
+    list_genes = lambda x: pd.read_csv(x, header=None).iloc[:, 0].tolist()
 
     _all = list_genes(C.GENE_LIST_ALL)
     gnomad = list_genes(C.GENE_LIST_GNOMAD_CST)
