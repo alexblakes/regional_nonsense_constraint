@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: downloads fast medium slow notebooks all
+.PHONY: downloads fast medium slow notebooks all cadd go
 
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
