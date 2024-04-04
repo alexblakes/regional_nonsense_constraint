@@ -66,6 +66,7 @@ cadd :
 
 # Gene ontology
 go :
+	# Run this from the CSF; it requires API access to gProfiler
 	make -f src/gene_enrichment/Makefile all
 
 # Statistics
