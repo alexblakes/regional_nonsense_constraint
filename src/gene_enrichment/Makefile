@@ -30,17 +30,10 @@ enrichment_plots = data/plots/gene_set_enrichment/all_gobp.png \
                    data/plots/gene_set_enrichment/gnomad_hpo.png \
                    data/plots/gene_set_enrichment/gnomad_hpo.svg 
 
-all : $(gene_lists) \
-      data/final/gene_list_combined_gprofiler.txt \
+all : data/final/gene_list_combined_gprofiler.txt \
 	  data/statistics/gene_set_enrichment.tsv \
 	  $(enrichment_plots)
 
-# Get constrained gene lists
-$(gene_lists) : data/raw/gnomad.v4.0.constraint_metrics.tsv \
-                data/interim/gene_ids.tsv \
-                data/final/regional_nonsense_constraint.tsv \
-				src/gene_enrichment/gene_lists.py
-	python3 -m src.gene_enrichment.gene_lists
 
 # Combine gene lists for gProfiler web tool
 data/final/gene_list_combined_gprofiler.txt :

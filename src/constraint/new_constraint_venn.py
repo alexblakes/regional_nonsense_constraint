@@ -23,9 +23,15 @@ def main():
     plt.style.use(C.COLOR_REGIONS)
     palette = sns.color_palette()
 
-    _ = pd.read_csv(C.GENE_LIST_GNOMAD_CST, sep="\t", header=None)
+    gene_set = lambda x: set(pd.read_csv(x, header=None).iloc[:,0].to_list())
 
-    pass
+    gnomad = gene_set(C.GENE_LIST_GNOMAD_CST)
+    target = gene_set(C.GENE_LIST_NMD_TARGET)
+    start = gene_set(C.GENE_LIST_START_PROX)
+    long_exon = gene_set(C.GENE_LIST_LONG_EXON)
+    distal = gene_set(C.GENE_LIST_DISTAL)
+
+    return gnomad
 
 
 if __name__ == "__main__":

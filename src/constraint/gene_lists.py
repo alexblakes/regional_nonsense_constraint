@@ -98,12 +98,14 @@ def main():
     )
 
     # Write to output
-    _all.to_csv(C.GENE_LIST_ALL, index=False, header=None)
-    gnomad_strong.to_csv(C.GENE_LIST_GNOMAD_CST, index=False, header=None)
-    nmd_target.to_csv(C.GENE_LIST_NMD_TARGET, index=False, header=None)
-    start_proximal.to_csv(C.GENE_LIST_START_PROX, index=False, header=None)
-    long_exon.to_csv(C.GENE_LIST_LONG_EXON, index=False, header=None)
-    distal.to_csv(C.GENE_LIST_DISTAL, index=False, header=None)
+    write_out = lambda x, y: x.to_csv(y, index=False, header=None)
+
+    write_out(_all, C.GENE_LIST_ALL)
+    write_out(gnomad_strong, C.GENE_LIST_GNOMAD_CST)
+    write_out(nmd_target, C.GENE_LIST_NMD_TARGET)
+    write_out(start_proximal, C.GENE_LIST_START_PROX)
+    write_out(long_exon, C.GENE_LIST_LONG_EXON)
+    write_out(distal, C.GENE_LIST_DISTAL)
 
     return None
 

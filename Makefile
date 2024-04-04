@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: downloads fast medium slow notebooks all cadd go
+.PHONY: downloads fast medium slow notebooks all constraint cadd go
 
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
@@ -55,6 +55,10 @@ notebooks :
 		notebooks/01_expectation_model_choices.ipynb \
 		-p coverage $$N ; \
 	done
+
+# Constraint
+constraint:
+	make -f src/constraint/Makefile all
 
 # CADD
 cadd : 
