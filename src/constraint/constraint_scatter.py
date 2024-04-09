@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import adjustText
 
 import src
 from src import constants as C
@@ -80,12 +81,12 @@ def main():
         dim,
         dim,
         figsize=(18 * C.CM, 18 * C.CM),
-        layout="constrained",
-        # sharex="col",
-        # sharey="row",
+        layout="tight",
+        sharex="col",
+        sharey="row",
         subplot_kw=dict(box_aspect=1),
     )
-    axs = axs.flatten("F")
+    axs = axs.ravel("F")
 
     # Create plots
     for ax, (xlabel, ylabel) in zip(axs, subsets):
@@ -98,7 +99,7 @@ def main():
         x_oe = xlabel + "_oe"
         y_oe = ylabel + "_oe"
 
-        data = df[[x_constraint, x_oe, y_constraint, y_oe]].copy()
+        data = df[[x_constraint, x_oe, y_constraint, y_oe]].copy().reset_index("symbol")
 
         # Keep entries where at least one region is constrained
         m1 = data[x_constraint] == "constrained"
@@ -109,16 +110,51 @@ def main():
         # Drop entries with NaNs in OE
         data = data.dropna(subset=[y_oe])
 
-        # Plot the data
+        # Plot scatter plots
         x = data[x_oe]
         y = data[y_oe]
-        ax.scatter(x, y)
+        ax.scatter(x, y, alpha=0.5, linewidth=0)
 
         ax.set_xlabel(region_dict[xlabel])
         ax.set_ylabel(region_dict[ylabel])
         # ax.axline(xy1=(0,0), slope=1)
         # ax.set_aspect(np.diff(ax.get_xlim()) / np.diff(ax.get_ylim()))
-        # ax.label_outer()
+        ax.label_outer()
+
+        # Highlight the strongest outliers
+        data["diff"] = (data[x_oe] - data[y_oe]).astype(float)
+        # data = data.dropna(subset="diff")
+        min3 = data.nsmallest(3, "diff")
+        max3 = data.nlargest(3, "diff")
+
+        print(max3)
+
+        ax.scatter(
+            min3[x_oe], min3[y_oe], color="None", edgecolor="black", linewidth=0.5
+        )
+        ax.scatter(
+            max3[x_oe], max3[y_oe], color="None", edgecolor="black", linewidth=0.5
+        )
+
+        annots = []
+        for i, row in min3.iterrows():
+            annots.append(
+                ax.text(
+                    x=row[x_oe],
+                    y=row[y_oe],
+                    s=row["symbol"],
+                    ha="left",
+                    va="center",
+                    size=7
+                )
+            )
+        adjustText.adjust_text(
+            annots,
+            ax=ax,
+            expand=(1.2, 1.5),
+            avoid_self=True,
+            arrowprops=dict(arrowstyle="-", linewidth=0.5),
+        )
 
         # break
 
