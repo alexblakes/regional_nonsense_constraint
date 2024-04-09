@@ -14,7 +14,7 @@ _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 logger = logging.getLogger(__name__)
 
 
-def read_gene_ids(path):
+def read_gene_ids(path=C.CANONICAL_CDS_GENE_IDS):
     return pd.read_csv(path, sep="\t", usecols=["gene_id", "transcript_id"]).set_axis(
         ["ensg", "enst"], axis="columns"
     )
