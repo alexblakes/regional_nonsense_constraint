@@ -123,19 +123,13 @@ def main():
 
         # Highlight the strongest outliers
         data["diff"] = (data[x_oe] - data[y_oe]).astype(float)
-        # data = data.dropna(subset="diff")
-        min3 = data.nsmallest(3, "diff")
-        max3 = data.nlargest(3, "diff")
-
-        print(max3)
+        min3 = data.nsmallest(5, "diff")
 
         ax.scatter(
             min3[x_oe], min3[y_oe], color="None", edgecolor="black", linewidth=0.5
         )
-        ax.scatter(
-            max3[x_oe], max3[y_oe], color="None", edgecolor="black", linewidth=0.5
-        )
 
+        # Annotate the N largest outliers
         annots = []
         for i, row in min3.iterrows():
             annots.append(
@@ -145,7 +139,7 @@ def main():
                     s=row["symbol"],
                     ha="left",
                     va="center",
-                    size=7
+                    size=7,
                 )
             )
         adjustText.adjust_text(
@@ -154,6 +148,10 @@ def main():
             expand=(1.2, 1.5),
             avoid_self=True,
             arrowprops=dict(arrowstyle="-", linewidth=0.5),
+            # expand_axes=True,
+            # explode_radius=5,
+            iter_lim=50,
+            min_arrow_len=5
         )
 
         # break
