@@ -90,6 +90,11 @@ def main():
 
     # Create plots
     for ax, (xlabel, ylabel) in zip(axs, subsets):
+
+        ax.set_xlabel(f"O/E\n{region_dict[xlabel]}")
+        ax.set_ylabel(f"O/E\n{region_dict[ylabel]}")
+        ax.label_outer()
+
         if xlabel == ylabel:
             continue
 
@@ -107,19 +112,10 @@ def main():
 
         data = data[m1 | m2]
 
-        # Drop entries with NaNs in OE
-        data = data.dropna(subset=[y_oe])
-
         # Plot scatter plots
         x = data[x_oe]
         y = data[y_oe]
         ax.scatter(x, y, alpha=0.5, linewidth=0)
-
-        ax.set_xlabel(region_dict[xlabel])
-        ax.set_ylabel(region_dict[ylabel])
-        # ax.axline(xy1=(0,0), slope=1)
-        # ax.set_aspect(np.diff(ax.get_xlim()) / np.diff(ax.get_ylim()))
-        ax.label_outer()
 
         # Highlight the strongest outliers
         data["diff"] = (data[x_oe] - data[y_oe]).astype(float)
@@ -138,26 +134,21 @@ def main():
                     y=row[y_oe],
                     s=row["symbol"],
                     ha="left",
-                    va="center",
+                    va="bottom",
                     size=7,
                 )
             )
         adjustText.adjust_text(
             annots,
             ax=ax,
-            expand=(1.2, 1.5),
+            expand=(1.2, 1.3),
             avoid_self=True,
             arrowprops=dict(arrowstyle="-", linewidth=0.5),
-            # expand_axes=True,
-            # explode_radius=5,
-            iter_lim=50,
-            min_arrow_len=5
         )
 
-        # break
 
-    plt.savefig("data/plots/_", dpi=600)
-    # plt.savefig("data/plots/_.svg")
+    plt.savefig("data/plots/constraint/region_pair_plots.png", dpi=600)
+    plt.savefig("data/plots/constraint/region_pair_plots.svg")
     plt.close("all")
 
     return df
