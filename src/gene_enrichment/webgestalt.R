@@ -1,6 +1,7 @@
 # Run ORA with WebGestalt.
 
 library(WebGestaltR)
+library(dplyr)
 
 run_ora <- function(interestGenes, referenceGenes, database) {
     df <- WebGestaltR(
@@ -23,41 +24,42 @@ run_ora <- function(interestGenes, referenceGenes, database) {
 
 run_wsc <- function(df) {
 
+    # Get nested list of gene IDs
     ids <- c(strsplit(df$userId, ';'))
     names(ids) <- c(df$description)
 
+    # Run weighted set cover algorithm
     weightedSetCover(
         ids, 
         costs=1/(-log(df$pValue)), 
         topN=10
         )
-
 }
 
 main <- function(ref, refName, db, dbName, interestGenes, regionName) {
+    # Run as script.
 
     df <- run_ora(interestGenes, ref, db)
 
+    # Exit the function cleanly if no significant results found.
     if (is.null(df)) {
-        return(NA)
+        return(NULL)
     }
 
+    # Get top sets
     topSets = run_wsc(df)$topSets
 
+    # Tidy the data
     df <- df[df$description %in% topSets, ]
     df <- df[order(df$enrichmentRatio), ]
+    df$region <- regionName
+    df$ref <- refName
+    df$db <- dbName
 
-    outFile = paste0("data/statistics/ora_", regionName, "_vs_", refName, "_", dbName, ".tsv")
-
-    write.table(
-        df, 
-        file=outFile, 
-        quote=FALSE, 
-        sep="\t", 
-        row.names=FALSE,
-    )
+    return(df)
 }
 
+# Constants
 referenceFiles = c(
     rep(c("data/final/gene_list_all.txt"), 3),
     rep(c("data/final/gene_list_gnomad_constrained.txt"), 3)
@@ -76,6 +78,17 @@ dbs = rep(
 )
 dbNames = rep(c("bp","mf","hpo"), 2)
 
+# Command line arguments
 args = commandArgs(trailingOnly = TRUE)
 
-mapply(main, referenceFiles, referenceNames, dbs, dbNames, args[1], args[2])
+#  Concatenate all tables
+df <- bind_rows(mapply(main, referenceFiles, referenceNames, dbs, dbNames, args[1], args[2]))
+
+# Write to output
+write.table(
+    df, 
+    file=paste0("data/statistics/ora_", args[2], ".tsv"), 
+    quote=FALSE, 
+    sep="\t", 
+    row.names=FALSE
+)
