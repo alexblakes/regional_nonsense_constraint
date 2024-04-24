@@ -3,21 +3,18 @@
 Save tidied data as TSV and VCF for downstream annotation with VEP.
 """
 
-# Imports
 from pathlib import Path
+import logging
 
 import pandas as pd
 
+import src
 from src import constants as C
-from src import setup_logger
-from src.data import clinvar_vep_tidy
+from src.clinvar import clinvar_vep_tidy
 
+logger = logging.getLogger(__name__)
 
-# Logging
-logger = setup_logger(Path(__file__).stem)
-
-
-# Module constants
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _USECOLS = [
     "Type",
     "GeneSymbol",
@@ -29,7 +26,6 @@ _USECOLS = [
     "AlternateAlleleVCF",
     "ReviewStatus",
 ]
-
 _NAMES = [
     "type",
     "hgnc",
@@ -41,14 +37,11 @@ _NAMES = [
     "alt",
     "review",
 ]
-
-_CHROM = ["chr" + str(x) for x in list(range(1, 23))] + ["chrX", "chrY"]
-
+_CHROMS = ["chr" + str(x) for x in list(range(1, 23))] + ["chrX", "chrY"]
 _NULL_REVIEW = [
     "no assertion",
     "no interpretation",
 ]
-
 _NULL_ACMG = [
     "not provided",
     "drug response",
@@ -61,7 +54,6 @@ _NULL_ACMG = [
     "protective",
     "confers sensitivity",
 ]
-
 _ACMG = [
     "uncertain significance",
     "likely benign",
@@ -71,7 +63,6 @@ _ACMG = [
 ]
 
 
-# Functions
 def read_clinvar_summary(path):
     """Read ClinVar summary text file."""
 
@@ -114,7 +105,7 @@ def filter_grch38(df):
 def filter_major_contigs(df):
     """Filter for variants on the major chromosomes."""
 
-    df = df.query(f"chr.isin({_CHROM})")
+    df = df.query(f"chr.isin({_CHROMS})")
 
     logger.info(f"Variants on major contigs: {len(df)}")
 
@@ -208,12 +199,6 @@ def format_to_vcf(df):
     return df
 
 
-def write_tsv(df, path, **kwargs):
-    logger.info(f"Writing to output at {path}")
-    df.to_csv(path, sep="\t", index=False, **kwargs)
-    pass
-
-
 def main():
     """Run as script."""
 
@@ -226,13 +211,13 @@ def main():
         .pipe(rationalise_gene_symbols)
         .pipe(format_to_tsv)
     )
-    vcf = format_to_vcf(clinvar)
 
-    write_tsv(clinvar, C.CLINVAR_SELECTED_TSV)
-    write_tsv(vcf, C.CLINVAR_SELECTED_VCF, header=False)
+    logger.info("Writing to output.")
+    clinvar.to_csv(C.CLINVAR_SELECTED_TSV, sep="\t", index=False)
 
     return clinvar
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     clinvar = main()

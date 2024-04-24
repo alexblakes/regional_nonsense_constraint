@@ -1,11 +1,10 @@
-"""Defines project-wide constants."""
+"""Define constants and file paths."""
 
 # Plotting and visualisation
+
 ## Labels and naming
 NMD_REGIONS = ["nmd_target", "start_proximal", "long_exon", "distal"]
-
 NMD_REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
-
 REGIONS = [
     "transcript",
     "nmd_target",
@@ -13,7 +12,6 @@ REGIONS = [
     "long_exon",
     "distal",
 ]
-
 REGION_LABELS = [
     "Whole transcript",
     "NMD target",
@@ -21,7 +19,6 @@ REGION_LABELS = [
     "Long exon",
     "Distal",
 ]
-
 MAPS_CONSEQUENCES = [
     "synonymous_variant",
     "missense_variant",
@@ -31,7 +28,6 @@ MAPS_CONSEQUENCES = [
     "long_exon",
     "distal",
 ][::-1] # Reversed for plotting
-
 MAPS_LABELS = [
     "Synonymous",
     "Missense",
