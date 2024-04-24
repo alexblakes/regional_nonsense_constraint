@@ -1,0 +1,2 @@
+# Git does not track empty directories by default.
+# However, we want the data directory and subdirectories to always be accesible.

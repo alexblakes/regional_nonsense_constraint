@@ -42,6 +42,13 @@ _NULL_REVIEW = [
     "no assertion",
     "no interpretation",
 ]
+_REVIEW = [
+    "criteria provided, single submitter",
+    "criteria provided, multiple submitters, no conflicts",
+    "reviewed by expert panel",
+    "practice guideline",
+]
+_REVIEW_BRIEF = "single multiple expert guideline".split()
 _NULL_ACMG = [
     "not provided",
     "drug response",
@@ -55,12 +62,13 @@ _NULL_ACMG = [
     "confers sensitivity",
 ]
 _ACMG = [
-    "uncertain significance",
-    "likely benign",
-    "benign",
-    "likely pathogenic",
-    "pathogenic",
+    "Uncertain significance",
+    "Likely benign",
+    "Benign",
+    "Likely pathogenic",
+    "Pathogenic",
 ]
+_ACMG_BRIEF = "VUS LB B LP P".split()
 
 
 def read_clinvar_summary(path):
@@ -85,7 +93,7 @@ def read_clinvar_summary(path):
 
     logger.info(f"Entries after dropping NaNs: {len(df)}")
     logger.info(
-        f"Duplicated by variant: {df.duplicated('chr pos ref alt'.split()).sum()}"
+        f"Duplicated by chr/pos/ref/alt: {df.duplicated('chr pos ref alt'.split()).sum()}"
     )
 
     return df
@@ -126,7 +134,7 @@ def filter_null_annotations(df):
         f"ClinVar variants with relevant review and ACMG annotations: {len(df)}"
     )
     logger.info(
-        f"Duplicated by variant: {df.duplicated('chr pos ref alt'.split()).sum()}"
+        f"Duplicated by chr/pos/ref/alt: {df.duplicated('chr pos ref alt'.split()).sum()}"
     )
 
     return df
@@ -150,8 +158,19 @@ def drop_conflicting_acmg_annotations(df):
     logger.info(
         f"Variants remaining after dropping conflicting ACMG annotations: {len(df)}"
     )
+    logger.info(
+        f"Duplicated by chr/pos/ref/alt: {df.duplicated('chr pos ref alt'.split()).sum()}"
+    )
     logger.info(f"ACMG value counts:\n{df.acmg.value_counts()}")
     logger.info(f"Review status value counts:\n{df.review.value_counts()}")
+
+    return df
+
+
+def replace_annotations(df, col, replace_list, value_list):
+    replace_dict = {a: b for a, b in zip(replace_list, value_list)}
+    df = df.replace({col: replace_dict})
+    logger.info(f'Value counts in "{col}":\n{df[col].value_counts()}')
 
     return df
 
@@ -177,28 +196,6 @@ def format_to_tsv(df):
     return df[["chr", "pos", "ref", "alt", "hgnc", "acmg", "review"]]
 
 
-def format_to_vcf(df):
-    """Bespoke function to reformat ClinVar data to VCF."""
-
-    # Placeholder values for qual, filter, and info columns.
-    df = df.assign(
-        qual=".",
-        _filter=".",
-        _info=".",
-    )
-
-    # Put ClinVar annotations in the id column.
-    df["_id"] = [
-        "|".join([str(a), b, c, d])
-        for a, b, c, d in zip(df.index, df.hgnc, df.acmg, df.review)
-    ]
-
-    # Select columns for VCF format.
-    df = df["chr pos _id ref alt qual _filter _info".split()]
-
-    return df
-
-
 def main():
     """Run as script."""
 
@@ -208,12 +205,14 @@ def main():
         .pipe(filter_major_contigs)
         .pipe(filter_null_annotations)
         .pipe(drop_conflicting_acmg_annotations)
+        .pipe(replace_annotations, "acmg", _ACMG, _ACMG_BRIEF)
+        .pipe(replace_annotations, "review", _REVIEW, _REVIEW_BRIEF)
         .pipe(rationalise_gene_symbols)
         .pipe(format_to_tsv)
     )
 
     logger.info("Writing to output.")
-    clinvar.to_csv(C.CLINVAR_SELECTED_TSV, sep="\t", index=False)
+    clinvar.to_csv(C.CLINVAR_SELECTED_TSV, sep="\t", index=False, header=False)
 
     return clinvar
 
