@@ -17,3 +17,6 @@ bcftools annotate \
     -h $HEADER \
     $VCF \
 > $FILE_OUT
+
+# Clean up
+rm "${ANNOTS}.gz" "${ANNOTS}.gz.tbi"

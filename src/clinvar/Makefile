@@ -4,13 +4,30 @@
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
+all : data/interim/clinvar_variants_selected.tsv \
+      data/interim/clinvar_variants_selected.vcf \
+	  data/interim/clinvar_variants_annotated.vcf \
 
 # Parse ClinVar summary text file
-data/interim/clinvar_variants_selected.tsv \
-data/interim/clinvar_variants_selected.vcf : data/raw/variant_summary.txt \
-                                             src/data/clinvar_variants.py
-	python3 -m src.data.clinvar_variants
+data/interim/clinvar_variants_selected.tsv : data/raw/variant_summary.txt \
+                                             src/clinvar/filter_clinvar_variants.py
+	$CONDA_ACTIVATE ukb
+	python3 -m src.data.filter_clinvar_variants
 
+# Convert variants to VCF
+data/interim/clinvar_variants_selected.vcf \
+data/interim/clinvar_variants_annotated.vcf &: src/clinvar/to_vcf.sh \
+                                               data/interim/clinvar_variants_selected.tsv \
+											   data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
+											   data/manual/clinvar_vcf_header_lines.txt
+	$CONDA_ACTIVATE bio
+	bash src/clinvar/to_vcf.sh
+	bash src/clinvar/annotate_vcf.sh
+	$CONDA_ACTIVATE ukb
+
+# Annotate with VEP
+	$CONDA_ACTIVATE vep
+	$CONDA_ACTIVATE ukb
 # # VEP-annotate ClinVar variants
 # data/interim/clinvar_variants_vep.tsv : data/interim/clinvar_variants_selected.vcf \
 #                                         src/data/clinvar_vep.sh

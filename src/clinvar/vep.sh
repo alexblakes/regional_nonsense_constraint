@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Annotate ClinVar variants with VEP
 # Run in the vep conda environment
