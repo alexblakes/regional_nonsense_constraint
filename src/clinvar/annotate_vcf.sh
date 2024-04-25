@@ -13,7 +13,7 @@ tabix --sequence 1 --begin 2 --end 2 --force "${ANNOTS}.gz"
 # Annotate the VCF with ACMG and review tags
 bcftools annotate \
     -a "${ANNOTS}.gz" \
-    -c CHROM,POS,REF,ALT,SYMBOL,ACMG,REVIEW \
+    -c CHROM,POS,REF,ALT,CV_SYMBOL,ACMG,REVIEW \
     -h $HEADER \
     $VCF \
 > $FILE_OUT
