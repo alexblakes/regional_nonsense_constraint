@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: downloads fast medium slow notebooks all constraint cadd go
+.PHONY: downloads fast medium slow notebooks all constraint cadd go clinvar
 
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
@@ -69,6 +69,10 @@ go :
 	# Run this from the CSF; it requires API access to gProfiler
 	make -f src/gene_enrichment/Makefile all
 
+# ClinVar
+clinvar :
+	make -f src/clinvar/Makefile all
+
 # Statistics
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
@@ -83,7 +87,7 @@ figures :
 	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
 # All files
-all : downloads fast medium slow statistics figures cadd go
+all : downloads fast medium slow statistics figures cadd go clinvar
 
 
 # Extract canonical CDS from GTF file

@@ -9,6 +9,8 @@ all : data/interim/clinvar_variants_selected.tsv \
 	  data/interim/clinvar_variants_annotated.vcf \
 	  data/final/nmd_annotations_simple.tsv.gz \
 	  data/final/nmd_annotations_simple.tsv.gz.tbi \
+	  data/interim/clinvar_variants_vep.vcf \
+	  data/interim/clinvar_variants_vep_tidy.tsv \
 
 # Parse ClinVar summary text file
 data/interim/clinvar_variants_selected.tsv : data/raw/variant_summary.txt \
@@ -27,6 +29,13 @@ data/interim/clinvar_variants_annotated.vcf &: src/clinvar/to_vcf.sh \
 	bash src/clinvar/annotate_vcf.sh
 	$(CONDA_ACTIVATE) ukb
 
+# Annotate with VEP
+data/interim/clinvar_variants_vep.vcf : data/interim/clinvar_variants_annotated.vcf \
+                                        src/clinvar/vep.sh
+	$(CONDA_ACTIVATE) vep
+	bash src/clinvar/vep.sh
+	$(CONDA_ACTIVATE) ukb
+
 # Create indexed NMD annotations
 data/final/nmd_annotations_simple.tsv.gz \
 data/final/nmd_annotations_simple.tsv.gz.tbi : src/clinvar/nmd_annotation.sh \
@@ -35,6 +44,14 @@ data/final/nmd_annotations_simple.tsv.gz.tbi : src/clinvar/nmd_annotation.sh \
 	bash src/clinvar/nmd_annotation.sh
 	$(CONDA_ACTIVATE) ukb
 
+# Tidy VEP output
+data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.vcf \
+                                             data/final/nmd_annotations_simple.tsv.gz \
+											 data/manual/header_lines_nmd_annotation.txt \
+											 src/clinvar/tidy_vep.sh
+	$(CONDA_ACTIVATE) bio
+	bash src/clinvar/tidy_vep.sh
+	$(CONDA_ACTIVATE) ukb
 
 # Annotate with VEP
 # $(CONDA_ACTIVATE) vep
