@@ -21,9 +21,9 @@ data/interim/clinvar_variants_selected.tsv : data/raw/variant_summary.txt \
 # Convert variants to VCF
 data/interim/clinvar_variants_selected.vcf \
 data/interim/clinvar_variants_annotated.vcf &: src/clinvar/to_vcf.sh \
+											   src/clinvar/annotate_vcf.sh \
                                                data/interim/clinvar_variants_selected.tsv \
-											   data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
-											   data/manual/clinvar_vcf_header_lines.txt
+											   data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
 	$(CONDA_ACTIVATE) bio
 	bash src/clinvar/to_vcf.sh
 	bash src/clinvar/annotate_vcf.sh
