@@ -11,6 +11,7 @@ all : data/interim/clinvar_variants_selected.tsv \
 	  data/final/nmd_annotations_simple.tsv.gz.tbi \
 	  data/interim/clinvar_variants_vep.vcf \
 	  data/interim/clinvar_variants_vep_tidy.tsv \
+	  data/interim/clinvar_variants_constraint.tsv \
 
 # Parse ClinVar summary text file
 data/interim/clinvar_variants_selected.tsv : data/raw/variant_summary.txt \
@@ -53,24 +54,8 @@ data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.v
 	bash src/clinvar/tidy_vep.sh
 	$(CONDA_ACTIVATE) ukb
 
-# Annotate with VEP
-# $(CONDA_ACTIVATE) vep
-# $(CONDA_ACTIVATE) ukb
-
-
-# # VEP-annotate ClinVar variants
-# data/interim/clinvar_variants_vep.tsv : data/interim/clinvar_variants_selected.vcf \
-#                                         src/data/clinvar_vep.sh
-# 	$(CONDA_ACTIVATE) vep
-# 	bash src/data/clinvar_vep.sh
-# 	$(CONDA_ACTIVATE) ukb
-
-# # Tidy VEP-annotated ClinVar variants
-# data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.tsv \
-#                                              src/data/clinvar_vep_tidy.py
-# 	python3 -m src.data.clinvar_vep_tidy
-
-# # Annotate ClinVar variants with regional constraint
-# data/interim/clinvar_variants_lof_with_nmd_annotation.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
-#                                                             src/functional_clinical/clinvar_variants_in_constrained_regions.py
-# 	python3 -m src.functional_clinical.clinvar_variants_in_constrained_regions
+# Annotate with constraint
+data/interim/clinvar_variants_constraint.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
+                                               data/final/regional_nonsense_constraint.tsv \
+											   src/clinvar/annotate_with_constraint.py
+	python3 -m src.clinvar.annotate_with_constraint
