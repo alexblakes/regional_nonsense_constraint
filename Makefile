@@ -4,11 +4,9 @@
 SHELL = /bin/bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
-# Raw data downloads
 downloads: 
 	make -f data/raw/Makefile all
 
-# Files which take less than a minute to create
 fast : data/interim/gencode_v39_canonical_cds.bed \
        data/interim/gencode_v39_canonical_cds_seq.tsv \
 	   data/interim/mutation_rate_by_context_methyl_tidy.tsv \
@@ -24,7 +22,6 @@ fast : data/interim/gencode_v39_canonical_cds.bed \
 	   data/interim/clinvar_variants_selected.vcf \
 	   data/interim/clinvar_variants_vep_tidy.tsv \
 
-# Files which takes several minutes to create
 medium : data/interim/cds_counts_and_coords.tsv \
          data/interim/gene_ids.tsv \
          data/interim/nmd_annotations.tsv \
@@ -43,11 +40,9 @@ medium : data/interim/cds_counts_and_coords.tsv \
 		 data/interim/clinvar_variants_vep.tsv \
 		 data/interim/clinvar_variants_lof_with_nmd_annotation.tsv \
 
-# Files which take hours to create
 slow : data/interim/vep_all_snvs/out_29.tsv \
        data/final/all_variants_merged_annotations.tsv \
 
-# Notebooks
 notebooks :
 	# Expectation model choices
 	for N in 0 10 20 30 ; do \
@@ -56,28 +51,22 @@ notebooks :
 		-p coverage $$N ; \
 	done
 
-# Regions
 regions :
 	make -f src/regions/Makefile all
 
-# Constraint
 constraint:
 	make -f src/constraint/Makefile all
 
-# CADD
 cadd : 
 	make -f src/cadd/Makefile all
 
-# Gene ontology
-go :
+functional_enrichment :
 	# Run this from the CSF; it requires API access to gProfiler
 	make -f src/gene_enrichment/Makefile all
 
-# ClinVar
 clinvar :
 	make -f src/clinvar/Makefile all
 
-# Statistics
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
 	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb
@@ -86,36 +75,11 @@ statistics :
 	papermill src/statistics_for_plots/z_distributions.ipynb src/statistics_for_plots/z_distributions.ipynb
 	papermill src/statistics_for_plots/upset.ipynb src/statistics_for_plots/upset.ipynb
 
-# Figures
 figures :
 	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
-# All files
-all : downloads fast medium slow statistics figures cadd go clinvar
+all : downloads fast medium slow statistics figures cadd functional_enrichment clinvar
 
-
-# # Extract canonical CDS from GTF file
-# data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf \
-#                                              src/data/canonical_cds.py
-# 	python3 -m src.data.canonical_cds
-# 	# Remove "chr" prefix
-# 	sed 's/^chr//' data/interim/gencode_v39_canonical_cds.bed > data/interim/gencode_v39_canonical_cds_no_chr.bed
-
-# # Get CDS counts and coordinates
-# data/interim/cds_counts_and_coords.tsv : data/raw/gencode.v39.annotation.gtf \
-#                                          src/data/cds_counts_and_coords.py
-# 	python3 -m src.data.cds_counts_and_coords
-
-# # Get gene IDs
-# data/interim/gene_ids.tsv : data/raw/gencode.v39.annotation.gtf \
-#                             src/data/canonical_cds.py \
-# 							src/data/canonical_cds_gene_ids.py
-# 	python3 -m src.data.canonical_cds_gene_ids
-
-# # Annotate NMD regions
-# data/interim/nmd_annotations.tsv : data/interim/cds_counts_and_coords.tsv \
-#                                    src/data/nmd_annotations.py
-# 	python3 -m src.data.nmd_annotations
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
