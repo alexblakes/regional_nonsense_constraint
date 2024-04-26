@@ -4,6 +4,7 @@
 SHELL = /bin/bash
 
 all : data/interim/gencode_v39_canonical_cds_seq.tsv \
+      data/interim/cds_all_possible_snvs.vcf \
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
@@ -14,10 +15,10 @@ data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh3
 	bash src/snvs/get_fasta.sh
 	source activate ukb
 
-# # Get all possible SNVs and trinucleotide contexts
-# data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
-#                                               src/data/coding_snvs.py
-# 	python3 -m src.data.coding_snvs
+# Get all possible SNVs and trinucleotide contexts
+data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
+                                              src/snvs/coding_snvs.py
+	python3 -m src.snvs.coding_snvs
 
 # data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical_cds_seq.tsv \
 #                                               src/data/coding_snvs.py

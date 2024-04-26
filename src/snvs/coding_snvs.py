@@ -4,25 +4,21 @@ It also annotates the trinucleotide context around each SNV.
 It takes the output of a bedtools getfasta command (tsv) as input.
 """
 
-# Import relevant modules
+import logging
 from pathlib import Path
 
 import pandas as pd
 import numpy as np
 
-from src import setup_logger
+import src
 from src import constants as C
 
-
-# Module constants
 _CHUNKS = 30
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
+logger = logging.getLogger(__name__)
 
 
-# Logging
-logger = setup_logger(Path(__file__).stem)
-
-
-# Functions
 def read_getfasta_output(path):
     """Read the output of a bedtools getfasta command from a TSV file."""
 
@@ -214,4 +210,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     main()
