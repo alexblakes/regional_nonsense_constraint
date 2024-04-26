@@ -67,6 +67,9 @@ functional_enrichment :
 clinvar :
 	make -f src/clinvar/Makefile all
 
+snvs :
+	make -f src/snvs/Makefile all
+
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
 	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb

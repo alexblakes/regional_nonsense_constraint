@@ -3,14 +3,16 @@
 
 SHELL = /bin/bash
 
-# # Get FASTA sequences for CDS regions
-# data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
-#                                                  data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai \
-# 												 data/interim/gencode_v39_canonical_cds.bed \
-# 												 src/data/get_fasta.sh
-# 	$(CONDA_ACTIVATE) bio
-# 	bash src/data/get_fasta.sh
-# 	$(CONDA_ACTIVATE) ukb
+all : data/interim/gencode_v39_canonical_cds_seq.tsv \
+
+# Get FASTA sequences for CDS regions
+data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
+                                                 data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai \
+												 data/interim/gencode_v39_canonical_cds.bed \
+												 src/snvs/get_fasta.sh
+	source activate bio
+	bash src/snvs/get_fasta.sh
+	source activate ukb
 
 # # Get all possible SNVs and trinucleotide contexts
 # data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \

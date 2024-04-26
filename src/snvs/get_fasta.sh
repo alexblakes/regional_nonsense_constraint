@@ -6,13 +6,17 @@
 # that the sequence context for the most extreme 5' and 3' CDS positions can still be
 # obtained.
 
+FILE_IN="data/interim/gencode_v39_canonical_cds.bed"
+FASTA="data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
+FILE_OUT="data/interim/gencode_v39_canonical_cds_seq.tsv"
+
 bedtools slop \
-    -i "data/interim/gencode_v39_canonical_cds.bed" \
-    -g "data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai" \
+    -i $FILE_IN \
+    -g "${FASTA}.fai" \
     -b 1 |\
 bedtools getfasta \
-    -fo "data/interim/gencode_v39_canonical_cds_seq.tsv" \
+    -fo $FILE_OUT \
     -tab \
-    -fi "data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna" \
+    -fi $FASTA \
     -bed stdin
 
