@@ -10,7 +10,6 @@ import pandas as pd
 
 import src
 from src import constants as C
-from src.clinvar import clinvar_vep_tidy
 
 logger = logging.getLogger(__name__)
 
@@ -179,7 +178,7 @@ def rationalise_gene_symbols(df):
     """Keep only one HGNC gene symbol per variant."""
 
     # Get HGNC symbols for canonical transcripts.
-    symbols = clinvar_vep_tidy.read_transcript_ids(C.CANONICAL_CDS_GENE_IDS).symbol
+    symbols = pd.read_csv(C.CANONICAL_CDS_GENE_SYMBOLS, header=None).squeeze()
 
     # Explode and filter any nested gene symbols.
     df["hgnc"] = df["hgnc"].str.split(";")

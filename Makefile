@@ -1,7 +1,7 @@
 .ONESHELL:
 .PHONY: downloads fast medium slow notebooks regions constraint cadd go clinvar all
 
-SHELL = bash
+SHELL = /bin/bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 # Raw data downloads

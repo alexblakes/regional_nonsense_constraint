@@ -31,7 +31,7 @@ def get_gene_ids(df):
     # Logging
     logger.info(f"Unique gene ids: {df.gene_id.nunique()}")
     logger.info(f"Unique transcript ids: {df.transcript_id.nunique()}")
-    logger.info(f"Unique gene names: {df.gene_name.nunique()}")
+    logger.info(f"Unique gene symbols: {df.gene_name.nunique()}")
     logger.info(f"Duplicated gene ids: {df.duplicated('gene_id').sum()}")
     logger.info(f"Duplicated transcript ids: {df.duplicated('transcript_id').sum()}")
     logger.info(f"Duplicated gene names:\n{df[df.duplicated('gene_name', keep=False)]}")
@@ -48,14 +48,19 @@ def main():
         .pipe(get_gene_ids)
     )
 
-    # Write to output.
-    logger.info("Writing gene IDs to output.")
-    df.to_csv(C.CANONICAL_CDS_GENE_IDS, sep="\t", index=False)
+    logger.info("Writing outputs")
+    df.to_csv(C.GENE_IDS, sep="\t", index=False)
 
-    logger.info("Writing transcript IDs to output.")
-    df.transcript_id.to_csv(
-        C.CANONICAL_CDS_TRANSCRIPT_IDS, sep="\t", index=False, header=None
-    )
+    columns = ["gene_id", "transcript_id", "gene_name"]
+    paths = [
+        C.CANONICAL_CDS_GENE_IDS,
+        C.CANONICAL_CDS_TRANSCRIPT_IDS,
+        C.CANONICAL_CDS_GENE_SYMBOLS,
+    ]
+    for column, path in zip(columns, paths):
+        df[column].drop_duplicates().to_csv(path, sep="\t", index=False, header=None)
+
+    return None
 
 
 if __name__ == "__main__":
