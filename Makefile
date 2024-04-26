@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: downloads fast medium slow notebooks all constraint cadd go clinvar
+.PHONY: downloads fast medium slow notebooks regions constraint cadd go clinvar all
 
 SHELL = bash
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
@@ -56,6 +56,10 @@ notebooks :
 		-p coverage $$N ; \
 	done
 
+# Regions
+regions :
+	make -f src/regions/Makefile all
+
 # Constraint
 constraint:
 	make -f src/constraint/Makefile all
@@ -90,28 +94,28 @@ figures :
 all : downloads fast medium slow statistics figures cadd go clinvar
 
 
-# Extract canonical CDS from GTF file
-data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf \
-                                             src/data/canonical_cds.py
-	python3 -m src.data.canonical_cds
-	# Remove "chr" prefix
-	sed 's/^chr//' data/interim/gencode_v39_canonical_cds.bed > data/interim/gencode_v39_canonical_cds_no_chr.bed
+# # Extract canonical CDS from GTF file
+# data/interim/gencode_v39_canonical_cds.bed : data/raw/gencode.v39.annotation.gtf \
+#                                              src/data/canonical_cds.py
+# 	python3 -m src.data.canonical_cds
+# 	# Remove "chr" prefix
+# 	sed 's/^chr//' data/interim/gencode_v39_canonical_cds.bed > data/interim/gencode_v39_canonical_cds_no_chr.bed
 
-# Get CDS counts and coordinates
-data/interim/cds_counts_and_coords.tsv : data/raw/gencode.v39.annotation.gtf \
-                                         src/data/cds_counts_and_coords.py
-	python3 -m src.data.cds_counts_and_coords
+# # Get CDS counts and coordinates
+# data/interim/cds_counts_and_coords.tsv : data/raw/gencode.v39.annotation.gtf \
+#                                          src/data/cds_counts_and_coords.py
+# 	python3 -m src.data.cds_counts_and_coords
 
-# Get gene IDs
-data/interim/gene_ids.tsv : data/raw/gencode.v39.annotation.gtf \
-                            src/data/canonical_cds.py \
-							src/data/canonical_cds_gene_ids.py
-	python3 -m src.data.canonical_cds_gene_ids
+# # Get gene IDs
+# data/interim/gene_ids.tsv : data/raw/gencode.v39.annotation.gtf \
+#                             src/data/canonical_cds.py \
+# 							src/data/canonical_cds_gene_ids.py
+# 	python3 -m src.data.canonical_cds_gene_ids
 
-# Annotate NMD regions
-data/interim/nmd_annotations.tsv : data/interim/cds_counts_and_coords.tsv \
-                                   src/data/nmd_annotations.py
-	python3 -m src.data.nmd_annotations
+# # Annotate NMD regions
+# data/interim/nmd_annotations.tsv : data/interim/cds_counts_and_coords.tsv \
+#                                    src/data/nmd_annotations.py
+# 	python3 -m src.data.nmd_annotations
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \

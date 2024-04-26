@@ -10,7 +10,7 @@ import pandas as pd
 
 from src import constants as C
 from src import setup_logger
-from src.data import canonical_cds as ccds
+from src.regions import canonical_cds as ccds
 
 # Logging
 logger = setup_logger(Path(__file__).stem)

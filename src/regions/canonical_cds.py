@@ -4,39 +4,25 @@ Get CDS features from canonical transcripts in a GENCODE GTF.
 This module extracts the coding sequence (CDS) for each canonical transcript in the 
 input GTF file, annotates annotates the number of CDS exons in each transcript, and 
 writes the results to a BED file.
-
-Functions:
-    - get_gencode_gtf(path): Reads a GENCODE .gtf into memory with gtfparse.
-    - get_canonical_cds(gtf): Subsets to Ensembl_canonical CDS features in protein 
-        coding genes.
-    - annotate_exon_number(gtf): Counts the number of CDS exons in each transcript.
-    - gtf_to_bed(gtf, ids): Converts a .gtf file to .bed format.
-    - write_bed(bed, path, chr_prefix="chr"): Writes a .bed file to output.
-    - main(): Runs all functions in the moduule.
 """
 
-
-# Imports
+import logging
 from pathlib import Path
 
 import pandas as pd
 import gtfparse # * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 
+import src
 from src import constants as C
-from src import setup_logger
 
-
-# Module constants
 _BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
 _BED_IDS = ["gene_id", "transcript_id", "exon_id", "cds_number"]
 _CHR_PREFIX = "chr"
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
+logger = logging.getLogger(__name__)
 
 
-# Logging
-logger = setup_logger(Path(__file__).stem)
-
-
-# Functions
 def get_canonical(gtf, features=["CDS"]):
     """Subset to features in Ensembl_canonical protein coding genes."""
 
@@ -141,4 +127,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     main()
