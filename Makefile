@@ -80,62 +80,65 @@ figures :
 
 all : downloads fast medium slow statistics figures cadd functional_enrichment clinvar
 
+### SNVS
 
-# Get FASTA sequences for CDS regions
-data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
-                                                 data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai \
-												 data/interim/gencode_v39_canonical_cds.bed \
-												 src/data/get_fasta.sh
-	$(CONDA_ACTIVATE) bio
-	bash src/data/get_fasta.sh
-	$(CONDA_ACTIVATE) ukb
+# # Get FASTA sequences for CDS regions
+# data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
+#                                                  data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai \
+# 												 data/interim/gencode_v39_canonical_cds.bed \
+# 												 src/data/get_fasta.sh
+# 	$(CONDA_ACTIVATE) bio
+# 	bash src/data/get_fasta.sh
+# 	$(CONDA_ACTIVATE) ukb
 
-# Get all possible SNVs and trinucleotide contexts
-data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
-                                              src/data/coding_snvs.py
-	python3 -m src.data.coding_snvs
+# # Get all possible SNVs and trinucleotide contexts
+# data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
+#                                               src/data/coding_snvs.py
+# 	python3 -m src.data.coding_snvs
 
-data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical_cds_seq.tsv \
-                                              src/data/coding_snvs.py
-	python3 -m src.data.coding_snvs
+# data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical_cds_seq.tsv \
+#                                               src/data/coding_snvs.py
+# 	python3 -m src.data.coding_snvs
 
-# Extract SNVs from gnomAD
-data/interim/gnomad_v4_pass_snvs.tsv : data/interim/gencode_v39_canonical_cds.bed \
-                                       src/data/batch_extract_pass_variants.sh \
-									   src/data/extract_pass_variants.sh \
-									   src/data/combine_pass_snvs.sh
-	bash src/data/batch_extract_pass_variants.sh
-	qsub src/data/combine_pass_snvs.sh
+# # Extract SNVs from gnomAD
+# data/interim/gnomad_v4_pass_snvs.tsv : data/interim/gencode_v39_canonical_cds.bed \
+#                                        src/data/batch_extract_pass_variants.sh \
+# 									   src/data/extract_pass_variants.sh \
+# 									   src/data/combine_pass_snvs.sh
+# 	bash src/data/batch_extract_pass_variants.sh
+# 	qsub src/data/combine_pass_snvs.sh
 
-# Annotate all possible CDS SNVs with VEP
-# This script runs over ~ 10 hours
-data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
-									   src/data/batch_vep_all_snvs.sh \
-									   src/data/vep_all_snvs.sh
-	bash src/data/batch_vep_all_snvs.sh
-	qsub -hold_jid "vep_snvs_*"
+# # Annotate all possible CDS SNVs with VEP
+# # This script runs over ~ 10 hours
+# data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
+# 									   src/data/batch_vep_all_snvs.sh \
+# 									   src/data/vep_all_snvs.sh
+# 	bash src/data/batch_vep_all_snvs.sh
+# 	qsub -hold_jid "vep_snvs_*"
 
-# Combine and tidy the split VEP outputs
-data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/vep_all_snvs/out_29.tsv \
-                                                  data/interim/transcript_ids.tsv \
-                                                  src/data/vep_all_snvs_tidy.sh \
-												  src/data/vep_all_snvs_tidy_log.py
-	bash src/data/vep_all_snvs_tidy.sh
-	python3 -m src.data.vep_all_snvs_tidy_log
+# # Combine and tidy the split VEP outputs
+# data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/vep_all_snvs/out_29.tsv \
+#                                                   data/interim/transcript_ids.tsv \
+#                                                   src/data/vep_all_snvs_tidy.sh \
+# 												  src/data/vep_all_snvs_tidy_log.py
+# 	bash src/data/vep_all_snvs_tidy.sh
+# 	python3 -m src.data.vep_all_snvs_tidy_log
 
-# Tidy mutability data
-data/interim/mutation_rate_by_context_methyl_tidy.tsv : src/data/mutability_data.py
-	python3 -m src.data.mutability_data
+# # Tidy mutability data
+# data/interim/mutation_rate_by_context_methyl_tidy.tsv : src/data/mutability_data.py
+# 	python3 -m src.data.mutability_data
 
-# Merge annotations for all SNVs
-data/final/all_variants_merged_annotations.tsv : data/interim/nmd_annotations.tsv \
-                                                 data/interim/cds_all_possible_snvs.vcf \
-												 data/interim/cds_trinucleotide_contexts.tsv \
-												 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
-												 data/interim/gnomad_v4_pass_snvs.tsv \
-												 data/interim/mutation_rate_by_context_methyl_tidy.tsv \
-												 src/data/observed_variants.py
-	python3 -m src.data.observed_variants
+# # Merge annotations for all SNVs
+# data/final/all_variants_merged_annotations.tsv : data/interim/nmd_annotations.tsv \
+#                                                  data/interim/cds_all_possible_snvs.vcf \
+# 												 data/interim/cds_trinucleotide_contexts.tsv \
+# 												 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
+# 												 data/interim/gnomad_v4_pass_snvs.tsv \
+# 												 data/interim/mutation_rate_by_context_methyl_tidy.tsv \
+# 												 src/data/observed_variants.py
+# 	python3 -m src.data.observed_variants
+
+### REGIONAL NONSENSE CONSTRAINT
 
 # Get variant counts and mutability
 data/interim/observed_variants_counts_regions_cov_20.tsv \
@@ -163,6 +166,8 @@ data/final/regional_nonsense_constraint.tsv : src/constraint/constraint_statisti
 	python3 -m src.constraint.constraint_statistics
 	python3 -m src.constraint.regional_nonsense_constraint
 
+### MAPS
+
 # Get proportion of singletons for synonymous variant contexts
 data/interim/proportion_singletons_synonymous_by_context.tsv : data/final/all_variants_merged_annotations.tsv \
                                                                src/constraint/proportion_singletons_syn_contexts.py
@@ -173,6 +178,8 @@ data/interim/proportion_singletons_by_csq.tsv : data/final/all_variants_merged_a
                                                 src/constraint/proportion_singletons_syn_contexts.py \
                                                 src/constraint/proportion_singletons_all_csqs.py
 	python3 -m src.constraint.proportion_singletons_all_csqs
+
+### ORTHOGONAL METRICS
 
 # Get pext scores (hg19) in bed format
 data/interim/pext_37.bed : data/raw/all.baselevel.021620.tsv \
@@ -205,6 +212,8 @@ data/final/phylop_pext_missense_annotations_stats.tsv : data/interim/alpha_misse
 														src/functional_clinical/merge_orthogonal_annotations.py
 	python3 -m src.functional_clinical.merge_orthogonal_annotations
 
+### OMIM
+
 # Parse genemap2.txt data
 data/interim/genemap2_parsed.tsv : data/raw/genemap2.txt \
                                    src/functional_clinical/omim_parse_genemap.py
@@ -214,6 +223,8 @@ data/interim/genemap2_parsed.tsv : data/raw/genemap2.txt \
 data/interim/genemap2_simple.tsv : data/interim/genemap2_parsed.tsv \
                                    src/functional_clinical/omim_simplify_genemap.py
 	python3 -m src.functional_clinical.omim_simplify_genemap
+
+### CLINVAR
 
 # Parse ClinVar summary text file
 data/interim/clinvar_variants_selected.tsv \
