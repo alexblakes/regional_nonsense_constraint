@@ -9,6 +9,7 @@ all : data/interim/clinvar_variants_selected.tsv \
 	  data/interim/clinvar_variants_vep.vcf \
 	  data/interim/clinvar_variants_vep_tidy.tsv \
 	  data/interim/clinvar_variants_constraint.tsv \
+	  data/plots/clinvar_acmg.png \
 
 # Parse ClinVar summary text file
 data/interim/clinvar_variants_selected.tsv : data/raw/variant_summary.txt \
@@ -48,3 +49,8 @@ data/interim/clinvar_variants_constraint.tsv : data/interim/clinvar_variants_vep
                                                data/final/regional_nonsense_constraint.tsv \
 											   src/clinvar/annotate_with_constraint.py
 	python3 -m src.clinvar.annotate_with_constraint
+
+# Plot ACMG proportions
+data/plots/clinvar_acmg.png : data/interim/clinvar_variants_constraint.tsv \
+                              src/clinvar/plot_acmg.py
+	python3 -m src.clinvar.plot_acmg

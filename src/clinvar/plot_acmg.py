@@ -1,4 +1,4 @@
-"""Module docstring."""
+"""Plot ACMG classification of nonsense / frameshift variants in ClinVar."""
 
 import itertools
 import logging
@@ -27,7 +27,6 @@ def read_clinvar_data(path):
             path,
             sep="\t",
             usecols=["csq", "region", "acmg", "constraint"],
-            nrows=300000,
         )
         .query("csq == 'stop_gained' | csq== 'frameshift_variant'")
         .drop("csq", axis=1)
@@ -60,9 +59,9 @@ def get_acmg_proportions(df):
     grouped = df.groupby(["region", "constraint"])
     proportions = grouped["acmg"].value_counts(normalize=True, dropna=False)
 
-    # Reindex to keep values of zero
-    index_levels = proportions.index.nlevels
-    index_values = [proportions.index.levels[n] for n in range(index_levels)]
+    # Reindex to keep categories with zero variants
+    n_index_levels = proportions.index.nlevels
+    index_values = [proportions.index.levels[n] for n in range(n_index_levels)]
     new_index = itertools.product(*index_values)
     proportions = proportions.reindex(new_index, fill_value=0)
 
@@ -77,22 +76,22 @@ def plot_bars(data, ax=None, title=None, legend=0):
 
     for i, acmg in enumerate(acmg_categories):
         multiplier = i
-        d = data.xs(acmg, level="acmg")
-        n_groups = len(d)
+        _data = data.xs(acmg, level="acmg")
+        n_groups = len(_data)
         x = np.arange(n_groups)
         n_bars = len(acmg_categories)
         bar_width = 1 / (n_bars + 1)
         offset = bar_width * multiplier
 
-        bars = ax.bar(x + offset, d, bar_width)
-        ax.set_xticks(x + bar_width, labels=d.index)
+        bars = ax.bar(x + offset, _data, bar_width)
+        ax.set_xticks(x + bar_width, labels=_data.index)
         ax.set_ylabel("Proportion of variants")
         ax.label_outer()
         ax.set_title(title)
 
     if legend:
         bars = [b for b in ax.containers]
-        ax.legend(bars, acmg_categories, ncols=3)
+        ax.legend(bars, acmg_categories)
 
     return None
 
@@ -106,7 +105,7 @@ def main():
     # Style and palette
     plt.style.use(C.STYLE_DEFAULT)
     plt.style.use(C.COLOR_REGIONS)
-    sns.set_palette([sns.color_palette()[n] for n in [1,0,-1]])
+    sns.set_palette([sns.color_palette()[n] for n in [1, 0, -1]])
 
     # Instantiate the figure
     fig, axs = plt.subplots(
@@ -119,15 +118,16 @@ def main():
 
     # Create plots, stratified by region
     regions = clinvar.index.get_level_values("region").unique()
-    legends = [0,0,0,1]
+    legends = [0, 0, 0, 1]
     for ax, region, legend in zip(axs, regions, legends):
         data = clinvar.xs(region, level="region")
         plot_bars(data, ax, title=region, legend=legend)
 
     # Save the figure
     plt.savefig(f"{_FIG_OUT}.png", dpi=600)
+    plt.savefig(f"{_FIG_OUT}.svg")
 
-    return clinvar
+    return None
 
 
 if __name__ == "__main__":
