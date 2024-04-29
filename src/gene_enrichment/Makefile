@@ -37,8 +37,8 @@ enrichment_plots = data/plots/gene_set_enrichment/all_gobp.png \
 
 all : data/final/gene_list_combined_gprofiler.txt \
 	  data/statistics/gene_set_enrichment.tsv \
-	  $(enrichment_plots) \
       $(ora_stats) \
+	#   $(enrichment_plots) \
 
 # Combine gene lists for gProfiler web tool
 data/final/gene_list_combined_gprofiler.txt :
@@ -46,7 +46,7 @@ data/final/gene_list_combined_gprofiler.txt :
 		> data/final/gene_list_combined_gprofiler.txt
 
 # ORA with WebGestaltR
-$(ora_stats) : src/gene_enrichment/webgestalt.R
+$(ora_stats) &: src/gene_enrichment/webgestalt.R
 	. /etc/profile
 	module load apps/gcc/R/4.3.1
 	Rscript src/gene_enrichment/webgestalt.R data/final/gene_list_nmd_target_constrained.txt nmd_target
