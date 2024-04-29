@@ -5,6 +5,12 @@
 ## Labels and naming
 NMD_REGIONS = ["nmd_target", "start_proximal", "long_exon", "distal"]
 NMD_REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
+NMD_REGIONS_DICT = {
+    "nmd_target": "NMD target",
+    "start_proximal": "Start proximal",
+    "long_exon":"Long exon",
+    "distal_nmd":"Distal",
+}
 REGIONS = [
     "transcript",
     "nmd_target",
@@ -27,7 +33,9 @@ MAPS_CONSEQUENCES = [
     "start_proximal",
     "long_exon",
     "distal",
-][::-1] # Reversed for plotting
+][
+    ::-1
+]  # Reversed for plotting
 MAPS_LABELS = [
     "Synonymous",
     "Missense",
@@ -36,7 +44,9 @@ MAPS_LABELS = [
     "Nonsense (Start proximal)",
     "Nonsense (Long exon)",
     "Nonsense (Distal)",
-][::-1] # Reversed for plotting
+][
+    ::-1
+]  # Reversed for plotting
 
 ## Plotting
 CM = 1 / 2.54  # cm to inches conversion
@@ -77,9 +87,7 @@ G2P_EYE = f"{RAW}/EyeG2P_23_8_2023.csv"
 G2P_SKELETAL = f"{RAW}/SkeletalG2P_23_8_2023.csv"
 G2P_SKIN = f"{RAW}/SkinG2P_23_8_2023.csv"
 GENCODE_GTF = f"{RAW}/gencode.v39.annotation.gtf"
-GNOMAD_LOEUF_CONSTRAINT = (
-    f"{RAW}/supplementary_dataset_11_full_constraint_metrics.tsv"
-)
+GNOMAD_LOEUF_CONSTRAINT = f"{RAW}/supplementary_dataset_11_full_constraint_metrics.tsv"
 GNOMAD_V4_CONSTRAINT = f"{RAW}/gnomad.v4.0.constraint_metrics.tsv"
 GNOMAD_NC_MUTABILITY = f"{RAW}/mutation_rate_by_context_methyl.txt"
 GNOMAD_NC_METHYLATION = f"{RAW}/grch38_cpg_methylation.tsv"
