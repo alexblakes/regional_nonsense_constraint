@@ -13,12 +13,47 @@ import src
 from src import constants as C
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
-_SOURCES = ["HP", "GO:BP", "GO:MF"]
-_SOURCE_NAMES = ["hpo", "gobp", "gomf"]
-_ALL_QUERIES = ["gnomAD", "NMD target", "Start proximal", "Long exon", "Distal"]
-_GNOMAD_QUERIES = ["NMD target", "Start proximal", "Long exon", "Distal"]
+_FILE_IN_NMD_TARGET = "data/statistics/ora_nmd_target.tsv"
+_FILE_IN_START_PROXIMAL = "data/statistics/ora_start_proximal.tsv"
+_FILE_IN_LONG_EXON = "data/statistics/ora_long_exon.tsv"
+_FILE_IN_DISTAL = "data/statistics/ora_distal.tsv"
+_DROP_COLS = [
+    "geneSet",
+    "link",
+    "size",
+    "overlap",
+    "expect",
+    "pValue",
+    "FDR",
+    "overlapId",
+    "userId",
+]
+_NMD_REGIONS_DICT = {
+    "nmd_target": "NMD target",
+    "start_proximal": "Start proximal",
+    "long_exon":"Long exon",
+    "distal":"Distal",
+}
+_SOURCES = ["hpo", "bp", "mf"]
 
 logger = logging.getLogger(__name__)
+
+
+def read_ora_data(paths):
+    dfs = [pd.read_csv(path, sep="\t") for path in paths]
+    return (
+        pd.concat(dfs, axis=0)
+        .drop(_DROP_COLS, axis=1)
+        .replace({"region": _NMD_REGIONS_DICT})
+    )
+
+
+def rank_enrichment(df):
+    g = df.groupby(["ref", "region", "db"])
+    rank = lambda x: x.rank(method="first", ascending=False)
+    df["enrichment_rank"] = g["enrichmentRatio"].transform(rank)
+
+    return df.sort_values("enrichment_rank")
 
 
 def create_figure(
@@ -49,8 +84,8 @@ def enrichment_bars(ax, data, color):
 
     b = ax.barh(
         y=data["enrichment_rank"],
-        width=data["enrichment"],
-        tick_label=data["name"],
+        width=data["enrichmentRatio"],
+        tick_label=data["description"],
         color=color,
     )
 
@@ -58,6 +93,7 @@ def enrichment_bars(ax, data, color):
     ax.invert_yaxis()
     ax.spines[["left"]].set_visible(False)
     ax.set_xlabel("Fold-enrichment")
+    ax.label_outer()
 
     # Shorten very long tick labels
     shorten = lambda x: textwrap.shorten(x.get_text(), 60)
@@ -66,12 +102,12 @@ def enrichment_bars(ax, data, color):
     return ax
 
 
-def plot_enrichment(data, bg_name, queries, nrows=5, palette=sns.color_palette()):
+def plot_enrichment(data, bg_name, queries, nrows=4, palette=sns.color_palette()):
     """Create gene set enrichment figures."""
 
-    grouped_data = data.groupby(["source", "query"])
+    grouped_data = data.groupby(["db", "region"])
 
-    for source, source_name in zip(_SOURCES, _SOURCE_NAMES):
+    for source in _SOURCES:
         fig, axs = create_figure(nrows=nrows)
         palette = itertools.cycle(palette)
 
@@ -87,10 +123,8 @@ def plot_enrichment(data, bg_name, queries, nrows=5, palette=sns.color_palette()
             except:
                 continue
 
-        plt.savefig(
-            f"data/plots/gene_set_enrichment/{bg_name}_{source_name}.png", dpi=600
-        )
-        plt.savefig(f"data/plots/gene_set_enrichment/{bg_name}_{source_name}.svg")
+        plt.savefig(f"data/plots/gene_set_enrichment/{bg_name}_{source}.png", dpi=600)
+        plt.savefig(f"data/plots/gene_set_enrichment/{bg_name}_{source}.svg")
 
 
 def main():
@@ -100,27 +134,36 @@ def main():
     plt.style.use(C.STYLE_DEFAULT)
     plt.style.use(C.COLOR_REGIONS)
 
-    # Read data
-    df = pd.read_csv(C.STATS_GENE_SET_ENRICHMENT, sep="\t")
+    # Parse ORA data
+    paths = (
+        _FILE_IN_NMD_TARGET,
+        _FILE_IN_START_PROXIMAL,
+        _FILE_IN_LONG_EXON,
+        _FILE_IN_DISTAL,
+    )
+    df = read_ora_data(paths).pipe(rank_enrichment)
 
     # Stratify by "background" gene set
-    group_bg = df.groupby("background")
-    df_all = group_bg.get_group("All genes").copy()
-    df_gnomad = group_bg.get_group("gnomAD").copy()
+    group_bg = df.groupby("ref")
+    df_all = group_bg.get_group("all").copy()
+    df_gnomad = group_bg.get_group("gnomad").copy()
 
     # Plot enrichment
     dfs = [df_all, df_gnomad]
     names = ["all", "gnomad"]
-    queries = [_ALL_QUERIES, _GNOMAD_QUERIES]
-    nrows = [5, 4]
-    palettes = [sns.color_palette(), sns.color_palette()[1:]]
+    query = C.NMD_REGION_LABELS
+    nrows = len(query)
+    palette = sns.color_palette()[1:]
 
-    for df, name, query, _nrows, palette in zip(dfs, names, queries, nrows, palettes):
-        plot_enrichment(df, name, query, _nrows, palette)
+    for (
+        df,
+        name,
+    ) in zip(dfs, names):
+        plot_enrichment(df, name, query, nrows, palette)
 
     plt.close("all")
 
-    return None
+    return df
 
 
 if __name__ == "__main__":
