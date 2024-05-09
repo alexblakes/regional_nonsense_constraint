@@ -6,3 +6,4 @@
 
 # Except for these files
 !.gitignore
+!protein_paint
