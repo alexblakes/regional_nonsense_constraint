@@ -7,8 +7,10 @@ START=$3
 END=$4
 
 CLINVAR="data/interim/clinvar_variants_annotated.vcf"
-FILE_OUT="data/interim/clinvar_${GENE}.vcf.gz"
 FASTA="data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
+FILE_TMP="data/interim/clinvar_vep_protein_paint_${GENE}.vcf"
+FILE_OUT_VUS="data/final/protein_paint/${GENE}_clinvar_vus.vcf.gz"
+FILE_OUT_PLP="data/final/protein_paint/${GENE}_clinvar_plp.vcf.gz"
 
 bgzip -kf $CLINVAR
 tabix -f "${CLINVAR}.gz"
@@ -34,12 +36,14 @@ bcftools view \
     --symbol \
     --canonical \
     --hgvs \
-    --fields "Consequence,Feature,SYMBOL,CANONICAL,HGVSp" \
+    --fields "Consequence,Feature,SYMBOL,CANONICAL,HGVSp,Protein_position,Amino_acids,HGVSc,Existing_variation" \
     --output_file STDOUT \
 | filter_vep \
     --filter "SYMBOL is $GENE" \
     --filter "CANONICAL is YES" \
     --filter "Consequence in stop_gained,frameshift_variant" \
-    --only_matched
-    # -o $FILE_OUT
-# > $FILE_OUT
+    --only_matched \
+> $FILE_TMP
+
+bcftools view -i 'ACMG = "VUS"' -Oz --write-index=tbi -o $FILE_OUT_VUS $FILE_TMP
+bcftools view -i 'ACMG ~ "LP\|P"' -Oz --write-index=tbi -o $FILE_OUT_PLP $FILE_TMP
