@@ -9,8 +9,9 @@ END=$4
 CLINVAR="data/interim/clinvar_variants_annotated.vcf"
 FASTA="data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
 FILE_TMP="data/interim/clinvar_vep_protein_paint_${GENE}.vcf"
-FILE_OUT_VUS="data/final/protein_paint/${GENE}_clinvar_vus.vcf.gz"
-FILE_OUT_PLP="data/final/protein_paint/${GENE}_clinvar_plp.vcf.gz"
+FILE_OUT_VUS="data/final/protein_paint/${GENE}_clinvar_vus.txt"
+FILE_OUT_PLP="data/final/protein_paint/${GENE}_clinvar_plp.txt"
+HEADER="gene\trefseq\tchromosome\tstart\taachange\tclass"
 
 bgzip -kf $CLINVAR
 tabix -f "${CLINVAR}.gz"
@@ -25,6 +26,7 @@ bcftools view \
     --fasta $FASTA \
     --offline \
     --cache \
+    --merged \
     --dir_cache /mnt/bmh01-rds/Ellingford_gene/.vep \
     --fork 8 \
     --buffer_size 50000 \
@@ -36,14 +38,29 @@ bcftools view \
     --symbol \
     --canonical \
     --hgvs \
-    --fields "Consequence,Feature,SYMBOL,CANONICAL,HGVSp,Protein_position,Amino_acids,HGVSc,Existing_variation" \
+    --fields "SOURCE,Consequence,Feature,SYMBOL,CANONICAL,HGVSp,HGVSc" \
     --output_file STDOUT \
 | filter_vep \
+    --filter "SOURCE is RefSeq" \
     --filter "SYMBOL is $GENE" \
     --filter "CANONICAL is YES" \
     --filter "Consequence in stop_gained,frameshift_variant" \
     --only_matched \
+| bcftools +split-vep \
+    --columns - \
+    --format '%CHROM\t%POS\t%REF\t%ALT\t%ACMG\t%Consequence\t%Feature\t%SYMBOL\t%HGVSp' \
+| awk -v OFS="\t" \
+    ' \
+        { \
+            sub(/\.[0-9]+/, "", $7); \
+            sub("frameshift_variant", "frameshift", $6); \
+            sub("stop_gained", "nonsense", $6); \
+            print($8, $7, $1, $2, $NF, $6, $5) \
+        } \
+    ' \
 > $FILE_TMP
 
-bcftools view -i 'ACMG = "VUS"' -Oz --write-index=tbi -o $FILE_OUT_VUS $FILE_TMP
-bcftools view -i 'ACMG ~ "LP\|P"' -Oz --write-index=tbi -o $FILE_OUT_PLP $FILE_TMP
+awk -v OFS="\t" -v H=$HEADER 'BEGIN {print H}; $NF == "VUS" {NF-=1; print $0}' $FILE_TMP > $FILE_OUT_VUS
+
+# Clean up
+rm $FILE_TMP
