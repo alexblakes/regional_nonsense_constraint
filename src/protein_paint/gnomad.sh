@@ -45,13 +45,18 @@ bcftools view \
     --only_matched \
 | bcftools +split-vep \
     --columns - \
-    --format '%HGVSc\t%Protein_position\t%Consequence' \
+    --format '%HGVSc\t%Protein_position\t%Consequence\t%AC' \
 | awk -v OFS="\t" \
     ' \
         { \
-            sub(/.*:c\./, "", $1) \
+            sub(/.*:c\./, "", $1); \
             sub("stop_gained", "N", $3); \
-            $1=$1; print $0 \
+            $1=$1; \
+            N = 1; \
+            while (N <= $4) { \
+                print $1, $2, $3; \
+                N += 1 ; \
+            } \
         } \
     ' \
 > $FILE_OUT
