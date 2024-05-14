@@ -19,20 +19,9 @@ echo "MCMBP chr10 119829440 119872843" >> $FILE_ARGS
 echo "FOXF1 chr16 86510527 86515422 " >> $FILE_ARGS
 echo "PROSER1 chr13 39009865 39038089" >> $FILE_ARGS
 
-# # Add genes in protocadherin alpha cluster
-# echo "PCDHA1 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA2 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA3 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA4 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA5 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA6 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA7 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA8 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA9 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA10 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA11 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA12 chr5 140786136 141012347" >> $FILE_ARGS
-# echo "PCDHA13 chr5 140786136 141012347" >> $FILE_ARGS
-
+# Extract variants from ClinVar and gnomAD
 parallel --arg-file $FILE_ARGS --colsep '\s' bash src/protein_paint/clinvar.sh {1} {2} {3} {4}
 parallel --arg-file $FILE_ARGS --colsep '\s' bash src/protein_paint/gnomad.sh {1} {2} {3} {4}
+
+# Extract nonsense variants in gnomAD for the PCDHA cluster
+bash src/protein_paint/gnomad_pcdha.sh PCDHA1 chr5 140786136 141012347
