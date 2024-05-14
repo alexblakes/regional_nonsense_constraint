@@ -34,9 +34,5 @@ echo "PROSER1 chr13 39009865 39038089" >> $FILE_ARGS
 # echo "PCDHA12 chr5 140786136 141012347" >> $FILE_ARGS
 # echo "PCDHA13 chr5 140786136 141012347" >> $FILE_ARGS
 
-while read -r SYMBOL CHROM START END; do
-    bash src/protein_paint/clinvar.sh $SYMBOL $CHROM $START $END &
-    bash src/protein_paint/gnomad.sh $SYMBOL $CHROM $START $END &
-done < $FILE_ARGS
-
-# Combine variants in the PCDHA cluster
+parallel --arg-file $FILE_ARGS --colsep '\s' bash src/protein_paint/clinvar.sh {1} {2} {3} {4}
+parallel --arg-file $FILE_ARGS --colsep '\s' bash src/protein_paint/gnomad.sh {1} {2} {3} {4}
