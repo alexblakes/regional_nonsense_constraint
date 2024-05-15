@@ -23,5 +23,9 @@ echo "PROSER1 chr13 39009865 39038089" >> $FILE_ARGS
 parallel --arg-file $FILE_ARGS --colsep '\s' bash src/protein_paint/clinvar.sh {1} {2} {3} {4}
 parallel --arg-file $FILE_ARGS --colsep '\s' bash src/protein_paint/gnomad.sh {1} {2} {3} {4}
 
-# Extract nonsense variants in gnomAD for the PCDHA cluster
-bash src/protein_paint/gnomad_pcdha.sh PCDHA1 chr5 140786136 141012347
+# Extract nonsense variants in gnomAD for the PCDH clusters
+bash src/protein_paint/gnomad_pcdh.sh PCDHA1 chr5 140786136 141012347
+bash src/protein_paint/gnomad_pcdh.sh PCDHGA1 chr5 141330514 141512975
+
+# Tidy up
+rm $FILE_ARGS

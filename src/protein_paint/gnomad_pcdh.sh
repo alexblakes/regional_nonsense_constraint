@@ -35,7 +35,6 @@ bcftools view \
     --minimal \
     --symbol \
     --pick \
-    --pick_order rank \
     --hgvs \
     --fields "Consequence,Feature,SYMBOL,CANONICAL,HGVSc,Protein_position" \
     --output_file STDOUT \
