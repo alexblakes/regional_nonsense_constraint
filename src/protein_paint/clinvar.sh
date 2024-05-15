@@ -6,17 +6,14 @@ CHR=$2
 START=$3
 END=$4
 
-CLINVAR="data/interim/clinvar_variants_annotated.vcf"
+CLINVAR="data/interim/clinvar_variants_annotated.vcf.gz"
 FASTA="data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
 FILE_TMP="data/interim/clinvar_vep_protein_paint_${GENE}.vcf"
 FILE_OUT_VUS="data/final/protein_paint/${GENE}_clinvar_vus.txt"
 FILE_OUT_PLP="data/final/protein_paint/${GENE}_clinvar_plp.txt"
 
-bgzip -kf $CLINVAR
-tabix -f "${CLINVAR}.gz"
-
 bcftools view \
-    -r "${CHR}:${START}-${END}" "${CLINVAR}.gz" \
+    -r "${CHR}:${START}-${END}" "${CLINVAR}" \
     -O v \
     -o - \
 |vep \
@@ -26,8 +23,7 @@ bcftools view \
     --offline \
     --cache \
     --dir_cache /mnt/bmh01-rds/Ellingford_gene/.vep \
-    --fork 8 \
-    --buffer_size 50000 \
+    --fork 4 \
     --force_overwrite \
     --format vcf \
     --vcf \
@@ -50,7 +46,7 @@ bcftools view \
     ' \
         { \
             sub(/.*:c\./, "", $1) \
-            sub(/-[0-9]+/, "", $2) \
+            sub(/\-[0-9]+/, "", $2) \
             sub("frameshift_variant", "F", $3) \
             sub("stop_gained", "N", $3); \
             $1=$1; print $0 \

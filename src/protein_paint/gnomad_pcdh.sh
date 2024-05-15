@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Extract nonsense variants from gnomAD for the protocadherin gene cluster
+# Extract variants from gnomAD for the protocadherin gene cluster
 
 GENE=$1
 CHR=$2
 START=$3
 END=$4
+CSQ=$5
 
 VCF_DIR="/mnt/bmh01-rds/Ellingford_gene/public_data_resources/gnomad/v4.0/vcf/"
 VCF_FILE="gnomad.exomes.v4.0.sites.${CHR}.vcf.bgz"
 VCF="${VCF_DIR}${VCF_FILE}"
 FASTA="data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
-FILE_OUT="data/final/protein_paint/${GENE}_gnomad.txt"
+FILE_OUT="data/final/protein_paint/${GENE}_gnomad_${CSQ}.txt"
 
 bcftools view \
     -r "${CHR}:${START}-${END}" $VCF \
@@ -26,8 +27,7 @@ bcftools view \
     --offline \
     --cache \
     --dir_cache /mnt/bmh01-rds/Ellingford_gene/.vep \
-    --fork 8 \
-    --buffer_size 50000 \
+    --fork 4 \
     --force_overwrite \
     --format vcf \
     --vcf \
@@ -39,7 +39,7 @@ bcftools view \
     --fields "Consequence,Feature,SYMBOL,CANONICAL,HGVSc,Protein_position" \
     --output_file STDOUT \
 | filter_vep \
-    --filter "Consequence is stop_gained" \
+    --filter "Consequence is ${CSQ}" \
     --only_matched \
 | bcftools +split-vep \
     --columns - \
@@ -48,7 +48,9 @@ bcftools view \
     ' \
         { \
             sub(/.*:c\./, "", $1); \
+            sub(/-[0-9]+/, "", $2); \
             sub("stop_gained", "N", $3); \
+            sub("frameshift_variant", "F", $3); \
             $1=$1; \
             N = 1; \
             while (N <= $4) { \
