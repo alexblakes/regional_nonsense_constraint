@@ -7,13 +7,12 @@ GENE=$1
 CHR=$2
 START=$3
 END=$4
-CSQ=$5
 
 VCF_DIR="/mnt/bmh01-rds/Ellingford_gene/public_data_resources/gnomad/v4.0/vcf/"
 VCF_FILE="gnomad.exomes.v4.0.sites.${CHR}.vcf.bgz"
 VCF="${VCF_DIR}${VCF_FILE}"
 FASTA="data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
-FILE_OUT="data/final/protein_paint/${GENE}_gnomad_${CSQ}.txt"
+FILE_OUT="data/final/protein_paint/${GENE}_gnomad.txt"
 
 bcftools view \
     -r "${CHR}:${START}-${END}" $VCF \
@@ -39,7 +38,7 @@ bcftools view \
     --fields "Consequence,Feature,SYMBOL,CANONICAL,HGVSc,Protein_position" \
     --output_file STDOUT \
 | filter_vep \
-    --filter "Consequence is ${CSQ}" \
+    --filter "Consequence in stop_gained,frameshift_variant" \
     --only_matched \
 | bcftools +split-vep \
     --columns - \

@@ -27,15 +27,11 @@ tabix -f "${CLINVAR}.gz"
 
 # Extract variants from ClinVar and gnomAD
 parallel --arg-file $FILE_ARGS --colsep ' ' bash src/protein_paint/clinvar.sh {1} {2} {3} {4}
-parallel --arg-file $FILE_ARGS --colsep ' ' bash src/protein_paint/gnomad.sh {1} {2} {3} {4} stop_gained
-parallel --arg-file $FILE_ARGS --colsep ' ' bash src/protein_paint/gnomad.sh {1} {2} {3} {4} frameshift_variant
+parallel --arg-file $FILE_ARGS --colsep ' ' bash src/protein_paint/gnomad.sh {1} {2} {3} {4}
 
 # Extract nonsense variants in gnomAD for the PCDH clusters
-for CSQ in "stop_gained" "frameshift_variant"; do
-    bash src/protein_paint/gnomad_pcdh.sh PCDHA1 chr5 140786136 141012347 ${CSQ} &
-    bash src/protein_paint/gnomad_pcdh.sh PCDHGA1 chr5 141330514 141512975 ${CSQ}
-    wait
-done
+bash src/protein_paint/gnomad_pcdh.sh PCDHA1 chr5 140786136 141012347 &
+bash src/protein_paint/gnomad_pcdh.sh PCDHGA1 chr5 141330514 141512975
 
 # Create text file for colours
 echo "N ; #B2182B" > $COLOURS
