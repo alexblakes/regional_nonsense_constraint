@@ -38,7 +38,7 @@ bcftools view \
     --fields "Consequence,Feature,SYMBOL,CANONICAL,HGVSc,Protein_position" \
     --output_file STDOUT \
 | filter_vep \
-    --filter "Consequence in stop_gained,frameshift_variant" \
+    --filter "Consequence is stop_gained" \
     --only_matched \
 | bcftools +split-vep \
     --columns - \
