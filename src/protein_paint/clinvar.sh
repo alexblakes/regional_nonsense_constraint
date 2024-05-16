@@ -47,9 +47,10 @@ bcftools view \
         { \
             sub(/.*:c\./, "", $1) \
             sub(/\-[0-9]+/, "", $2) \
-            sub("frameshift_variant", "F", $3) \
-            sub("stop_gained", "N", $3); \
-            $1=$1; print $0 \
+            sub("stop_gained", "N", $3) \
+            sub("frameshift_variant", "F", $3); \
+            $1=$1; \
+            print $0 \
         } \
     ' \
 > $FILE_TMP

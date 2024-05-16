@@ -5,6 +5,7 @@ set -euo pipefail
 
 FILE_ARGS="data/manual/protein_paint_args.txt"
 CLINVAR="data/interim/clinvar_variants_annotated.vcf"
+COLOURS="data/final/protein_paint/_colours.txt"
 
 # Overwrite arguments file with first entry
 echo "KANSL1 chr17 46029916 46193429" > $FILE_ARGS
@@ -35,6 +36,10 @@ for CSQ in "stop_gained" "frameshift_variant"; do
     bash src/protein_paint/gnomad_pcdh.sh PCDHGA1 chr5 141330514 141512975 ${CSQ}
     wait
 done
+
+# Create text file for colours
+echo "N ; #B2182B" > $COLOURS
+echo "F ; #f2d0d5" >> $COLOURS
 
 # Tidy up
 rm $FILE_ARGS

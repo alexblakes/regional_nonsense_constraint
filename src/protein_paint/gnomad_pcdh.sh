@@ -47,9 +47,9 @@ bcftools view \
 | awk -v OFS="\t" \
     ' \
         { \
-            sub(/.*:c\./, "", $1); \
-            sub(/-[0-9]+/, "", $2); \
-            sub("stop_gained", "N", $3); \
+            sub(/.*:c\./, "", $1) \
+            sub(/-[0-9]+/, "", $2) \
+            sub("stop_gained", "N", $3) \
             sub("frameshift_variant", "F", $3); \
             $1=$1; \
             N = 1; \
