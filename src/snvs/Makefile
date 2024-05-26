@@ -13,11 +13,11 @@ data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh3
 												 src/snvs/get_fasta.sh
 	source activate bio
 	bash src/snvs/get_fasta.sh
-	source activate ukb
 
 # Get all possible SNVs and trinucleotide contexts
 data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
                                               src/snvs/coding_snvs.py
+	source activate ukb
 	python3 -m src.snvs.coding_snvs
 
 # data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical_cds_seq.tsv \

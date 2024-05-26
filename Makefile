@@ -81,7 +81,16 @@ statistics :
 figures :
 	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
-all : downloads fast medium slow statistics figures cadd functional_enrichment clinvar
+all : downloads \
+      fast \
+	  medium \
+	  slow \
+	  snvs \
+	  cadd \
+	  functional_enrichment \
+	  clinvar \
+	  statistics \
+	  figures \
 
 ### SNVS
 
