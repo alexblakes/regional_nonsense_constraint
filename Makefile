@@ -83,9 +83,7 @@ figures :
 	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
 all : downloads \
-      fast \
-	  medium \
-	  slow \
+	  regions \
 	  snvs \
 	  cadd \
 	  functional_enrichment \

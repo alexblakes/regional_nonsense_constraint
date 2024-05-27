@@ -5,32 +5,37 @@ SHELL = /bin/bash
 
 all : data/interim/gencode_v39_canonical_cds_seq.tsv \
       data/interim/cds_all_possible_snvs.vcf \
+	  data/interim/cds_all_possible_snvs.vcf.gz \
+	  data/interim/cds_trinucleotide_contexts.tsv \
+	  data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
 
 # Get FASTA sequences for CDS regions
-data/interim/gencode_v39_canonical_cds_seq.tsv : data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna \
-                                                 data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.fai \
-												 data/interim/gencode_v39_canonical_cds.bed \
+data/interim/gencode_v39_canonical_cds_seq.tsv : data/interim/gencode_v39_canonical_cds.bed \
 												 src/snvs/get_fasta.sh
-	source activate bio
+	source activate vep
 	bash src/snvs/get_fasta.sh
 
 # Get all possible SNVs and trinucleotide contexts
-data/interim/cds_all_possible_snvs.vcf :      data/interim/gencode_v39_canonical_cds_seq.tsv \
+data/interim/cds_all_possible_snvs.vcf \
+data/interim/cds_trinucleotide_contexts.tsv &: data/interim/gencode_v39_canonical_cds_seq.tsv \
                                               src/snvs/coding_snvs.py
 	source activate ukb
 	python3 -m src.snvs.coding_snvs
 
-# data/interim/cds_trinucleotide_contexts.tsv : data/interim/gencode_v39_canonical_cds_seq.tsv \
-#                                               src/data/coding_snvs.py
-# 	python3 -m src.data.coding_snvs
+# Get all possible SNVs (VCF format)
+data/interim/cds_all_possible_snvs.vcf.gz : data/interim/gencode_v39_canonical_cds.bed \
+                                            src/snvs/all_possible_snvs.sh
+	source activate vep
+	bash src/snvs/all_possible_snvs.sh
+	# Takes about 30 minutes to run
 
-# # Extract SNVs from gnomAD
-# data/interim/gnomad_v4_pass_snvs.tsv : data/interim/gencode_v39_canonical_cds.bed \
-#                                        src/data/batch_extract_pass_variants.sh \
-# 									   src/data/extract_pass_variants.sh \
-# 									   src/data/combine_pass_snvs.sh
-# 	bash src/data/batch_extract_pass_variants.sh
-# 	qsub src/data/combine_pass_snvs.sh
+# Extract SNVs from gnomAD
+data/interim/gnomad_v4.1_pass_snvs.vcf.gz : data/interim/gencode_v39_canonical_cds.bed \
+                                            src/snvs/extract_pass_variants.sh
+	source activate vep
+	bash src/snvs/extract_pass_variants.sh
+	# Takes about 60 minutes to run
+
 
 # # Annotate all possible CDS SNVs with VEP
 # # This script runs over ~ 10 hours
