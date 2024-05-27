@@ -54,6 +54,9 @@ notebooks :
 regions :
 	make -f src/regions/Makefile all
 
+snvs :
+	make -f src/snvs/Makefile all
+	
 constraint:
 	make -f src/constraint/Makefile all
 
@@ -67,8 +70,6 @@ functional_enrichment :
 clinvar :
 	make -f src/clinvar/Makefile all
 
-snvs :
-	make -f src/snvs/Makefile all
 
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb

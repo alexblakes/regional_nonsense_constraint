@@ -47,10 +47,11 @@ data/interim/nmd_annotations.tsv : data/interim/cds_counts_and_coords.tsv \
                                    src/regions/nmd_annotations.py
 	source activate ukb
 	python3 -m src.regions.nmd_annotations
+	# Takes about 15 minutes to run
 
 # Simplify and index NMD region annotations
 $(indexed_regions) &: src/regions/index_nmd_annotation.sh \
                       data/interim/nmd_annotations.tsv
-	source activate bio
+	source activate vep
 	bash src/regions/index_nmd_annotation.sh
-
+	
