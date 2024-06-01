@@ -4,13 +4,14 @@ source activate vep # Before set command
 set -euo pipefail
 
 # Annotate all possible SNVs with VEP
+# Sending the VCF to a compressed output leads to a bgzf_read error with bcftools concat.
+# Therefore, the output is not compressed.
 
 ALL_SNVS="data/interim/cds_all_possible_snvs.vcf.gz"
 TMP="data/tmp"
 FILE_OUT="${TMP}/$1.vcf"
 
 bcftools view -r $1 $ALL_SNVS \
-| bcftools head -n 100 \
 | vep \
     --input_file STDIN \
     --output_file STDOUT \
