@@ -8,6 +8,7 @@ TMP="data/tmp"
 VCF_PATHS="${TMP}/vcfs.txt"
 FILE_OUT="data/interim/cds_all_possible_snvs_vep.vcf.gz"
 
+rm -rf $TMP
 mkdir -p $TMP
 
 # Submit one job per chromosome

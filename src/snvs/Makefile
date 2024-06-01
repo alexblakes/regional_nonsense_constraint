@@ -1,13 +1,14 @@
 .ONESHELL:
-.PHONY: all
+.PHONY: all test
 
-SHELL = /bin/bash
+SHELL=/bin/bash
 
 all : data/interim/gencode_v39_canonical_cds_seq.tsv \
       data/interim/cds_all_possible_snvs.vcf \
 	  data/interim/cds_all_possible_snvs.vcf.gz \
 	  data/interim/cds_trinucleotide_contexts.tsv \
 	  data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
+	  data/interim/cds_all_possible_snvs_vep.vcf.gz
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/interim/gencode_v39_canonical_cds.bed \
@@ -18,7 +19,7 @@ data/interim/gencode_v39_canonical_cds_seq.tsv : data/interim/gencode_v39_canoni
 # Get all possible SNVs and trinucleotide contexts
 data/interim/cds_all_possible_snvs.vcf \
 data/interim/cds_trinucleotide_contexts.tsv &: data/interim/gencode_v39_canonical_cds_seq.tsv \
-                                              src/snvs/coding_snvs.py
+                                               src/snvs/coding_snvs.py
 	source activate ukb
 	python3 -m src.snvs.coding_snvs
 
@@ -36,14 +37,15 @@ data/interim/gnomad_v4.1_pass_snvs.vcf.gz : data/interim/gencode_v39_canonical_c
 	bash src/snvs/extract_pass_variants.sh
 	# Takes about 60 minutes to run
 
-
-# # Annotate all possible CDS SNVs with VEP
-# # This script runs over ~ 10 hours
-# data/interim/vep_all_snvs/out_29.tsv : data/interim/cds_all_possible_snvs.vcf \
-# 									   src/data/batch_vep_all_snvs.sh \
-# 									   src/data/vep_all_snvs.sh
-# 	bash src/data/batch_vep_all_snvs.sh
-# 	qsub -hold_jid "vep_snvs_*"
+# Annotate all possible CDS SNVs with VEP
+data/interim/cds_all_possible_snvs_vep.vcf.gz : data/interim/cds_all_possible_snvs.vcf.gz \
+												src/snvs/vep_all_snvs_submit.sh \
+												src/snvs/vep_all_snvs.sh \
+									            src/snvs/vep_all_snvs_combine.sh
+	source activate vep
+	bash src/snvs/vep_all_snvs_submit.sh
+	# Run from the CSF login node
+	# This takes about 3 hours, if all jobs run immediately.
 
 # # Combine and tidy the split VEP outputs
 # data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/vep_all_snvs/out_29.tsv \

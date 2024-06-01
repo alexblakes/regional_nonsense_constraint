@@ -7,9 +7,10 @@ set -euo pipefail
 
 ALL_SNVS="data/interim/cds_all_possible_snvs.vcf.gz"
 TMP="data/tmp"
-FILE_OUT="${TMP}/$1.vcf.gz"
+FILE_OUT="${TMP}/$1.vcf"
 
 bcftools view -r $1 $ALL_SNVS \
+| bcftools head -n 100 \
 | vep \
     --input_file STDIN \
     --output_file STDOUT \

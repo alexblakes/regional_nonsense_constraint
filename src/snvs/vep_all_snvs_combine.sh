@@ -9,9 +9,10 @@ TMP="data/tmp"
 VCF_PATHS="${TMP}/vcfs.txt"
 FILE_OUT="data/interim/cds_all_possible_snvs_vep.vcf.gz"
 
-find $TMP -type f -name chr*.vcf.gz | sort -k1,1V > $VCF_PATHS
-bcftools concat --file-list $VCF_PATHS --naive -o $FILE_OUT
-tabix -f $FILE_OUT
+rm -f $FILE_OUT "${FILE_OUT}.tbi"
+
+find $TMP -type f -name chr*.vcf | sort -k1,1V > $VCF_PATHS
+bcftools concat --file-list $VCF_PATHS -W=tbi -o $FILE_OUT
 
 # Clean up 
 rm -r $TMP
