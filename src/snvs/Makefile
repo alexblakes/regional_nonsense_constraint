@@ -8,7 +8,8 @@ all : data/interim/gencode_v39_canonical_cds_seq.tsv \
 	  data/interim/cds_all_possible_snvs.vcf.gz \
 	  data/interim/cds_trinucleotide_contexts.tsv \
 	  data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
-	  data/interim/cds_all_possible_snvs_vep.vcf.gz
+	  data/interim/cds_all_possible_snvs_vep.vcf.gz \
+	  data/logs/all_possible_snvs.log \
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/interim/gencode_v39_canonical_cds.bed \
@@ -47,13 +48,9 @@ data/interim/cds_all_possible_snvs_vep.vcf.gz : data/interim/cds_all_possible_sn
 	# Run from the CSF login node
 	# This takes about 3 hours, if all jobs run immediately.
 
-# # Combine and tidy the split VEP outputs
-# data/interim/cds_all_possible_snvs_vep_tidy.tsv : data/interim/vep_all_snvs/out_29.tsv \
-#                                                   data/interim/transcript_ids.tsv \
-#                                                   src/data/vep_all_snvs_tidy.sh \
-# 												  src/data/vep_all_snvs_tidy_log.py
-# 	bash src/data/vep_all_snvs_tidy.sh
-# 	python3 -m src.data.vep_all_snvs_tidy_log
+# Log some key statistics from the SNV annotation pipeline.
+data/logs/all_possible_snvs.log : src/snvs/logging.sh
+	bash src/snvs/logging.sh &
 
 # # Tidy mutability data
 # data/interim/mutation_rate_by_context_methyl_tidy.tsv : src/data/mutability_data.py

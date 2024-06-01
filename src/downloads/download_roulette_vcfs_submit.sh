@@ -10,7 +10,7 @@ CHRS=({1..22}) # PRODUCTION
 
 for CHR in ${CHRS[@]};
     do
-        VCF_URL="http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/${CHR}_rate_v5.2_TFBS_correction_all.vcf.bgz"
+        VCF_URL="http://genetics.bwh.harvard.edu/downloads/Vova/Roulette/${CHR}_rate_v5.2_TFBS_correction_all.vcf.gz"
         qsub \
             -b y \
             -o data/logs/csf/ \
