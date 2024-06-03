@@ -10,6 +10,7 @@ all : data/interim/gencode_v39_canonical_cds_seq.tsv \
 	  data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
 	  data/interim/cds_all_possible_snvs_vep.vcf.gz \
 	  data/logs/all_possible_snvs.log \
+	  $(vep_vcf) \
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/interim/gencode_v39_canonical_cds.bed \
@@ -50,6 +51,7 @@ data/interim/cds_all_possible_snvs_vep.vcf.gz : data/interim/cds_all_possible_sn
 
 # Log some key statistics from the SNV annotation pipeline.
 data/logs/all_possible_snvs.log : src/snvs/logging.sh
+	source activate vep
 	bash src/snvs/logging.sh &
 
 # # Tidy mutability data
