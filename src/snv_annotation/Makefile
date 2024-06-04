@@ -3,8 +3,26 @@
 
 SHELL=/bin/bash
 
-all : 
+vep_vcf = data/interim/cds_all_possible_snvs_vep.vcf.gz \
+          data/interim/cds_all_possible_snvs_vep.vcf.gz.tbi \
+		  data/manual/header_lines_vep_consequence.txt
 
+gnomad_tsv = data/manual/header_lines_gnomad.txt \
+             data/interim/gnomad_v4.1_pass_snvs.tsv.gz/
+
+all : $(vep_vcf) \
+      $(gnomad_tsv) \
+
+$(vep_vcf) &: data/interim/cds_all_possible_snvs_vep.tsv.gz \
+              src/snv_annotation/vep_tsv_to_vcf.sh
+	source activate vep
+	bash src/snv_annotation/vep_tsv_to_vcf.sh
+
+$(gnomad_tsv) &: data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
+                 src/snv_annotation/gnomad_pass_snvs_to_tsv.sh
+	source activate vep
+	bash src/snv_annotation/gnomad_pass_snvs_to_tsv.sh
+	
 # # Merge annotations for all SNVs
 # data/final/all_variants_merged_annotations.tsv : data/interim/nmd_annotations.tsv \
 #                                                  data/interim/cds_all_possible_snvs.vcf \

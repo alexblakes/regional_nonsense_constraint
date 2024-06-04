@@ -56,7 +56,13 @@ regions :
 
 snvs :
 	make -f src/snvs/Makefile all
-	
+
+roulette :
+	make -f src/roulette/Makefile all
+
+snv_annotation :
+	make -f src/snv_annotation/Makefile all
+
 constraint:
 	make -f src/constraint/Makefile all
 
@@ -85,6 +91,8 @@ figures :
 all : downloads \
 	  regions \
 	  snvs \
+	  roulette \
+	  snv_annotation \
 	  cadd \
 	  functional_enrichment \
 	  clinvar \
