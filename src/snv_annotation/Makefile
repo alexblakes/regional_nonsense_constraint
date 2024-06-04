@@ -5,10 +5,10 @@ SHELL=/bin/bash
 
 vep_vcf = data/interim/cds_all_possible_snvs_vep.vcf.gz \
           data/interim/cds_all_possible_snvs_vep.vcf.gz.tbi \
-		  data/manual/header_lines_vep_consequence.txt
+		  data/manual/header_lines_vep_consequence.txt \
 
 gnomad_tsv = data/manual/header_lines_gnomad.txt \
-             data/interim/gnomad_v4.1_pass_snvs.tsv.gz/
+             data/interim/gnomad_v4.1_pass_snvs.tsv.gz \
 
 all : $(vep_vcf) \
       $(gnomad_tsv) \
@@ -17,6 +17,7 @@ $(vep_vcf) &: data/interim/cds_all_possible_snvs_vep.tsv.gz \
               src/snv_annotation/vep_tsv_to_vcf.sh
 	source activate vep
 	bash src/snv_annotation/vep_tsv_to_vcf.sh
+	# Takes about 5 minutes to run
 
 $(gnomad_tsv) &: data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
                  src/snv_annotation/gnomad_pass_snvs_to_tsv.sh
