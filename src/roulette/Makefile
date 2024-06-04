@@ -79,6 +79,8 @@ all : data/interim/gnomad_v4.1_pass_snvs_roulette.tsv \
       data/interim/roulette/scaled_cds_combined_sorted.tsv.gz \
       $(raw_indices) \
       data/interim/roulette/raw_cds_combined.vcf.gz \
+      data/interim/roulette/raw_cds_combined.tsv.gz \
+      data/logs/roulette_scores.log \
 
 # Refactor gnomAD observed SNVs for Roulette input
 data/interim/gnomad_v4.1_pass_snvs_roulette.tsv : data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
@@ -115,7 +117,7 @@ data/interim/roulette/scaled_cds_combined_sorted.tsv.gz : data/interim/roulette/
                                                           src/roulette/scaled_to_tsv.sh
 	source activate vep
 	bash src/roulette/scaled_to_tsv.sh
-	# Takes about 10 minutes to run
+	# Takes about 20 minutes to run
 
 # Tabix index the raw Roulette scores
 $(raw_indices) &: src/roulette/raw_index_bgz_files.sh
@@ -136,3 +138,11 @@ data/interim/roulette/raw_cds_combined.tsv.gz : data/interim/roulette/raw_cds_co
 	source activate vep
 	bash src/roulette/raw_to_tsv.sh
 	# Takes about 10 minutes to run
+
+# Log summary data about the processed Roulette data
+data/logs/roulette_scores.log : data/interim/roulette/raw_cds_combined.tsv.gz \
+                                data/interim/roulette/scaled_cds_combined_sorted.tsv.gz \
+                                src/roulette/log.sh
+	source activate vep
+	bash src/roulette/log.sh
+	# Takes about 5 minutes to run
