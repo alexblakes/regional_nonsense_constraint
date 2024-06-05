@@ -80,6 +80,7 @@ all : data/interim/gnomad_v4.1_pass_snvs_roulette.tsv \
       $(raw_indices) \
       data/interim/roulette/raw_cds_combined.vcf.gz \
       data/interim/roulette/raw_cds_combined.tsv.gz \
+      data/manual/header_lines_roulette_raw_tsv.txt \
       data/logs/roulette_scores.log \
 
 # Refactor gnomAD observed SNVs for Roulette input
@@ -138,6 +139,12 @@ data/interim/roulette/raw_cds_combined.tsv.gz : data/interim/roulette/raw_cds_co
 	source activate vep
 	bash src/roulette/raw_to_tsv.sh
 	# Takes about 10 minutes to run
+
+# Write a header for the final TSV of raw Roulette scores.
+data/manual/header_lines_roulette_raw_tsv.txt : data/interim/roulette/raw_cds_combined.tsv.gz \
+                                                src/roulette/raw_tsv_header.sh
+	source activate vep
+	bash src/roulette/raw_tsv_header.sh
 
 # Log summary data about the processed Roulette data
 data/logs/roulette_scores.log : data/interim/roulette/raw_cds_combined.tsv.gz \

@@ -7,9 +7,13 @@ VEP_VCF="data/interim/cds_all_possible_snvs_vep.vcf.gz"
 VEP_TSV="data/interim/cds_all_possible_snvs_vep.tsv.gz"
 NMD_TSV="data/final/nmd_annotations_simple.tsv.gz"
 GNOMAD_TSV="data/interim/gnomad_v4.1_pass_snvs.tsv.gz"
+ROULETTE_RAW_TSV="data/interim/roulette/raw_cds_combined.tsv.gz"
+ROULETTE_SCALED_TSV="data/interim/roulette/scaled_cds_combined_sorted.tsv.gz"
 HEADER_VEP="data/manual/header_lines_vep_consequence.txt"
 HEADER_NMD="data/manual/header_lines_nmd_annotation.txt"
 HEADER_GNOMAD="data/manual/header_lines_gnomad.txt"
+HEADER_ROULETTE_RAW="data/manual/header_lines_roulette_raw_bgz.txt"
+HEADER_ROULETTE_SCALED="data/manual/header_lines_roulette_scaled.txt"
 FASTA="data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"
 
 # The -a file must be in tsv format in order for bcftools annotate to work in a stream.
