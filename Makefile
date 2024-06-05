@@ -93,6 +93,7 @@ all : downloads \
 	  snvs \
 	  roulette \
 	  snv_annotation \
+	  constraint \
 	  cadd \
 	  functional_enrichment \
 	  clinvar \

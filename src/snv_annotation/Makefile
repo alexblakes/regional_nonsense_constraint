@@ -46,19 +46,19 @@ $(gnomad_tsv) &: data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
 
 # Merge annotations for all SNVs
 $(snvs_annotated) &: data/interim/cds_all_possible_snvs_vep.vcf.gz \
-                    data/interim/cds_all_possible_snvs_vep.tsv.gz \
-                    data/final/nmd_annotations_simple.tsv.gz \
-                    data/interim/gnomad_v4.1_pass_snvs.tsv.gz \
-                    data/interim/gnomad_v4.1_median_coverage.tsv.gz \
-                    data/interim/roulette/raw_cds_combined.tsv.gz \
-                    data/interim/roulette/scaled_cds_combined_sorted.tsv.gz \
-                    data/manual/header_lines_vep_consequence.txt \
-                    data/manual/header_lines_nmd_annotation.txt \
-                    data/manual/header_lines_gnomad.txt \
-                    data/manual/header_lines_coverage.txt \
-                    data/manual/header_lines_roulette_raw_tsv.txt \
-                    data/manual/header_lines_roulette_scaled.txt \
-					src/snv_annotation/annotate_snvs.sh
+                     data/interim/cds_all_possible_snvs_vep.tsv.gz \
+                     data/final/nmd_annotations_simple.tsv.gz \
+                     data/interim/gnomad_v4.1_pass_snvs.tsv.gz \
+                     data/interim/gnomad_v4.1_median_coverage.tsv.gz \
+                     data/interim/roulette/raw_cds_combined.tsv.gz \
+                     data/interim/roulette/scaled_cds_combined_sorted.tsv.gz \
+                     data/manual/header_lines_vep_consequence.txt \
+                     data/manual/header_lines_nmd_annotation.txt \
+                     data/manual/header_lines_gnomad.txt \
+                     data/manual/header_lines_coverage.txt \
+                     data/manual/header_lines_roulette_raw_tsv.txt \
+                     data/manual/header_lines_roulette_scaled.txt \
+                     src/snv_annotation/annotate_snvs.sh
 	source activate vep
 	bash src/snv_annotation/annotate_snvs.sh
 	# Takes about 10 minutes to run

@@ -13,7 +13,13 @@ gene_lists = data/final/gene_list_all.txt \
 
 all : $(gene_lists) \
       data/plots/constraint/venn.png \
-	  
+
+# Get variant counts and mutation rates
+data/interim/observed_variants_counts_regions_cov_20.tsv \
+data/interim/observed_variants_counts_synonymous_cov_20.tsv : data/final/all_variants_merged_annotations.tsv \
+                                                              src/constraint/observed_variants_counts_and_mutability.py 
+	python3 -m src.constraint.observed_variants_counts_and_mutability --coverage 0 10 20 30
+
 # Get constrained gene lists
 $(gene_lists) : data/raw/gnomad.v4.0.constraint_metrics.tsv \
                 data/interim/gene_ids.tsv \
