@@ -197,7 +197,7 @@ def main():
         # syn.to_csv(f"{C._OBS_COUNTS_SYN}{str(cov)}.tsv", sep="\t", index=False)
         regions.to_csv(f"{_FILE_OUT}{str(cov)}.tsv", sep="\t", index=False)
 
-    # return regions  #! Testing
+    return regions  #! Testing
 
 
 if __name__ == "__main__":

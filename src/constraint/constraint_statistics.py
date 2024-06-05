@@ -1,7 +1,5 @@
 """Identify regions and transcripts which are constrained for nonsense variants."""
 
-
-# Imports
 import logging
 from pathlib import Path
 
@@ -11,22 +9,18 @@ from statsmodels.stats.proportion import proportions_ztest
 from statsmodels.stats.proportion import proportions_chisquare
 from statsmodels.stats.multitest import fdrcorrection as fdr
 
-from src import setup_logger
+import src
 from src import constants as C
 
-
-# Module constants
+_FILE_IN = "data/interim/observed_variants_counts_regions_cov_20.tsv"
+_FILE_OUT = "data/final/regional_constraint_stats.tsv"
 _TRANSCRIPT = ["transcript"]
 _REGIONS = ["distal_nmd", "nmd_target", "long_exon", "start_proximal"]
 _CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
-
-# Logging
 logger = logging.getLogger(__name__)
 
-
-# Functions
 def per_row_ztest(row):
     """Calculate one-sided z test row-wise"""
 
@@ -102,8 +96,8 @@ def get_gnomad_constraint(path):
 def main():
     """Run as script."""
 
-    # Read expected variant data
-    df = pd.read_csv(C.EXPECTED_VARIANTS_ALL_REGIONS, sep="\t")
+    # Read variant and mutability data
+    df = pd.read_csv(_FILE_IN, sep="\t")
 
     # Get chi squared scores, z scores, and unadjusted p values
     logger.info(
@@ -143,9 +137,9 @@ def main():
     df = df.merge(gnomad, how="left")
 
     # Write to output
-    df.to_csv(C.REGIONAL_CONSTRAINT_STATS, sep="\t", index=False)
+    df.to_csv(_FILE_OUT, sep="\t", index=False)
 
-    # return df  #! Testing
+    return df  #! Testing
 
 
 if __name__ == "__main__":

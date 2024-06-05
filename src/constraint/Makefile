@@ -11,25 +11,29 @@ gene_lists = data/final/gene_list_all.txt \
 			 data/final/gene_list_long_exon_constrained.txt \
              data/final/gene_list_distal_constrained.txt \
 
-all : $(gene_lists) \
+all : data/interim/observed_variants_counts_regions_cov_20.tsv \
+      $(gene_lists) \
       data/plots/constraint/venn.png \
 
 # Get variant counts and mutation rates
-data/interim/observed_variants_counts_regions_cov_20.tsv \
-data/interim/observed_variants_counts_synonymous_cov_20.tsv : data/final/all_variants_merged_annotations.tsv \
-                                                              src/constraint/observed_variants_counts_and_mutability.py 
-	python3 -m src.constraint.observed_variants_counts_and_mutability --coverage 0 10 20 30
+data/interim/observed_variants_counts_regions_cov_20.tsv : data/interim/cds_all_possible_snvs_annotated.tsv.gz \
+                                                           src/constraint/observed_variants_counts_and_mutability.py
+	source activate ukb
+	python3 -m src.constraint.observed_variants_counts_and_mutability --coverage 20
 
-# Get constrained gene lists
-$(gene_lists) : data/raw/gnomad.v4.0.constraint_metrics.tsv \
-                data/interim/gene_ids.tsv \
-                data/final/regional_nonsense_constraint.tsv \
-				src/constraint/gene_lists.py
-	python3 -m src.constraint.gene_lists
+# Quantify constraint statistics
 
-# Plot Venn diagrams
-data/plots/constraint/venn.png : $(gene_lists) \
-                                 src/constraint/venn_diagrams.py
-	python3 -m src.constraint.venn_diagrams
+
+# # Get constrained gene lists
+# $(gene_lists) : data/raw/gnomad.v4.0.constraint_metrics.tsv \
+#                 data/interim/gene_ids.tsv \
+#                 data/final/regional_nonsense_constraint.tsv \
+# 				src/constraint/gene_lists.py
+# 	python3 -m src.constraint.gene_lists
+
+# # Plot Venn diagrams
+# data/plots/constraint/venn.png : $(gene_lists) \
+#                                  src/constraint/venn_diagrams.py
+# 	python3 -m src.constraint.venn_diagrams
 
 # Next
