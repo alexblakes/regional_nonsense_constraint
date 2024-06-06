@@ -14,12 +14,16 @@ gene_lists = data/final/gene_list_all.txt \
 venn_plots = data/plots/constraint/venn.png \
              data/plots/constraint/venn.svg \
 
+pairplots = data/plots/constraint/region_pair_plots.png \
+            data/plots/constraint/region_pair_plots.svg \
+
 all : data/interim/observed_variants_counts_regions_cov_20.tsv \
       data/final/expected_variants_all_regions.tsv \
 	  data/final/regional_constraint_stats.tsv \
 	  data/final/regional_nonsense_constraint.tsv \
       $(gene_lists) \
       $(venn_plots) \
+	  $(pairplots) \
 
 # Get variant counts and mutation rates
 data/interim/observed_variants_counts_regions_cov_20.tsv : data/interim/cds_all_possible_snvs_annotated.tsv.gz \
@@ -57,4 +61,9 @@ $(venn_plots) &: $(gene_lists) \
                 src/constraint/venn_diagrams.py
 	python3 -m src.constraint.venn_diagrams
 
-# Next
+# Plot scatter pairplots
+$(pairplots) &: data/final/regional_nonsense_constraint.tsv \
+                data/interim/gene_ids.tsv \
+				src/constraint/constraint_scatter.py
+	source activate ukb
+	python3 -m src.constraint.constraint_scatter

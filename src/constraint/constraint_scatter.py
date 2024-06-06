@@ -1,19 +1,23 @@
-"""Module docstring."""
+"""Plot constraint pairplots."""
 
 import itertools
 import logging
 from pathlib import Path
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import adjustText
 
 import src
 from src import constants as C
-from src.constraint import gene_lists
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_REGIONAL_NONSENSE_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
+_GENE_IDS = "data/interim/gene_ids.tsv"
+_PNG = "data/plots/constraint/region_pair_plots.png"
+_SVG = "data/plots/constraint/region_pair_plots.svg"
+_REGION_NAMES = ["nmd_target", "start_proximal", "long_exon", "distal_nmd"]
+_REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +27,7 @@ def main():
 
     # Read data
     df = pd.read_csv(
-        C.REGIONAL_NONSENSE_CONSTRAINT,
+        _REGIONAL_NONSENSE_CONSTRAINT,
         sep="\t",
         usecols=[
             "enst",
@@ -45,7 +49,7 @@ def main():
 
     # Annotate with gene symbols
     gene_ids = pd.read_csv(
-        C.CANONICAL_CDS_GENE_IDS,
+        _GENE_IDS,
         sep="\t",
         usecols=["transcript_id", "gene_name"],
         header=0,
@@ -70,8 +74,6 @@ def main():
     plt.style.use(C.COLOR_REGIONS)
 
     # Get parameters for plots
-    _REGION_NAMES = ["nmd_target", "start_proximal", "long_exon", "distal_nmd"]
-    _REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
     region_dict = {a: b for a, b in zip(_REGION_NAMES, _REGION_LABELS)}
     dim = len(_REGION_NAMES)
     subsets = itertools.product(_REGION_NAMES, _REGION_NAMES)
@@ -90,7 +92,6 @@ def main():
 
     # Create plots
     for ax, (xlabel, ylabel) in zip(axs, subsets):
-
         ax.set_xlabel(f"O/E\n{region_dict[xlabel]}")
         ax.set_ylabel(f"O/E\n{region_dict[ylabel]}")
         ax.label_outer()
@@ -146,9 +147,8 @@ def main():
             arrowprops=dict(arrowstyle="-", linewidth=0.5),
         )
 
-
-    plt.savefig("data/plots/constraint/region_pair_plots.png", dpi=600)
-    plt.savefig("data/plots/constraint/region_pair_plots.svg")
+    plt.savefig(_PNG, dpi=600)
+    plt.savefig(_SVG)
     plt.close("all")
 
     return df
