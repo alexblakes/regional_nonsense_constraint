@@ -12,14 +12,16 @@ from statsmodels.stats.multitest import fdrcorrection as fdr
 import src
 from src import constants as C
 
-_FILE_IN = "data/interim/observed_variants_counts_regions_cov_20.tsv"
+_FILE_IN = "data/final/expected_variants_all_regions.tsv"
 _FILE_OUT = "data/final/regional_constraint_stats.tsv"
+_GNOMAD_V4_CONSTRAINT = "data/raw/gnomad.v4.0.constraint_metrics.tsv"
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _TRANSCRIPT = ["transcript"]
 _REGIONS = ["distal_nmd", "nmd_target", "long_exon", "start_proximal"]
 _CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
 logger = logging.getLogger(__name__)
+
 
 def per_row_ztest(row):
     """Calculate one-sided z test row-wise"""
@@ -39,15 +41,13 @@ def per_row_chisquare(row):
     """Calculate chi-square goodness of fit test for proportions row-wise."""
 
     if row["n_exp"] >= 5:  # Condition for X2 goodness of fit
-
-        # Get statistics
         chi2, p, table = proportions_chisquare(
             count=row["n_obs"],
             nobs=row["n_pos"],
             value=row["prop_exp"],
         )
 
-        z = np.sqrt(chi2) # Equivalent to two-sided z test
+        z = np.sqrt(chi2)  # Equivalent to two-sided z test
 
         # Negative z scores where O/E < 1
         if row["oe"] < 1:
@@ -132,7 +132,7 @@ def main():
     logger.info(f"Valid FDR results: {df.fdr_p.count()}")
 
     # Merge with gnomAD constraint data
-    gnomad = get_gnomad_constraint(C.GNOMAD_V4_CONSTRAINT)
+    gnomad = get_gnomad_constraint(_GNOMAD_V4_CONSTRAINT)
 
     df = df.merge(gnomad, how="left")
 

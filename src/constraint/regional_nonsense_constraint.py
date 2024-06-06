@@ -1,27 +1,25 @@
 """Find constrained and unconstrained regions."""
 
-
-# Imports
+import logging
 from pathlib import Path
 
 import pandas as pd
 
-from src import setup_logger
+import src
 from src import constants as C
 
-
-# Module constants
+_FILE_IN = "data/final/regional_constraint_stats.tsv"
+_FILE_OUT = "data/final/regional_nonsense_constraint.tsv"
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _SYN_Z = -1
 _OE = 0.35
 _FDR_P = 0.05
 _P = 0.05
 _OBS = 1
 
-# Logging
-logger = setup_logger(Path(__file__).stem)
+logger = logging.getLogger(__name__)
 
 
-# Functions
 def get_synonymous_z_scores(df):
     """Add synonymous z scores to nonsense constraint data.
 
@@ -61,22 +59,22 @@ def assign_constraint_label(df):
     return df
 
 
-# Functions
 def main():
     """Run as script."""
 
     # Read the data
     df = (
-        pd.read_csv(C.REGIONAL_CONSTRAINT_STATS, sep="\t")
+        pd.read_csv(_FILE_IN, sep="\t")
         .pipe(get_synonymous_z_scores)
         .pipe(assign_constraint_label)
     )
 
     # Write to output
-    df.to_csv(C.REGIONAL_NONSENSE_CONSTRAINT, sep="\t", index=False)
+    df.to_csv(_FILE_OUT, sep="\t", index=False)
 
-    # return df  #! Testing
+    return df  #! Testing
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     main()

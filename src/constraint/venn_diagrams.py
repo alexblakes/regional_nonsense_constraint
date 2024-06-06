@@ -12,6 +12,12 @@ import src
 from src import constants as C
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_FILE_IN_ALL = "data/final/gene_list_all.txt"
+_FILE_IN_GNOMAD_CST = "data/final/gene_list_gnomad_constrained.txt"
+_FILE_IN_NMD_TARGET = "data/final/gene_list_nmd_target_constrained.txt"
+_FILE_IN_START_PROX = "data/final/gene_list_start_proximal_constrained.txt"
+_FILE_IN_LONG_EXON = "data/final/gene_list_long_exon_constrained.txt"
+_FILE_IN_DISTAL = "data/final/gene_list_distal_constrained.txt"
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +28,11 @@ def main():
     # Read gene lists
     gene_set = lambda x: set(pd.read_csv(x, header=None).iloc[:, 0].to_list())
 
-    gnomad = gene_set(C.GENE_LIST_GNOMAD_CST)
-    target = gene_set(C.GENE_LIST_NMD_TARGET)
-    start = gene_set(C.GENE_LIST_START_PROX)
-    long_exon = gene_set(C.GENE_LIST_LONG_EXON)
-    distal = gene_set(C.GENE_LIST_DISTAL)
+    gnomad = gene_set(_FILE_IN_GNOMAD_CST)
+    target = gene_set(_FILE_IN_NMD_TARGET)
+    start = gene_set(_FILE_IN_START_PROX)
+    long_exon = gene_set(_FILE_IN_LONG_EXON)
+    distal = gene_set(_FILE_IN_DISTAL)
 
     # Set plot style
     plt.style.use(C.STYLE_DEFAULT)
