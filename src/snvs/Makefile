@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: all test
+.PHONY: all force
 
 SHELL=/bin/bash
 
@@ -8,9 +8,10 @@ all : data/interim/gencode_v39_canonical_cds_seq.tsv \
 	  data/interim/cds_all_possible_snvs.vcf.gz \
 	  data/interim/cds_trinucleotide_contexts.tsv \
 	  data/interim/gnomad_v4.1_pass_snvs.vcf.gz \
-	  data/interim/cds_all_possible_snvs_vep.vcf.gz \
+	  data/interim/cds_all_possible_snvs_vep.tsv.gz \
 	  data/logs/all_possible_snvs.log \
-	  $(vep_vcf) \
+
+force: 
 
 # Get FASTA sequences for CDS regions
 data/interim/gencode_v39_canonical_cds_seq.tsv : data/interim/gencode_v39_canonical_cds.bed \
@@ -40,7 +41,7 @@ data/interim/gnomad_v4.1_pass_snvs.vcf.gz : data/interim/gencode_v39_canonical_c
 	# Takes about 60 minutes to run
 
 # Annotate all possible CDS SNVs with VEP
-data/interim/cds_all_possible_snvs_vep.vcf.gz : data/interim/cds_all_possible_snvs.vcf.gz \
+data/interim/cds_all_possible_snvs_vep.tsv.gz : data/interim/cds_all_possible_snvs.vcf.gz \
 												src/snvs/vep_all_snvs_submit.sh \
 												src/snvs/vep_all_snvs.sh \
 									            src/snvs/vep_all_snvs_combine.sh
@@ -50,20 +51,9 @@ data/interim/cds_all_possible_snvs_vep.vcf.gz : data/interim/cds_all_possible_sn
 	# This takes about 3 hours, if all jobs run immediately.
 
 # Log some key statistics from the SNV annotation pipeline.
-data/logs/all_possible_snvs.log : src/snvs/logging.sh
+data/logs/all_possible_snvs.log : src/snvs/logging_submit.sh \
+                                  src/snvs/logging.sh \
+                                  data/interim/cds_all_possible_snvs_vep.tsv.gz \
+								  data/interim/cds_all_possible_snvs.vcf.gz
 	source activate vep
-	bash src/snvs/logging.sh &
-
-# # Tidy mutability data
-# data/interim/mutation_rate_by_context_methyl_tidy.tsv : src/data/mutability_data.py
-# 	python3 -m src.data.mutability_data
-
-# # Merge annotations for all SNVs
-# data/final/all_variants_merged_annotations.tsv : data/interim/nmd_annotations.tsv \
-#                                                  data/interim/cds_all_possible_snvs.vcf \
-# 												 data/interim/cds_trinucleotide_contexts.tsv \
-# 												 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
-# 												 data/interim/gnomad_v4_pass_snvs.tsv \
-# 												 data/interim/mutation_rate_by_context_methyl_tidy.tsv \
-# 												 src/data/observed_variants.py
-# 	python3 -m src.data.observed_variants
+	bash src/snvs/logging_submit.sh

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source activate vep # Before set command
 set -euo pipefail
 
 # Log some key statistics from the SNV annotation pipeline.

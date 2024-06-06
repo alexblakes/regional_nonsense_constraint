@@ -21,17 +21,19 @@ bcftools view -r $1 $ALL_SNVS \
     --cache \
     --dir_cache /mnt/bmh01-rds/Ellingford_gene/.vep \
     --fork 4 \
-    --buffer_size 50000 \
+    --buffer_size 5000 \
     --format vcf \
     --vcf \
     --no_stats \
     --canonical \
     --fields "CANONICAL,Feature,Consequence" \
+    --warning_file "data/logs/vep_warn_${1}.txt" \
+    --allow_non_variant \
+    --dont_skip \
 | filter_vep \
     --filter "CANONICAL is YES" \
     --filter "Consequence regex synonymous|missense|stop_gained" \
     --only_matched \
-| bcftools +split-vep -c - -d \
-| bcftools annotate \
-    --set-id "%Feature" \
+| bcftools +split-vep -c - -d -Ou \
+| bcftools annotate --set-id "%Feature" -Ou \
 | bcftools annotate -x "^INFO/Consequence" -o $FILE_OUT
