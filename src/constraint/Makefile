@@ -10,8 +10,9 @@ gene_lists = data/final/gene_list_all.txt \
 			 data/final/gene_list_start_proximal_constrained.txt \
 			 data/final/gene_list_long_exon_constrained.txt \
              data/final/gene_list_distal_constrained.txt \
-
+			 
 all : data/interim/observed_variants_counts_regions_cov_20.tsv \
+      data/final/expected_variants_all_regions.tsv \
       $(gene_lists) \
       data/plots/constraint/venn.png \
 
@@ -20,6 +21,12 @@ data/interim/observed_variants_counts_regions_cov_20.tsv : data/interim/cds_all_
                                                            src/constraint/observed_variants_counts_and_mutability.py
 	source activate ukb
 	python3 -m src.constraint.observed_variants_counts_and_mutability --coverage 20
+
+# Get expected variants for all regions
+data/final/expected_variants_all_regions.tsv : data/interim/observed_variants_counts_regions_cov_20.tsv \
+                                               src/constraint/expected_variants.py
+	source activate ukb
+	python3 -m src.constraint.expected_variants
 
 # Quantify constraint statistics
 
