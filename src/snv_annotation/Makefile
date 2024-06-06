@@ -9,14 +9,14 @@ gnomad_coverage = data/interim/gnomad_v4.1_median_coverage.tsv.gz \
 
 vep_vcf = data/interim/cds_all_possible_snvs_vep.vcf.gz \
           data/interim/cds_all_possible_snvs_vep.vcf.gz.tbi \
-		  data/manual/header_lines_vep_consequence.txt \
+          data/manual/header_lines_vep_consequence.txt \
 
 gnomad_tsv = data/manual/header_lines_gnomad.txt \
              data/interim/gnomad_v4.1_pass_snvs.tsv.gz \
 
 snvs_annotated = data/interim/cds_all_possible_snvs_annotated.tsv.gz \
                  data/interim/cds_all_possible_snvs_annotated.tsv.gz.tbi \
-				 data/logs/annotate_snvs.log \
+                 data/logs/annotate_snvs.log \
 
 test : $(gnomad_coverage)
 

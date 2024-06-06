@@ -48,7 +48,8 @@ data/interim/cds_all_possible_snvs_vep.tsv.gz : data/interim/cds_all_possible_sn
 	source activate vep
 	bash src/snvs/vep_all_snvs_submit.sh
 	# Run from the CSF login node
-	# This takes about 3 hours, if all jobs run immediately.
+	# Higher --buffer-size or --forks risk out-of-memory errors
+	# This takes about 5 hours, if all jobs run immediately
 
 # Log some key statistics from the SNV annotation pipeline.
 data/logs/all_possible_snvs.log : src/snvs/logging_submit.sh \
