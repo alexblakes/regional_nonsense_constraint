@@ -144,11 +144,11 @@ def main():
         adjustText.adjust_text(
             annots,
             ax=ax,
-            expand=(1.1, 1.4),
+            expand=(1.1, 1.2),
             time_lim=3,
             expand_axes=False,
             only_move="x+y",
-            avoid_self=False,
+            avoid_self=True,
             arrowprops=dict(arrowstyle="-", linewidth=0.5),
         )
 
