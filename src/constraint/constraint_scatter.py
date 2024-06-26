@@ -47,7 +47,7 @@ def main():
     # Filter data
     df = df.dropna(subset="p")
     df = df[df["syn_p"] >= stats.norm.cdf(-1)]
-    df = df[df["n_exp"] >= 6]
+    df = df[df["n_exp"] >= 5]
 
     # Annotate with gene symbols
     gene_ids = pd.read_csv(
