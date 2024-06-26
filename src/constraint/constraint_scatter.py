@@ -94,8 +94,8 @@ def main():
 
     # Create plots
     for ax, (xlabel, ylabel) in zip(axs, subsets):
-        ax.set_xlabel(f"O/E\n{region_dict[xlabel]}")
-        ax.set_ylabel(f"O/E\n{region_dict[ylabel]}")
+        ax.set_xlabel(f"O/E upper 95% CI\n{region_dict[xlabel]}")
+        ax.set_ylabel(f"O/E upper 95% CI\n{region_dict[ylabel]}")
         ax.label_outer()
 
         if xlabel == ylabel:
