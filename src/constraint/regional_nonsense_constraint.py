@@ -4,15 +4,15 @@ import logging
 from pathlib import Path
 
 import pandas as pd
+from scipy import stats
 
 import src
-from src import constants as C
 
 _FILE_IN = "data/final/regional_constraint_stats.tsv"
 _FILE_OUT = "data/final/regional_nonsense_constraint.tsv"
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
-_SYN_Z = -1
-_OE = 0.35
+_SYN_P = stats.norm.cdf(-1) # One-sided P value threshold for values within 1 SD.
+_OE_CI_HI = 0.6
 _FDR_P = 0.05
 _P = 0.05
 _OBS = 1
@@ -20,18 +20,15 @@ _OBS = 1
 logger = logging.getLogger(__name__)
 
 
-def get_synonymous_z_scores(df):
-    """Add synonymous z scores to nonsense constraint data.
-
-    Return nonsense constraint data only.
-    """
+def get_synonymous_p_vals(df):
+    """Add synonymous p values to nonsense constraint data."""
 
     # Get synonymous and nonsense variants
-    syn = df[df.csq == "synonymous_variant"].copy().rename(columns={"z": "syn_z"})
+    syn = df[df.csq == "synonymous_variant"].copy().rename(columns={"p": "syn_p"})
     stop = df[df.csq == "stop_gained"].copy()
 
     # Annotate nonsense constraint data with synonymous z scores
-    stop = stop.merge(syn[["enst", "region", "syn_z"]], how="inner")
+    stop = stop.merge(syn[["enst", "region", "syn_p"]], how="inner")
 
     return stop
 
@@ -40,8 +37,8 @@ def assign_constraint_label(df):
     """Label constrained and unconstrained regions."""
 
     # Filtering masks
-    m1 = df["oe"] < _OE
-    m2 = df["syn_z"] >= _SYN_Z
+    m1 = df["oe_ci_hi"] < _OE_CI_HI
+    m2 = df["syn_p"] >= _SYN_P
     m3 = df["fdr_p"] < _FDR_P
 
     m4 = df["p"] >= _P
@@ -65,7 +62,7 @@ def main():
     # Read the data
     df = (
         pd.read_csv(_FILE_IN, sep="\t")
-        .pipe(get_synonymous_z_scores)
+        .pipe(get_synonymous_p_vals)
         .pipe(assign_constraint_label)
     )
 

@@ -4,10 +4,9 @@ import logging
 from pathlib import Path
 
 import pandas as pd
-import numpy as np
-from statsmodels.stats.proportion import proportions_ztest
-from statsmodels.stats.proportion import proportions_chisquare
+from scipy.stats import binomtest
 from statsmodels.stats.multitest import fdrcorrection as fdr
+from tqdm import tqdm
 
 import src
 from src import constants as C
@@ -23,40 +22,20 @@ _CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
 logger = logging.getLogger(__name__)
 
 
-def per_row_ztest(row):
-    """Calculate one-sided z test row-wise"""
+def per_row_binom_test(row):
+    """Perform the binomial test per row."""
 
-    stat = proportions_ztest(
-        count=row["n_obs"],
-        nobs=row["n_pos"],
-        value=row["prop_exp"],
-        alternative="two-sided",
-        prop_var=row["prop_exp"],
-    )
+    try:
+        result = binomtest(row["n_obs"], row["n_pos"], row["prop_exp"], alternative="less")
+        p = result.pvalue
 
-    return stat
+        # Get upper confidence interval of O/E value
+        oe_ci_hi = (result.proportion_ci().high * row["n_pos"]) / row["n_exp"]
 
-
-def per_row_chisquare(row):
-    """Calculate chi-square goodness of fit test for proportions row-wise."""
-
-    if row["n_exp"] >= 5:  # Condition for X2 goodness of fit
-        chi2, p, table = proportions_chisquare(
-            count=row["n_obs"],
-            nobs=row["n_pos"],
-            value=row["prop_exp"],
-        )
-
-        z = np.sqrt(chi2)  # Equivalent to two-sided z test
-
-        # Negative z scores where O/E < 1
-        if row["oe"] < 1:
-            z = z * -1
-
-        return chi2, z, p
-
-    pass
-
+        return p, oe_ci_hi
+    
+    except: 
+        pass
 
 def fdr_adjustment(df, region, csq):
     """Get FDR-adjusted P-values for a given region and variant consequence."""
@@ -97,22 +76,24 @@ def main():
     """Run as script."""
 
     # Read variant and mutability data
-    df = pd.read_csv(_FILE_IN, sep="\t")
-
-    # Get chi squared scores, z scores, and unadjusted p values
-    logger.info(
-        "Running Chi squared goodness of fit tests per region and consequence type."
+    df = pd.read_csv(
+        _FILE_IN,
+        sep="\t",
+        # nrows=10000, #! Testing
     )
 
-    chi2 = df.apply(per_row_chisquare, axis=1, result_type="expand").set_axis(
-        ["chi2", "z", "p"], axis=1
+    # Get binomial p value and upper limit of O/E 95% CI
+    logger.info("Running binomial tests per region and consequence type.")
+    tqdm.pandas(desc="Per-row binomial tests.")
+    binom_stat = df.progress_apply(per_row_binom_test, axis=1, result_type="expand").set_axis(
+        ["p", "oe_ci_hi"], axis=1
     )
 
-    df = pd.concat([df, chi2], axis=1)
+    df = pd.concat([df, binom_stat], axis=1)
 
-    logger.info(f"Valid chi squared statistics: {df.chi2.count()}")
+    logger.info(f"Valid statistics: {df.p.count()}")
     logger.info(
-        f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).chi2.count()}"
+        f"Available constraint statistics by region and csq:\n{df.groupby(['region', 'csq']).p.count()}"
     )
 
     # FDR adjustment.

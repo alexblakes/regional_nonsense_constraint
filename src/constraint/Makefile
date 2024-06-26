@@ -2,7 +2,6 @@
 .PHONY : all
 
 SHELL = bash
-CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 gene_lists = data/final/gene_list_all.txt \
 			 data/final/gene_list_gnomad_constrained.txt \
@@ -42,6 +41,7 @@ data/final/regional_constraint_stats.tsv : data/final/expected_variants_all_regi
                                            src/constraint/constraint_statistics.py
 	source activate ukb
 	python3 -m src.constraint.constraint_statistics
+	# Takes about 20 minutes to run
 
 # Quantify regional nonsense constraint
 data/final/regional_nonsense_constraint.tsv : data/final/regional_constraint_stats.tsv \
