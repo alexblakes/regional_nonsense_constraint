@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 
 import pandas as pd
+from scipy import stats
 import matplotlib.pyplot as plt
 import adjustText
 
@@ -34,18 +35,19 @@ def main():
             "region",
             "n_exp",
             "oe",
-            "z",
+            "oe_ci_hi",
+            "p",
             "pli",
             "loeuf",
-            "syn_z",
+            "syn_p",
             "constraint",
         ],
     )
 
     # Filter data
-    df = df.dropna(subset="z")
-    df = df[df["syn_z"] > -1]
-    df = df[df["n_exp"] >= 5]
+    df = df.dropna(subset="p")
+    df = df[df["syn_p"] >= stats.norm.cdf(-1)]
+    df = df[df["n_exp"] >= 6]
 
     # Annotate with gene symbols
     gene_ids = pd.read_csv(
@@ -62,7 +64,7 @@ def main():
         df.pivot(
             index=["enst", "symbol"],
             columns="region",
-            values=["constraint", "oe"],
+            values=["constraint", "oe_ci_hi"],
         )
         .reorder_levels([1, 0], axis=1)
         .sort_index(axis=1)
@@ -102,8 +104,8 @@ def main():
         # Keep only relevant columns
         x_constraint = xlabel + "_constraint"
         y_constraint = ylabel + "_constraint"
-        x_oe = xlabel + "_oe"
-        y_oe = ylabel + "_oe"
+        x_oe = xlabel + "_oe_ci_hi"
+        y_oe = ylabel + "_oe_ci_hi"
 
         data = df[[x_constraint, x_oe, y_constraint, y_oe]].copy().reset_index("symbol")
 
@@ -135,15 +137,18 @@ def main():
                     y=row[y_oe],
                     s=row["symbol"],
                     ha="left",
-                    va="bottom",
+                    va="top",
                     size=7,
                 )
             )
         adjustText.adjust_text(
             annots,
             ax=ax,
-            expand=(1.2, 1.3),
-            avoid_self=True,
+            expand=(1.1, 1.4),
+            time_lim=3,
+            expand_axes=False,
+            only_move="x+y",
+            avoid_self=False,
             arrowprops=dict(arrowstyle="-", linewidth=0.5),
         )
 
