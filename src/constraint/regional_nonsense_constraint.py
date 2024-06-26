@@ -4,14 +4,13 @@ import logging
 from pathlib import Path
 
 import pandas as pd
-from scipy import stats
 
 import src
 
 _FILE_IN = "data/final/regional_constraint_stats.tsv"
 _FILE_OUT = "data/final/regional_nonsense_constraint.tsv"
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
-_SYN_P = stats.norm.cdf(-1) # One-sided P value threshold for values within 1 SD.
+_SYN_P = 0.05 # One-sided P value threshold for synonymous variants
 _OE_CI_HI = 0.6
 _FDR_P = 0.05
 _P = 0.05
