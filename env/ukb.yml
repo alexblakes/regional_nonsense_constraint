@@ -28,8 +28,8 @@ dependencies:
   - brotli-bin=1.0.9
   - brotlipy=0.7.0
   - c-ares=1.23.0
-  - ca-certificates=2024.2.2
-  - certifi=2024.2.2
+  - ca-certificates=2024.6.2
+  - certifi=2024.6.2
   - cffi=1.15.1
   - chardet=4.0.0
   - click=8.1.7
