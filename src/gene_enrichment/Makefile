@@ -2,20 +2,19 @@
 .PHONY : all
 
 SHELL = /bin/bash
-CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 gene_lists = data/final/gene_list_all.txt \
 			 data/final/gene_list_gnomad_constrained.txt \
 			 data/final/gene_list_nmd_target_constrained.txt \
 			 data/final/gene_list_start_proximal_constrained.txt \
 			 data/final/gene_list_long_exon_constrained.txt \
-             data/final/gene_list_distal_constrained.txt
+             data/final/gene_list_distal_constrained.txt \
 
 constrained_gene_lists = data/final/gene_list_gnomad_constrained.txt \
                          data/final/gene_list_nmd_target_constrained.txt \
 						 data/final/gene_list_start_proximal_constrained.txt \
 						 data/final/gene_list_long_exon_constrained.txt \
-						 data/final/gene_list_distal_constrained.txt
+						 data/final/gene_list_distal_constrained.txt \
 
 ora_stats = data/statistics/ora_distal.tsv \
             data/statistics/ora_long_exon.tsv \
@@ -41,7 +40,7 @@ all : data/final/gene_list_combined_gprofiler.txt \
 	#   $(enrichment_plots) \
 
 # Combine gene lists for gProfiler web tool
-data/final/gene_list_combined_gprofiler.txt :
+data/final/gene_list_combined_gprofiler.txt : $(constrained_gene_lists)
 	awk 'FNR==1 {print ">" FILENAME;} {print $0}' $(constrained_gene_lists) \
 		> data/final/gene_list_combined_gprofiler.txt
 
@@ -57,4 +56,5 @@ $(ora_stats) &: src/gene_enrichment/webgestalt.R
 # # Plot gene set enrichment figures
 # $(enrichment_plots) : src/gene_enrichment/gse_plots.py \
 #                       data/statistics/gene_set_enrichment.tsv
+# 	source activate ukb
 # 	python3 -m src.gene_enrichment.gse_plots

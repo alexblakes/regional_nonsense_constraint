@@ -16,7 +16,7 @@ REGIONS = [
     "nmd_target",
     "start_proximal",
     "long_exon",
-    "distal",
+    "distal_nmd",
 ]
 REGION_LABELS = [
     "Whole transcript",
@@ -25,6 +25,7 @@ REGION_LABELS = [
     "Long exon",
     "Distal",
 ]
+CSQS = ["synonymous_variant","missense_variant","stop_gained"]
 MAPS_CONSEQUENCES = [
     "synonymous_variant",
     "missense_variant",
@@ -32,21 +33,17 @@ MAPS_CONSEQUENCES = [
     "nmd_target",
     "start_proximal",
     "long_exon",
-    "distal",
-][
-    ::-1
-]  # Reversed for plotting
+    "distal_nmd",
+]
 MAPS_LABELS = [
-    "Synonymous",
-    "Missense",
+    "Synonymous (Whole transcript)",
+    "Missense (Whole transcript)",
     "Nonsense (Whole transcript)",
     "Nonsense (NMD target)",
     "Nonsense (Start proximal)",
     "Nonsense (Long exon)",
     "Nonsense (Distal)",
-][
-    ::-1
-]  # Reversed for plotting
+]
 
 ## Plotting
 CM = 1 / 2.54  # cm to inches conversion
@@ -97,7 +94,6 @@ PHYLOP_BW = f"{RAW}/hg38.cactus241way.phyloP.bw"
 
 ### Interim
 ALPHA_MISSENSE_TIDY = f"{INTERIM}/alpha_missense_tidy.tsv"
-CADD_ANNOTATED = f"{INTERIM}/cadd_scores_coding_annotated.tsv"
 CANONICAL_CDS_BED = f"{INTERIM}/gencode_v39_canonical_cds.bed"
 CANONICAL_CDS_FASTA = f"{INTERIM}/gencode_v39_canonical_cds_seq.tsv"
 CDS_ALL_SNVS_TRI_CONTEXT = f"{INTERIM}/cds_trinucleotide_contexts.tsv"

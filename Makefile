@@ -1,55 +1,19 @@
 .ONESHELL:
-.PHONY: downloads fast medium slow notebooks regions constraint cadd go clinvar all
+.PHONY: downloads \
+        regions \
+		constraint \
+		maps \
+		cadd \
+		go \
+		clinvar \
+		notebooks \
+		all \
+		# gene_enrichment \
 
 SHELL = /bin/bash
-CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
 downloads: 
 	make -f data/raw/Makefile all
-
-fast : data/interim/gencode_v39_canonical_cds.bed \
-       data/interim/gencode_v39_canonical_cds_seq.tsv \
-	   data/interim/mutation_rate_by_context_methyl_tidy.tsv \
-	   data/interim/observed_variants_counts_regions_cov_20_clean.tsv \
-	   data/final/expected_variants_all_regions.tsv \
-	   data/final/regional_constraint_stats.tsv \
-	   data/final/regional_nonsense_constraint.tsv \
-	   data/interim/proportion_singletons_synonymous_by_context.tsv \
-	   data/interim/proportion_singletons_by_csq.tsv \
-	   data/interim/genemap2_parsed.tsv \
-	   data/interim/genemap2_simple.tsv \
-	   data/interim/clinvar_variants_selected.tsv \
-	   data/interim/clinvar_variants_selected.vcf \
-	   data/interim/clinvar_variants_vep_tidy.tsv \
-
-medium : data/interim/cds_counts_and_coords.tsv \
-         data/interim/gene_ids.tsv \
-         data/interim/nmd_annotations.tsv \
-	     data/interim/cds_all_possible_snvs.vcf \
-	     data/interim/cds_trinucleotide_contexts.tsv \
-		 data/interim/cds_all_possible_snvs_vep_tidy.tsv \
-		 data/interim/gnomad_v4_pass_snvs.tsv \
-		 data/interim/observed_variants_counts_regions_cov_20.tsv \
-		 data/interim/observed_variants_counts_synonymous_cov_20.tsv \
-		 data/interim/pext_37.bed \
-		 data/interim/pext_38.bed \
-		 data/interim/phylop_cds_sites.tsv \
-		 data/interim/alpha_missense_tidy.tsv \
-		 data/interim/cds_sites_phylop_pext_missense.tsv \
-		 data/final/phylop_pext_missense_annotations_stats.tsv \
-		 data/interim/clinvar_variants_vep.tsv \
-		 data/interim/clinvar_variants_lof_with_nmd_annotation.tsv \
-
-slow : data/interim/vep_all_snvs/out_29.tsv \
-       data/final/all_variants_merged_annotations.tsv \
-
-notebooks :
-	# Expectation model choices
-	for N in 0 10 20 30 ; do \
-		papermill notebooks/01_expectation_model_choices.ipynb \
-		notebooks/01_expectation_model_choices.ipynb \
-		-p coverage $$N ; \
-	done
 
 regions :
 	make -f src/regions/Makefile all
@@ -63,15 +27,14 @@ roulette :
 snv_annotation :
 	make -f src/snv_annotation/Makefile all
 
-constraint:
+constraint :
 	make -f src/constraint/Makefile all
+
+maps :
+	make -f src/maps/Makefile all
 
 cadd : 
 	make -f src/cadd/Makefile all
-
-gene_enrichment :
-	# Run this from the CSF; it requires API access to gProfiler
-	make -f src/gene_enrichment/Makefile all
 
 clinvar :
 	make -f src/clinvar/Makefile all
@@ -88,30 +51,30 @@ statistics :
 figures :
 	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
+notebooks :
+	# Expectation model choices
+	for N in 0 10 20 30 ; do \
+		papermill notebooks/01_expectation_model_choices.ipynb \
+		notebooks/01_expectation_model_choices.ipynb \
+		-p coverage $$N ; \
+	done
+
+# gene_enrichment :
+# 	# Run this from the CSF; it requires API access to gProfiler
+# 	make -f src/gene_enrichment/Makefile all
+
 all : downloads \
 	  regions \
 	  snvs \
 	  roulette \
 	  snv_annotation \
 	  constraint \
+	  maps \
 	  cadd \
-	  gene_enrichment \
 	  clinvar \
 	  statistics \
 	  figures \
-
-### MAPS
-
-# Get proportion of singletons for synonymous variant contexts
-data/interim/proportion_singletons_synonymous_by_context.tsv : data/final/all_variants_merged_annotations.tsv \
-                                                               src/constraint/proportion_singletons_syn_contexts.py
-	python3 -m src.constraint.proportion_singletons_syn_contexts
-
-# Get proportion singletons for all variant consequences
-data/interim/proportion_singletons_by_csq.tsv : data/final/all_variants_merged_annotations.tsv \
-                                                src/constraint/proportion_singletons_syn_contexts.py \
-                                                src/constraint/proportion_singletons_all_csqs.py
-	python3 -m src.constraint.proportion_singletons_all_csqs
+      # gene_enrichment \
 
 ### ORTHOGONAL METRICS
 

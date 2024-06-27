@@ -1,6 +1,5 @@
 """Plot CADD score summary data."""
 
-# Imports
 import itertools
 import logging
 from pathlib import Path
@@ -13,7 +12,9 @@ import src
 from src import constants as C
 from src import visualisation as vis
 
-# Module constants
+_FILE_IN = "data/interim/cadd_scores_coding_annotated.tsv"
+_SVG = "data/plots/cadd_violins.svg"
+_PNG = "data/plots/cadd_violins.png"
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _PALETTE = vis.color_palette("regions")[::-1]
 _CSQS = ["Synonymous", "Missense", "Nonsense"]
@@ -23,13 +24,10 @@ _REGION_LABELS = ["Whole CDS", "NMD target", "Start proximal", "Long exon", "Dis
     ::-1
 ]  # Reversed for plotting
 
-
-# Logging
 logger = logging.getLogger(__name__)
 
 
-# Functions
-def read_data(path):
+def read_data(path=_FILE_IN):
     return pd.read_csv(
         path,
         sep="\t",
@@ -127,7 +125,11 @@ def main():
     """Run as script."""
 
     # Process the data
-    df = read_data(C.CADD_ANNOTATED).pipe(tidy_data).pipe(get_whole_cds_data)
+    df = read_data().pipe(tidy_data).pipe(get_whole_cds_data)
+
+    # Set plot style
+    plt.style.use(C.STYLE_DEFAULT)
+    plt.style.use(C.COLOR_REGIONS)
 
     # Instantiate the figure
     fig, axs = plt.subplots(
@@ -181,8 +183,8 @@ def main():
         ax.set_xlim(30, 45)
 
     # Save figure
-    plt.savefig("data/plots/cadd_violins.svg")
-    plt.savefig("data/plots/cadd_violins.png", dpi=600)
+    plt.savefig(_SVG)
+    plt.savefig(_PNG, dpi=600)
     plt.close()
 
     return df
@@ -190,6 +192,4 @@ def main():
 
 if __name__ == "__main__":
     logger = src.setup_logger(_LOGFILE)
-    plt.style.use(C.STYLE_DEFAULT)
-    plt.style.use(C.COLOR_REGIONS)
     main()

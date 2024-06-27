@@ -1,131 +1,133 @@
 """MAPS calculation."""
 
-# Imports
+import logging
 from pathlib import Path
 
 import numpy as np
-from numpy.polynomial import Polynomial as P
 import pandas as pd
 
-from src import setup_logger
-from src import constants as C
+import src
 
-# Module constants
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_FILE_IN = "data/interim/maps_snvs_filtered.tsv"
+_FILE_OUT = "data/interim/maps.tsv"
+_USECOLS = ["csq", "region", "ac", "mu_scaled"]
+_DTYPES = {
+    "csq": "category",
+    "region": "category",
+    "ac": np.float32,
+    "mu_scaled": np.float32,
+}
 
-
-# Logging
-logger = setup_logger(Path(__file__).stem)
-
-
-# Functions
-def maps_model(mu, ps, n_obs, deg=1):
-    """Fit a polynomial regression to PS vs mu for synonymous contexts.
-
-    See notebooks/02_maps_model_choices.ipynb for further information.
-
-    Args:
-        deg (optional, int): Degree of the polynomial, passed to np.Polynomial.fit().
-            Defaults to 1.
-    """
-
-    p = P.fit(mu, ps, w=n_obs, deg=deg)
-
-    logger.info(f"Polynomial expression: {p}")
-
-    return p
+logger = logging.getLogger(__name__)
 
 
-def maps(p, df, transform=False):
-    """Calculate MAPS and confidence intervals.
-
-    Args:
-        polynomial (np.Polynomial): Polynomial object to predict PS.
-        df (DataFrame): Dataframe containing the following columns:
-            "mu" (Float): Mutability
-            "ps" (Float): Proportion of singeltons
-            "n_obs" (Int): Number of observed variants
-        transform (optional, str): Type of transformation. Options:
-            "log_ps": Log transformation of "ps"
-            "sqrt_mu": Square root transformation of "mu"
-
-    """
-    if not transform in [False, "log_ps", "sqrt_mu"]:
-        raise ValueError(
-            "Incorrect value for transform. Expected one of: 'log_ps', 'sqrt_mu'."
-        )
-
-    if transform == "log_ps":
-        df["ps_pred"] = np.exp(p(df["mu"]))
-
-    if transform == "sqrt_mu":
-        df["ps_pred"] = p(np.sqrt(df["mu"]))
-
-    if not transform:
-        df["ps_pred"] = p(df["mu"])
-
-    df["maps"] = df["ps"] - df["ps_pred"]
-    df["se"] = np.sqrt((df["ps"] * (1 - df["ps"])) / df["n_obs"])
-    df["ci95"] = 1.96 * df["se"]
+def read_data(path=_FILE_IN):
+    df = pd.read_csv(
+        path,
+        sep="\t",
+        na_values=".",
+        header=0,
+        usecols=_USECOLS,
+        dtype=_DTYPES,
+        # nrows=10000,
+    )
 
     return df
 
 
-def weighted_average(x1, x2, w1, w2):
-    return np.average([x1, x2], weights=[w1, w2], axis=0)
+def get_ps(df, grouping="mu_scaled", mu="mu_scaled"):
+    """Get proportion of singletons."""
 
+    grouped = df.groupby(grouping)
 
-def combine_non_cpg_and_cpg_data(non_cpg, cpg):
-    joint = pd.concat([non_cpg, cpg]).reset_index()
-
-    weighted_mean = lambda x: np.average(x, weights=joint.loc[x.index, "n_obs"])
-
-    joint = joint.groupby("csq").agg(
-        mu = ("mu", weighted_mean),
-        n_singletons = ("n_singletons", "sum"),
-        n_obs = ("n_obs", "sum"),
-        ps = ("ps", weighted_mean),
-        ps_pred = ("ps_pred", weighted_mean),
-        maps = ("maps", weighted_mean),
+    ps = (
+        grouped.agg(
+            n_variants=("ac", "count"),
+            n_singletons=("ac", lambda x: (x == 1).sum()),
+            mu=(mu, "mean"),
+        )
+        .assign(ps=lambda x: x["n_singletons"] / x["n_variants"])
+        .reset_index(drop=False)
     )
 
-    joint["se"] = np.sqrt((joint["ps"] * (1 - joint["ps"])) / joint["n_obs"])
-    joint["ci95"] = 1.96 * joint["se"]
+    return ps
 
-    logger.info(f"MAPS scores:\n{joint.maps}")
-    
-    return joint
+
+def fit_lm(df, weighted=True, **kwargs):
+    """Fit a polynomial to proportion singletons vs mutation rate."""
+
+    kwargs.setdefault("deg", 1)
+
+    x = df["mu"]
+    y = df["ps"]
+
+    if weighted:
+        kwargs.setdefault("w", df["n_variants"])
+
+    z = np.polyfit(x, y, **kwargs)
+
+    return np.poly1d(z)
+
+
+def pred_ps(df, poly1d):
+    """Find the expected proportion of singletons for a given mutation rate."""
+
+    if not poly1d:
+        # For modelling synonymous variants
+        poly1d = fit_lm(df)
+
+    df["pred_ps"] = poly1d(df["mu"])
+
+    return df
+
+
+def get_maps(df):
+    df["maps"] = df["ps"] - df["pred_ps"]
+    return df
+
+
+def get_confidence_interval(df):
+    df["ci95"] = 1.96 * np.sqrt((df["ps"] * (1 - df["ps"])) / df["n_variants"])
+    return df
 
 
 def main():
     """Run as script."""
 
-    # Read synonymous contexts
-    syn = pd.read_csv(C.PS_SYN_CONTEXT, sep="\t").query("n_singletons > 0")
+    df = read_data()
 
-    # Split synonymous contexts into non-CpG and CpG
-    syn_non = syn[syn.variant_type == "non-CpG"].copy()
-    syn_cpg = syn[syn.variant_type == "CpG"].copy()
+    # Subset to synonymous variants only
+    syn = df[df["csq"] == "synonymous_variant"].copy()
 
-    # Get a polynomial object for predicting proportion of singletons
-    non_p = maps_model(np.sqrt(syn_non.mu), syn_non.ps, syn_non.n_obs)
-    cpg_p = maps_model(np.sqrt(syn_cpg.mu), syn_cpg.ps, syn_cpg.n_obs)
+    # Fit a linear model of PS ~ mu for synonymous variants
+    # See related notebook for details
+    p = syn.pipe(get_ps).pipe(fit_lm, weighted=True)
 
-    # Get proportion of singletons for consequences in CpG and non-CpG contexts
-    non = pd.read_csv(C.PS_REGIONS_NON_CPG, sep="\t")
-    cpg = pd.read_csv(C.PS_REGIONS_CPG, sep="\t")
+    # Calculate MAPS at the transcript level and regional level
+    transcript = (
+        get_ps(df, grouping="csq")
+        .pipe(pred_ps, poly1d=p)
+        .pipe(get_maps)
+        .pipe(get_confidence_interval)
+        .assign(region="transcript")
+    )
+    region = (
+        get_ps(df, grouping=["csq", "region"])
+        .pipe(pred_ps, poly1d=p)
+        .pipe(get_maps)
+        .pipe(get_confidence_interval)
+    )
 
-    # # Calculate MAPS
-    non = maps(non_p, non, transform="sqrt_mu")
-    cpg = maps(cpg_p, cpg, transform="sqrt_mu")
-
-    # Combine non-CpG and CpG data
-    joint = combine_non_cpg_and_cpg_data(non, cpg)
+    # Combine the transcript- and region-level results
+    maps = pd.concat([transcript, region]).sort_values(["csq", "region"])
 
     # Write to output
-    joint.to_csv(C.MAPS, sep="\t")
+    maps.to_csv(_FILE_OUT, sep="\t", index=False)
 
-    return joint  #! Testing
+    return maps
 
 
 if __name__ == "__main__":
-    joint = main()
+    logger = src.setup_logger(_LOGFILE)
+    main()
