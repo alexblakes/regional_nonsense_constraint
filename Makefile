@@ -1,13 +1,17 @@
 .ONESHELL:
 .PHONY: downloads \
         regions \
+		snvs \
+		roulette \
+		snv_annotation \
 		constraint \
 		maps \
 		cadd \
-		go \
 		clinvar \
+		orthogonal_metrics \
 		notebooks \
 		all \
+		# go \
 		# gene_enrichment \
 
 SHELL = /bin/bash
@@ -38,6 +42,9 @@ cadd :
 
 clinvar :
 	make -f src/clinvar/Makefile all
+
+orthogonal_metrics :
+	make -f src/orthogonal_metrics/Makefile all
 
 
 statistics : 
@@ -72,6 +79,7 @@ all : downloads \
 	  maps \
 	  cadd \
 	  clinvar \
+	  orthogonal_metrics \
 	  statistics \
 	  figures \
       # gene_enrichment \

@@ -16,7 +16,7 @@ from src.clinvar.annotate_with_constraint import read_clinvar
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _FILE_IN = "data/interim/clinvar_variants_constraint.tsv"
 _ACMG_DICT = {"P": "P/LP", "LP": "P/LP", "B": "B/LB", "LB": "B/LB"}
-_FIG_OUT = "data/plots/clinvar_acmg"
+_FIG_OUT = "data/plots/clinvar/clinvar_acmg"
 
 logger = logging.getLogger(__name__)
 

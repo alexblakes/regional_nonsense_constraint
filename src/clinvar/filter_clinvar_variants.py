@@ -36,7 +36,7 @@ _NAMES = [
     "alt",
     "review",
 ]
-_CHROMS = ["chr" + str(x) for x in list(range(1, 23))] + ["chrX", "chrY"]
+_CHROMS = ["chr" + str(x) for x in list(range(1, 23))] # Autosomes and major contigs only
 _NULL_REVIEW = [
     "no assertion",
     "no interpretation",
@@ -218,4 +218,4 @@ def main():
 
 if __name__ == "__main__":
     logger = src.setup_logger(_LOGFILE)
-    clinvar = main()
+    main()

@@ -6,4 +6,5 @@
 
 # Except for these files
 !.gitignore
+!clinvar/
 !figures/
