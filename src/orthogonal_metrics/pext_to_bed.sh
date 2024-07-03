@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LOG="$(basename $0 .sh).log"
+LOG="data/logs/$(basename $0 .sh).log"
 FILE_IN=data/raw/all.baselevel.021620.tsv
 FILE_OUT=data/interim/pext_37.bed
 

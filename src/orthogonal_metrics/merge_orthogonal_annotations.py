@@ -1,25 +1,26 @@
 """Merge NMD, phyloP, AlphaMissense, and pext annotations."""
 
-# Imports
 import logging
 from pathlib import Path
 
 import pandas as pd
 
 import src
-from src import constants as C
 
-
-# Module constants
-_METRICS = ["phylop", "pext", "alpha_mis"]
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_NMD = "data/interim/nmd_annotations.tsv"
+_PHYLOP = "data/interim/phylop_cds_sites.tsv"
+_PEXT = "data/interim/pext_38.bed"
+_GENE_IDS = "data/interim/canonical_gene_ids.txt"
+_ALPHA_MIS = "data/interim/alpha_missense_tidy.tsv"
+_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
+_FILE_OUT = "data/interim/cds_sites_phylop_pext_missense.tsv"
+_STATS_OUT = "data/final/phylop_pext_missense_annotations_stats.tsv"
+_METRICS = ["phylop", "pext", "alpha_mis"]
 
-
-# Logging
 logger = logging.getLogger(__name__)
 
 
-# Functions
 def read_nmd_annotations(path, **kwargs):
     """Get per-site NMD annotations."""
 
@@ -160,12 +161,12 @@ def combine_mean_scores_across_groups(df, annotation):
 def main():
     """Run as script."""
 
-    nmd = read_nmd_annotations(C.NMD_ANNOTATIONS)
-    phylop = read_phylop_annotations(C.PHYLOP_CDS_SCORES)
-    pext = read_pext_annotations(C.PEXT_BED_38)
-    ids = read_gene_ids(C.CANONICAL_CDS_GENE_IDS)
-    am = read_alpha_missense(C.ALPHA_MISSENSE_TIDY)
-    constraint = read_regional_nonsense_constraint(C.REGIONAL_NONSENSE_CONSTRAINT)
+    nmd = read_nmd_annotations(_NMD)
+    phylop = read_phylop_annotations(_PHYLOP)
+    pext = read_pext_annotations(_PEXT)
+    ids = read_gene_ids(_GENE_IDS)
+    am = read_alpha_missense(_ALPHA_MIS)
+    constraint = read_regional_nonsense_constraint(_CONSTRAINT)
 
     # Merge the annotations
 
@@ -211,12 +212,12 @@ def main():
 
     # Write to output
     logger.info("Writing to output.")
-    df.to_csv(C.CDS_PHYLOP_PEXT_MISSENSE, sep="\t", index=False)
-    stats.to_csv(C.PHYLOP_PEXT_MISSENSE_STATS, sep="\t", index=False)
+    df.to_csv(_FILE_OUT, sep="\t", index=False)
+    stats.to_csv(_STATS_OUT, sep="\t", index=False)
 
     return stats  #! Testing
 
 
 if __name__ == "__main__":
-    logger = src.module_logger(_LOGFILE)
+    logger = src.setup_logger(_LOGFILE)
     main()

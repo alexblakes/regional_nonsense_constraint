@@ -1,16 +1,15 @@
-""" 
-Get the lowest Alpha Missense score per site / transcript.
-"""
+""" Get the lowest Alpha Missense score per site / transcript."""
 
-# Imports
+import logging
 from pathlib import Path
 
 import pandas as pd
 
-from src import constants as C
-from src import setup_logger
+import src
 
-# Module constants
+_FILE_IN = "data/raw/AlphaMissense_hg38.tsv"
+_FILE_OUT = "data/interim/alpha_missense_tidy.tsv"
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _NAMES = [
     "chr",
     "pos",
@@ -25,11 +24,9 @@ _NAMES = [
 ]
 _USECOLS = ["chr", "pos", "ref", "alt", "enst", "alpha_missense"]
 
-# Logging
-logger = setup_logger(Path(__file__).stem)
+logger = logging.getLogger(__name__)
 
 
-# Functions
 def read_alpha_missense(path):
     """Read Alpha Missense data."""
 
@@ -88,17 +85,17 @@ def main():
     """Run the script."""
 
     df = (
-        read_alpha_missense(C.ALPHA_MISSENSE)
+        read_alpha_missense(_FILE_IN)
         .pipe(get_lowest_score_per_site)
         .pipe(tidy_alpha_missense_scores)
     )
 
-    # Write output
     logger.info("Writing to output.")
-    df.to_csv(C.ALPHA_MISSENSE_TIDY, sep="\t", index=False)
+    df.to_csv(_FILE_OUT, sep="\t", index=False)
 
     return df  #! Testing
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     main()
