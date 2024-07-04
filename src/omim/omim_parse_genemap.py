@@ -20,22 +20,22 @@ Notes:
   output. 
 """
 
-# Imports
+import logging
 import re
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from src import setup_logger
-from src import constants as C
+import src
+
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_FILE_IN = "data/raw/genemap2.txt"
+_FILE_OUT = "data/interim/genemap2_parsed.tsv"
+
+logger = logging.getLogger(__name__)
 
 
-# Logging
-logger = setup_logger(Path(__file__).stem)
-
-
-# Functions
 def read_gm(path):
     """Read genemap2.txt file into memory"""
 
@@ -230,15 +230,16 @@ def main():
     """Run as script."""
 
     # Parse genemap2.txt file
-    gm = read_gm(C.OMIM_GENEMAP).pipe(split_phenotypes)
+    gm = read_gm(_FILE_IN).pipe(split_phenotypes)
     pheno_long = parse_long_phenotypes(gm)
     pheno_short = parse_short_phenotypes(gm, pheno_long)
     pheno = concat_phenotypes(pheno_long, pheno_short)
     gm = merge_and_tidy_genemap_phenotypes(gm, pheno)
 
     # Write to output
-    gm.to_csv(C.OMIM_GENEMAP_PARSED, sep="\t", index=False)
+    gm.to_csv(_FILE_OUT, sep="\t", index=False)
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     main()

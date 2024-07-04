@@ -45,4 +45,5 @@ data/final/phylop_pext_missense_annotations_stats.tsv : data/interim/alpha_misse
                                                         data/interim/phylop_cds_sites.tsv \
 														data/interim/pext_38.bed \
 														src/orthogonal_metrics/merge_orthogonal_annotations.py
+	source activate ukb
 	python3 -m src.orthogonal_metrics.merge_orthogonal_annotations

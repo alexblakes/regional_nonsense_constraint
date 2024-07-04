@@ -8,20 +8,20 @@ Notes:
   modes). These genes are also duplicated in the merged annotation.
 """
 
-# Imports
+import logging
 from pathlib import Path
 
 import pandas as pd
 
-from src import setup_logger
-from src import constants as C
+import src
+
+_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_FILE_IN = "data/interim/genemap2_parsed.tsv"
+_FILE_OUT = "data/interim/genemap2_simple.tsv"
+
+logger = logging.getLogger(__name__)
 
 
-# Logging
-logger = setup_logger(Path(__file__).stem)
-
-
-# Functions
 def read_parsed_genemap_data(path):
     """Read parsed genemap data to memory."""
 
@@ -88,18 +88,17 @@ def sanitise_inheritance_modes(omim):
 
 def main():
     omim = (
-        read_parsed_genemap_data(C.OMIM_GENEMAP_PARSED)
+        read_parsed_genemap_data(_FILE_IN)
         .pipe(exclude_non_disease_phenotypes)
         .pipe(sanitise_inheritance_modes)
     )
 
-    # Write to output
     logger.info("Writing to output.")
-
-    omim.to_csv(C.OMIM_GENEMAP_SIMPLE, sep="\t", index=False)
+    omim.to_csv(_FILE_OUT, sep="\t", index=False)
 
     return omim
 
 
 if __name__ == "__main__":
+    logger = src.setup_logger(_LOGFILE)
     main()

@@ -9,6 +9,7 @@
 		cadd \
 		clinvar \
 		orthogonal_metrics \
+		omim \
 		notebooks \
 		all \
 		# go \
@@ -46,6 +47,9 @@ clinvar :
 orthogonal_metrics :
 	make -f src/orthogonal_metrics/Makefile all
 
+omim :
+	make -f src/omim/Makefile all
+
 
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
@@ -80,6 +84,7 @@ all : downloads \
 	  cadd \
 	  clinvar \
 	  orthogonal_metrics \
+	  omim \
 	  statistics \
 	  figures \
       # gene_enrichment \
