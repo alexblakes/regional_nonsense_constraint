@@ -70,10 +70,6 @@ notebooks :
 		-p coverage $$N ; \
 	done
 
-# gene_enrichment :
-# 	# Run this from the CSF; it requires API access to gProfiler
-# 	make -f src/gene_enrichment/Makefile all
-
 all : downloads \
 	  regions \
 	  snvs \
@@ -87,49 +83,6 @@ all : downloads \
 	  omim \
 	  statistics \
 	  figures \
-      # gene_enrichment \
-
-### ORTHOGONAL METRICS
-
-
-### OMIM
-
-# Parse genemap2.txt data
-data/interim/genemap2_parsed.tsv : data/raw/genemap2.txt \
-                                   src/functional_clinical/omim_parse_genemap.py
-	python3 -m src.functional_clinical.omim_parse_genemap
-
-# Simplify genemap2.txt data
-data/interim/genemap2_simple.tsv : data/interim/genemap2_parsed.tsv \
-                                   src/functional_clinical/omim_simplify_genemap.py
-	python3 -m src.functional_clinical.omim_simplify_genemap
-
-### CLINVAR
-
-# Parse ClinVar summary text file
-data/interim/clinvar_variants_selected.tsv \
-data/interim/clinvar_variants_selected.vcf : data/raw/variant_summary.txt \
-                                             src/data/clinvar_variants.py
-	python3 -m src.data.clinvar_variants
-
-# VEP-annotate ClinVar variants
-data/interim/clinvar_variants_vep.tsv : data/interim/clinvar_variants_selected.vcf \
-                                        src/data/clinvar_vep.sh
-	$(CONDA_ACTIVATE) vep
-	bash src/data/clinvar_vep.sh
-	$(CONDA_ACTIVATE) ukb
-
-# Tidy VEP-annotated ClinVar variants
-data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.tsv \
-                                             src/data/clinvar_vep_tidy.py
-	python3 -m src.data.clinvar_vep_tidy
-
-# Annotate ClinVar variants with regional constraint
-data/interim/clinvar_variants_lof_with_nmd_annotation.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
-                                                            src/functional_clinical/clinvar_variants_in_constrained_regions.py
-	python3 -m src.functional_clinical.clinvar_variants_in_constrained_regions
 
 # Statistics
 
-
-# Next 

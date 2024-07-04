@@ -1,6 +1,0 @@
-[03-Jul-24 16:54:46] INFO phylop_extract_scores.py read_cds_bed(): Reading CDS bed file.
-[03-Jul-24 16:54:47] INFO phylop_extract_scores.py annotate_phylop_scores(): Dropping mitochondrial sites.
-[03-Jul-24 16:54:47] INFO phylop_extract_scores.py annotate_phylop_scores(): Annotating CDS sites with phyloP scores.
-[03-Jul-24 16:58:07] INFO phylop_extract_scores.py annotate_phylop_scores(): CDS sites with phyloP annotation: 33449627
-[03-Jul-24 16:58:33] INFO phylop_extract_scores.py annotate_phylop_scores(): Duplicated sites: 0
-[03-Jul-24 16:58:33] INFO phylop_extract_scores.py main(): Writing to output.
