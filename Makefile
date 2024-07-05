@@ -12,8 +12,6 @@
 		omim \
 		notebooks \
 		all \
-		# go \
-		# gene_enrichment \
 
 SHELL = /bin/bash
 
@@ -50,7 +48,6 @@ orthogonal_metrics :
 omim :
 	make -f src/omim/Makefile all
 
-
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
 	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb
@@ -60,7 +57,6 @@ statistics :
 	papermill src/statistics_for_plots/upset.ipynb src/statistics_for_plots/upset.ipynb
 
 figures :
-	papermill notebooks/figures/fig_01.ipynb notebooks/figures/fig_01.ipynb
 
 notebooks :
 	# Expectation model choices
@@ -83,6 +79,4 @@ all : downloads \
 	  omim \
 	  statistics \
 	  figures \
-
-# Statistics
 
