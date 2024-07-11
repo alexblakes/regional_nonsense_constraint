@@ -13,6 +13,7 @@ all : data/interim/maps_snvs_filtered.tsv \
 # Filter SNVs for MAPS
 data/interim/maps_snvs_filtered.tsv : data/interim/cds_all_possible_snvs_annotated.tsv.gz \
                                          src/maps/filter_maps_variants.sh
+	source activate vep
 	bash src/maps/filter_maps_variants.sh
 	# Takes about 2 minutes to run
 
@@ -25,4 +26,5 @@ data/interim/maps.tsv : data/interim/maps_snvs_filtered.tsv \
 # Plots MAPS
 $(plots) &: data/interim/maps.tsv \
             src/maps/plot_maps.py
+	source activate ukb
 	python3 -m src.maps.plot_maps

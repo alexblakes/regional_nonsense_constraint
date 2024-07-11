@@ -92,7 +92,7 @@ data/interim/gnomad_v4.1_pass_snvs_roulette.tsv : data/interim/gnomad_v4.1_pass_
 # Scale Roulette mutation rates
 $(scaled) &: data/interim/gnomad_v4.1_pass_snvs_roulette.tsv \
              src/roulette/submit_scaling.sh \
-			 src/roulette/add_scaled_rates.sh \
+             src/roulette/add_scaled_rates.sh \
              src/roulette/add_scaled_rates.py
 	source activate roulette
 	bash src/roulette/submit_scaling.sh

@@ -100,6 +100,8 @@ def main():
     # Subset to synonymous variants only
     syn = df[df["csq"] == "synonymous_variant"].copy()
 
+    logger.info(f"Scaled mutation rate levels: {syn['mu_scaled'].nunique()}")
+
     # Fit a linear model of PS ~ mu for synonymous variants
     # See related notebook for details
     p = syn.pipe(get_ps).pipe(fit_lm, weighted=True)
