@@ -10,6 +10,7 @@
 		clinvar \
 		orthogonal_metrics \
 		omim \
+		protein_paint \
 		notebooks \
 		all \
 
@@ -48,6 +49,9 @@ orthogonal_metrics :
 omim :
 	make -f src/omim/Makefile all
 
+protein_paint :
+	make -f src/protein_paint/Makefile all
+
 statistics : 
 	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
 	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb
@@ -77,6 +81,7 @@ all : downloads \
 	  clinvar \
 	  orthogonal_metrics \
 	  omim \
+	  protein_paint \
 	  statistics \
 	  figures \
 
