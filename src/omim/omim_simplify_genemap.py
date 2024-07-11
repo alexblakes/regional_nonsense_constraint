@@ -82,6 +82,7 @@ def sanitise_inheritance_modes(omim):
     logger.info(
         f"Unique genes in each inheritance group:\n{omim.groupby('inheritance').ensg.nunique()}"
     )
+    logger.info(f"Unique monogenic disease genes: {omim.ensg.nunique()}")
 
     return omim
 
