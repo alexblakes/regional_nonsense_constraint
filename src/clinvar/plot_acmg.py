@@ -65,6 +65,8 @@ def get_acmg_proportions(df):
     new_index = itertools.product(*index_values)
     proportions = proportions.reindex(new_index, fill_value=0)
 
+    logger.info(f"ACMG proportions:\n{proportions}")
+
     return proportions
 
 
