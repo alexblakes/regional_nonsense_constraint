@@ -16,7 +16,7 @@ venn_plots = data/plots/constraint/venn.png \
 pairplots = data/plots/constraint/region_pair_plots.png \
             data/plots/constraint/region_pair_plots.svg \
 
-all : data/interim/observed_variants_counts_regions_cov_20.tsv \
+all : data/interim/oe_stats_regions_cov_20.tsv \
       data/final/expected_variants_all_regions.tsv \
 	  data/final/regional_constraint_stats.tsv \
 	  data/final/regional_nonsense_constraint.tsv \
@@ -24,24 +24,18 @@ all : data/interim/observed_variants_counts_regions_cov_20.tsv \
       $(venn_plots) \
 	  $(pairplots) \
 
-# Get variant counts and mutation rates
-data/interim/observed_variants_counts_regions_cov_20.tsv : data/interim/cds_all_possible_snvs_annotated.tsv.gz \
-                                                           src/constraint/observed_variants_counts_and_mutability.py
+# Get variant counts and O/E statistics
+data/interim/oe_stats_regions_cov_20.tsv : data/interim/cds_all_possible_snvs_annotated.tsv.gz \
+                                           src/constraint/observed_variants_counts_and_oe_stats.py
 	source activate ukb
-	python3 -m src.constraint.observed_variants_counts_and_mutability --coverage 20
-
-# Get expected variants for all regions
-data/final/expected_variants_all_regions.tsv : data/interim/observed_variants_counts_regions_cov_20.tsv \
-                                               src/constraint/expected_variants.py
-	source activate ukb
-	python3 -m src.constraint.expected_variants
+	python3 -m src.constraint.observed_variants_counts_and_oe_stats --coverage 20
+	# Takes about 20 minutes to run
 
 # Quantify constraint statistics
-data/final/regional_constraint_stats.tsv : data/final/expected_variants_all_regions.tsv \
-                                           src/constraint/constraint_statistics.py
+data/final/regional_constraint_stats.tsv : data/interim/oe_stats_regions_cov_20.tsv \
+                                           src/constraint/get_fdrs_and_gnomad_constraint.py
 	source activate ukb
-	python3 -m src.constraint.constraint_statistics
-	# Takes about 20 minutes to run
+	python3 -m src.constraint.get_fdrs_and_gnomad_constraint
 
 # Quantify regional nonsense constraint
 data/final/regional_nonsense_constraint.tsv : data/final/regional_constraint_stats.tsv \

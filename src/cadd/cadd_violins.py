@@ -80,7 +80,7 @@ def violinh(data, ax=None, palette=_PALETTE, **kwargs):
     kwargs.setdefault("widths", 1)
     kwargs.setdefault("showmedians", False)
     kwargs.setdefault("showextrema", False)
-    kwargs.setdefault("points", 1000)
+    kwargs.setdefault("points", 300)
 
     # Use current Axes by default
     if not ax:

@@ -1,25 +1,25 @@
-"""
-Get variant counts and mean mutability for synonymous contexts and NMD regions.
+"""Get variant counts and O/E statistics by variant consequence and region.
 
-These statistics are created for rare synonymous variants, and variants in each NMD 
-region per transcript.
+Constraint statistics are only calculated using variants above a coverage level.
 """
 
 import argparse
 import logging
 from pathlib import Path
 
+from fast_poibin import PoiBin
 import numpy as np
 import pandas as pd
+from scipy import stats
+from tqdm import tqdm
 
 import src
 from src import constants as C
 
 _FILE_IN = "data/interim/cds_all_possible_snvs_annotated.tsv.gz"
-_FILE_OUT = "data/interim/observed_variants_counts_regions_cov_"
-_NAMES = "chr pos ref alt enst csq region median_coverage ac an af pent mu_roulette mu_roulette_final mu_roulette_scaled mu_gnomad".split()
+_FILE_OUT = "data/interim/oe_stats_regions_cov_"  # Suffix appended when written
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
-_DATATYPES = {
+_NAMES_DICT = {
     "chr": "category",
     "pos": "int32",
     "ref": "category",
@@ -37,6 +37,7 @@ _DATATYPES = {
     "mu_roulette_scaled": "float32",
     "mu_gnomad": "float32",
 }
+_MU = "mu_roulette_scaled"
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +50,10 @@ def get_variant_annotations(path):
     df = pd.read_csv(
         path,
         sep="\t",
-        dtype=_DATATYPES,
+        dtype=_NAMES_DICT,
         comment="#",
         header=None,
-        names=_NAMES,
+        names=_NAMES_DICT.keys(),
         na_values=".",
         # nrows=100000,  #! Testing
     )
@@ -82,7 +83,7 @@ def filter_covered_sites(df, coverage):
         logger.info(f"Observed variants: {df.obs.sum()}")
         logger.info(f"Qualifying variants by consequence:\n{df.csq.value_counts()}")
         logger.info(
-            f"Qualifying variants by observed / consequence: {df.groupby('obs').csq.value_counts()}"
+            f"Qualifying variants by observed / consequence:\n{df.groupby('obs').csq.value_counts()}"
         )
 
     # Some sites have NaN values for coverage.
@@ -100,49 +101,73 @@ def filter_covered_sites(df, coverage):
     return df
 
 
-def get_rare_synonymous_variants(df):
-    """Get rare synonymous variants for variant expectation model."""
+def per_row_binom_ci(row):
+    try:
+        result = stats.binomtest(
+            row["n_obs"], row["n_pos"], row["prop_exp"], alternative="less"
+        )
 
-    logger.info("Filtering for rare synonymous variants.")
+        # Return the upper bound of the 95% CI around the O/E value
+        return (result.proportion_ci().high * row["n_pos"]) / row["n_exp"]
 
-    syn = df[df["csq"] == "synonymous_variant"]
-
-    # # Mask contexts in which a synonymous variant is generally not possible.
-    # # Synonymous variants in these contexts can only occur at exon-intron junctions.
-    # m1 = (syn.tri == "AGT") & ((syn.alt == "C") | (syn.alt == "T"))
-    # m2 = (syn.tri == "AAT") & ((syn.alt == "C") | (syn.alt == "T"))
-    # m3 = (syn.tri == "ACT") & ((syn.alt == "G") | (syn.alt == "A"))
-    # m4 = (syn.tri == "ATT") & ((syn.alt == "G") | (syn.alt == "A"))
-
-    # Mask rare variants
-    m5 = syn["ac"] == 0
-    m6 = (syn["ac"] / syn["an"]) < 0.001  # i.e. AF < 0.1%
-
-    # # Get qualifying synonymous variants
-    # syn = syn[~(m1 | m2 | m3 | m4) & (m5 | m6)]
-
-    # Get qualifying synonymous variants
-    syn = syn[m5 | m6]
-
-    # Logging
-    # logger.info(f"Synonymous variants at splice junctions: {(m1 | m2 | m3 | m4).sum()}")
-    logger.info(f"Synonymous variants not observed: {m5.sum()}")
-    logger.info(f"Observed rare (AF < 0.1%) synonymous variants: {m6.sum()}")
-    logger.info(f"Qualifying synonymous variants: {len(syn)}")
-
-    return syn
+    except:
+        pass
 
 
-def agg_counts_and_mutability(df, grouping_columns, mu="mu_roulette_scaled"):
-    """Get variant counts and mean mutability for a given grouping."""
+def per_row_poisson_binom_p(row):
+    try:
+        poibin = PoiBin(row["mu_list"])
+
+        # Return a one-sided P value (H0: n_obs >= n_exp)
+        return poibin.cdf[row["n_obs"]]
+
+    except:
+        pass
+
+
+def agg_stats(df, grouping_columns, mu=_MU):
+    """Get variant counts and O/E statistics for a given grouping."""
+
+    tqdm.pandas(desc=f"Aggregate statistics, grouping by {grouping_columns}")
 
     df = (
         df.groupby(grouping_columns, observed=True)
-        .agg({"obs": "sum", "pos": "count", mu: "mean"})
+        .agg(
+            n_obs=("obs", "sum"),
+            n_pos=("pos", "count"),
+            n_exp=(mu, "sum"),
+            mu_list=(mu, lambda x: list(x)),
+        )
+        .assign(
+            oe=lambda x: x.n_obs / x.n_exp,
+            prop_obs=lambda x: x.n_obs / x.n_pos,
+            prop_exp=lambda x: x.n_exp / x.n_pos,  # Equals mu.mean()
+            oe_ci_hi=lambda x: x.progress_apply(per_row_binom_ci, axis=1),
+            p=lambda x: x.apply(per_row_poisson_binom_p, axis=1),
+        )
+        .drop("mu_list", axis=1)
         .reset_index()
     )
 
     return df
+
+
+def reorder_data(df):
+    return df[
+        [
+            "enst",
+            "region",
+            "csq",
+            "n_pos",
+            "n_obs",
+            "n_exp",
+            "prop_obs",
+            "prop_exp",
+            "oe",
+            "oe_ci_hi",
+            "p",
+        ]
+    ]
 
 
 def parse_args():
@@ -163,7 +188,7 @@ def parse_args():
 
 
 def main():
-    """Run the script."""
+    """Run as script."""
 
     df = get_variant_annotations(_FILE_IN).pipe(mark_observed_variants)
 
@@ -172,32 +197,35 @@ def main():
     for cov in coverage:
         df_min_coverage = filter_covered_sites(df, cov)
 
-        # # Get rare synonymous variants for expectation model
-        # syn = get_rare_synonymous_variants(df_min_coverage).pipe(
-        #     agg_counts_and_mutability, ["tri", "ref", "alt", "variant_type", "lvl"]
-        # )
-
         # Get variants by region for constraint calculations.
         # ? Should we limit to rare variants only?
-        transcript = agg_counts_and_mutability(df_min_coverage, ["enst", "csq"]).assign(
-            region="transcript"
+        transcript = (
+            agg_stats(df_min_coverage, ["enst", "csq"])
+            .assign(region="transcript")
+            .pipe(reorder_data)
         )
 
-        nmd = agg_counts_and_mutability(df_min_coverage, ["enst", "csq", "region"])
+        regions = agg_stats(df_min_coverage, ["enst", "csq", "region"]).pipe(
+            reorder_data
+        )
 
-        regions = pd.concat([nmd, transcript])
+        combined = pd.concat([regions, transcript])
 
         # Logging
-        # logger.info(f"Synonymous contexts annotated: {len(syn)}")
         logger.info(f"Counts grouped by enst/csq: {len(transcript)}")
-        logger.info(f"Counts grouped by nmd/enst/csq: {len(nmd)}")
+        logger.info(f"Counts grouped by nmd/enst/csq: {len(regions)}")
+        logger.info(f"Number of entries: {len(combined)}")
+        logger.info(f"NaN values:\n{combined.isna().sum()}")
+        logger.info(f"Unique transcripts: {combined.enst.nunique()}")
+        logger.info(
+            f"Region value counts:\n{combined.groupby('region').csq.value_counts()}"
+        )
 
         # Write to output
         logger.info("Writing to output.\n")
-        # syn.to_csv(f"{C._OBS_COUNTS_SYN}{str(cov)}.tsv", sep="\t", index=False)
-        regions.to_csv(f"{_FILE_OUT}{str(cov)}.tsv", sep="\t", index=False)
+        combined.to_csv(f"{_FILE_OUT}{str(cov)}.tsv", sep="\t", index=False)
 
-    return regions  #! Testing
+    return combined  #! Testing
 
 
 if __name__ == "__main__":

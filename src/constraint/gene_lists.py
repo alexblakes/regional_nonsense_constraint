@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 import src
-from src.constraint import constraint_statistics
+from src.constraint import get_fdrs_and_gnomad_constraint
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _REGIONAL_NONSENSE_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
@@ -81,7 +81,7 @@ def main():
 
     # Read data
     gene_ids = read_gene_ids(_GENE_IDS)
-    gnomad = constraint_statistics.get_gnomad_constraint(_GNOMAD_V4_CONSTRAINT)
+    gnomad = get_fdrs_and_gnomad_constraint.get_gnomad_constraint(_GNOMAD_V4_CONSTRAINT)
 
     # Define gene lists
     ## All genes with a protein-coding canonical transcript
