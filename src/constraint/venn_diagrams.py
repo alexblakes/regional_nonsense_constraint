@@ -18,6 +18,7 @@ _FILE_IN_NMD_TARGET = "data/final/gene_list_nmd_target_constrained.txt"
 _FILE_IN_START_PROX = "data/final/gene_list_start_proximal_constrained.txt"
 _FILE_IN_LONG_EXON = "data/final/gene_list_long_exon_constrained.txt"
 _FILE_IN_DISTAL = "data/final/gene_list_distal_constrained.txt"
+_LABELS = ["Any region", "NMD target", "Start proximal", "Long exon", "Distal"]
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ def main():
     start = gene_set(_FILE_IN_START_PROX)
     long_exon = gene_set(_FILE_IN_LONG_EXON)
     distal = gene_set(_FILE_IN_DISTAL)
+    all_regions = target | start | long_exon | distal
 
     # Set plot style
     plt.style.use(C.STYLE_DEFAULT)
@@ -40,16 +42,18 @@ def main():
 
     # Instantiate the figure
     fig, axs = plt.subplots(
-        2, 2, figsize=(8.9 * C.CM, 8.9 * C.CM), layout="constrained"
+        2, 3, figsize=(12 * C.CM, 6 * C.CM), layout="constrained"
     )
 
+
     # Get parameters for Venn diagrams
-    axs = axs.flatten()
-    gene_sets = [target, start, long_exon, distal]
-    colors = sns.color_palette()[1:]
+    axs = list(axs.flatten())
+    axs.pop(2).set_axis_off() # The top-right Axes is left blank
+    gene_sets = [all_regions, target, start, long_exon, distal]
+    colors = sns.color_palette()
 
     # Plot Venn diagrams
-    for ax, _set, label, color in zip(axs, gene_sets, C.NMD_REGION_LABELS, colors):
+    for ax, _set, label, color in zip(axs, gene_sets, _LABELS, colors):
         v = mv.venn2_unweighted(
             ax=ax,
             subsets=[gnomad, _set],
