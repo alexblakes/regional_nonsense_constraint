@@ -12,7 +12,6 @@ import src
 from src import constants as C
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
-_FILE_IN_ALL = "data/final/gene_list_all.txt"
 _FILE_IN_GNOMAD_CST = "data/final/gene_list_gnomad_constrained.txt"
 _FILE_IN_NMD_TARGET = "data/final/gene_list_nmd_target_constrained.txt"
 _FILE_IN_START_PROX = "data/final/gene_list_start_proximal_constrained.txt"
@@ -23,17 +22,18 @@ _LABELS = ["Any region", "NMD target", "Start proximal", "Long exon", "Distal"]
 logger = logging.getLogger(__name__)
 
 
+def get_gene_set(path):
+    return set(pd.read_csv(path, header=None).iloc[:, 0].to_list())
+
 def main():
     """Run as script."""
 
     # Read gene lists
-    gene_set = lambda x: set(pd.read_csv(x, header=None).iloc[:, 0].to_list())
-
-    gnomad = gene_set(_FILE_IN_GNOMAD_CST)
-    target = gene_set(_FILE_IN_NMD_TARGET)
-    start = gene_set(_FILE_IN_START_PROX)
-    long_exon = gene_set(_FILE_IN_LONG_EXON)
-    distal = gene_set(_FILE_IN_DISTAL)
+    gnomad = get_gene_set(_FILE_IN_GNOMAD_CST)
+    target = get_gene_set(_FILE_IN_NMD_TARGET)
+    start = get_gene_set(_FILE_IN_START_PROX)
+    long_exon = get_gene_set(_FILE_IN_LONG_EXON)
+    distal = get_gene_set(_FILE_IN_DISTAL)
     all_regions = target | start | long_exon | distal
 
     # Set plot style

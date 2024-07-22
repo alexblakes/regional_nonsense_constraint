@@ -52,13 +52,13 @@ $(gene_lists) &: data/final/regional_nonsense_constraint.tsv \
 
 # Plot Venn diagrams
 $(venn_plots) &: $(gene_lists) \
-                src/constraint/venn_diagrams.py
+                 src/constraint/plot_venn_diagrams.py
 	source activate ukb
-	python3 -m src.constraint.venn_diagrams
+	python3 -m src.constraint.plot_venn_diagrams
 
 # Plot scatter pairplots
 $(pairplots) &: data/final/regional_nonsense_constraint.tsv \
                 data/interim/gene_ids.tsv \
-				src/constraint/constraint_scatter.py
+				src/constraint/plot_constraint_scatter.py
 	source activate ukb
-	python3 -m src.constraint.constraint_scatter
+	python3 -m src.constraint.plot_constraint_scatter

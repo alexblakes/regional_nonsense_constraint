@@ -19,7 +19,7 @@ def vertical_bars(df, ax, height, ylabel, bar_label=True, **kwargs):
         ax.bar_label(b, fmt="%.2f")
 
     # Add invisible x ticks
-    ax.set_xticks(ticks = x/n, labels=[])
+    ax.set_xticks(ticks=x / n, labels=[])
     ax.tick_params(axis="x", length=0)
 
     return None

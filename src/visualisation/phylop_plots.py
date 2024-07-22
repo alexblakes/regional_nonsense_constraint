@@ -21,7 +21,7 @@ def horizontal_bars(
     
     kwargs.setdefault("tick_label", values.index)
     kwargs.setdefault("color", _PALETTE)
-    kwargs.setdefault("ecolor", [vis.adjust_lightness(c, 0.8) for c in _PALETTE])
+    kwargs.setdefault("ecolor", [vis.adjust_lightness(c, 0.8) for c in kwargs["color"]])
 
     if not ax:
         ax = plt.gca()
@@ -29,6 +29,6 @@ def horizontal_bars(
     n = len(values)  # Number of bars
     y = np.arange(n)  # Y ticks
 
-    ax.barh(y=y / n, width=values, height=1 / (n + 1), **kwargs)
+    bars = ax.barh(y=y / n, width=values, height=1 / (n + 1), **kwargs)
 
-    return None
+    return bars
