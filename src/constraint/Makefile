@@ -16,6 +16,9 @@ venn_plots = data/plots/constraint/venn.png \
 pairplots = data/plots/constraint/region_pair_plots.png \
             data/plots/constraint/region_pair_plots.svg \
 
+new_constraint_plots = data/plots/constraint/newly_constrained.svg \
+                       data/plots/constraint/newly_constrained.png \
+
 all : data/interim/oe_stats_regions_cov_20.tsv \
       data/final/expected_variants_all_regions.tsv \
 	  data/final/regional_constraint_stats.tsv \
@@ -62,3 +65,9 @@ $(pairplots) &: data/final/regional_nonsense_constraint.tsv \
 				src/constraint/plot_constraint_scatter.py
 	source activate ukb
 	python3 -m src.constraint.plot_constraint_scatter
+
+# Plot newly constrained genes
+$(new_constraint_plots) &: $(gene_lists) \
+                          src/constraint/plot_newly_constrained.py
+	source activate ukb
+	python3 -m src.constraint.plot_newly_constrained

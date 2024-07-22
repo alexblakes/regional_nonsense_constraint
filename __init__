@@ -1,7 +1,7 @@
-[22-Jul-24 13:27:32] INFO plot_newly_constrained.py main(): Summary statistics:
-                total_constrained  new_constrained    percent  pct_ci_95
-Distal                        611              115  18.821604   3.099389
-Long exon                     396               23   5.808081   2.303688
-Start proximal                101               15  14.851485   6.935230
-NMD target                   2212              171   7.730561   1.112987
-Any region                   2760              318  11.521739   1.191162
+[22-Jul-24 14:41:33] INFO plot_newly_constrained.py main(): Summary statistics:
+                total_constrained  new_constrained    percent    err_95
+Distal                        611              115  18.821604  3.099389
+Long exon                     396               23   5.808081  2.303688
+Start proximal                101               15  14.851485  6.935230
+NMD target                   2212              171   7.730561  1.112987
+Any region                   2760              318  11.521739  1.191162
