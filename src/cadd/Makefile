@@ -3,8 +3,8 @@
 
 SHELL = bash
 
-plots = data/plots/cadd_violins.svg \
-        data/plots/cadd_violins.png \
+plots = data/plots/cadd/cadd_violins.svg \
+        data/plots/cadd/cadd_violins.png \
 
 all : data/interim/cadd_scores_coding.tsv \
       data/interim/cadd_scores_coding_annotated.tsv \

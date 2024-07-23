@@ -29,6 +29,7 @@ def read_clinvar_data(path):
             usecols=["csq", "region", "acmg", "constraint"],
         )
         .query("csq == 'stop_gained' | csq== 'frameshift_variant'")
+        .query("constraint != 'indeterminate'")
         .drop("csq", axis=1)
     )
 

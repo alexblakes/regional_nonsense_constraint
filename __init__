@@ -1,4 +1,4 @@
-[23-Jul-24 09:36:39] INFO plot_newly_constrained.py main(): Summary statistics:
+[23-Jul-24 10:16:11] INFO <ipython-input-1-a0dc114f6b96> main(): Summary statistics:
                 total_constrained  new_constrained  proportion    err_95
 Distal                        611              115    0.188216  0.030994
 Long exon                     396               23    0.058081  0.023037

@@ -13,8 +13,8 @@ from src import constants as C
 from src import visualisation as vis
 
 _FILE_IN = "data/interim/cadd_scores_coding_annotated.tsv"
-_SVG = "data/plots/cadd_violins.svg"
-_PNG = "data/plots/cadd_violins.png"
+_SVG = "data/plots/cadd/cadd_violins.svg"
+_PNG = "data/plots/cadd/cadd_violins.png"
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _PALETTE = vis.color_palette("regions")[::-1]
 _CSQS = ["Synonymous", "Missense", "Nonsense"]

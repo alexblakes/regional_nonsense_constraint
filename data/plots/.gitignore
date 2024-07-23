@@ -6,5 +6,9 @@
 
 # Except for these files
 !.gitignore
+!cadd/
 !clinvar/
+!constraint/
 !figures/
+!gene_set_enrichment/
+!maps/
