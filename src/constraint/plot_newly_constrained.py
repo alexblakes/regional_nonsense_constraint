@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 import pandas as pd
 import seaborn as sns
 from statsmodels.stats import proportion as prop
@@ -34,7 +35,7 @@ def get_pct_new(region_set, transcript_set, label):
         data={
             "total_constrained": total,
             "new_constrained": new,
-            "percent": (new / total) * 100,
+            "proportion": new / total,
         },
         index=[label],
     )
@@ -49,9 +50,7 @@ def get_err_95(df):
     )[1]
 
     # Express the confidence interval as an error margin
-    err = (ci_hi * 100) - df["percent"]
-
-    return df.assign(err_95=err)
+    return df.assign(err_95=ci_hi - df["proportion"])
 
 
 def main():
@@ -70,27 +69,28 @@ def main():
 
     # Combine statistics into one dataframe
     dfs = [get_pct_new(r, gnomad, l) for r, l in zip(regions, _LABELS)]
-    df = pd.concat(dfs).pipe(get_err_95).iloc[::-1] # Reverse order for plotting
+    df = pd.concat(dfs).pipe(get_err_95).iloc[::-1]  # Reverse order for plotting
     logger.info(f"Summary statistics:\n{df}")
 
     # Set plot style
     plt.style.use(C.STYLE_DEFAULT)
     plt.style.use(C.COLOR_REGIONS)
-    colors = sns.color_palette()[::-1] # Reversed for plotting
+    colors = sns.color_palette()[::-1]  # Reversed for plotting
 
     # Instantiate the figure
     fig, ax = plt.subplots(1, 1, figsize=(8.9 * C.CM, 4 * C.CM), layout="constrained")
 
     # Plot horizontal bars
     bars = pp.horizontal_bars(
-        df["percent"],
+        df["proportion"],
         xerr=df["err_95"],
         color=colors,
     )
-    ax.bar_label(bars, fmt="%.2f", padding=2)
+    ax.bar_label(bars, fmt="{:.2%}", padding=2)
     ax.set_xlabel(
         "Constrained transcripts with weak pLI\nand LOEUF scores in gnomAD v4.1 (%)"
     )
+    ax.xaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=0))
 
     # Save the figure
     plt.savefig(_PNG, dpi=600)
