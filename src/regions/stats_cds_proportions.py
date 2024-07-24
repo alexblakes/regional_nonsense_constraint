@@ -24,7 +24,6 @@ def read_nmd_regions(path):
         sep="\t",
         header=None,
         names=["chr", "pos", "enst", "region"],
-        nrows=100000,
         usecols=["region"],
         dtype="category",
     ).loc[:, "region"]
