@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 import src
+from src import utils
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _FILE_IN = "data/final/nmd_annotations_simple.tsv.gz"
@@ -39,12 +40,6 @@ def append_full_cds(series):
     return pd.concat([series, cds])
 
 
-def sort_index(series, categories, labels, **kwargs):
-    """Create an ordered categorical index for a series."""
-    _ix = pd.CategoricalIndex(categories, **kwargs)
-    return series.reindex(_ix).rename(dict(zip(categories, labels)))
-
-
 def write_out(series, path):
     series.to_csv(path, sep="\t")
     return series
@@ -57,7 +52,7 @@ def main():
         read_nmd_regions(_FILE_IN)
         .pipe(proportion_value_counts)
         .pipe(append_full_cds)
-        .pipe(sort_index, _CATEGORIES, _LABELS, ordered=True, name="region")
+        .pipe(utils.sort_index)
         .pipe(write_out, _FILE_OUT)
     )
     logger.info(f"CDS proportions:\n{cds_proportions}")

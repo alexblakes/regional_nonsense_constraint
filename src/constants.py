@@ -3,7 +3,7 @@
 # Plotting and visualisation
 
 ## Labels and naming
-NMD_REGIONS = ["nmd_target", "start_proximal", "long_exon", "distal"]
+NMD_REGIONS = ["nmd_target", "start_proximal", "long_exon", "distal_nmd"]
 NMD_REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
 NMD_REGIONS_DICT = {
     "nmd_target": "NMD target",
@@ -19,7 +19,7 @@ REGIONS = [
     "distal_nmd",
 ]
 REGION_LABELS = [
-    "Whole transcript",
+    "Full CDS",
     "NMD target",
     "Start proximal",
     "Long exon",
