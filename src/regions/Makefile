@@ -12,12 +12,17 @@ indexed_regions = data/final/nmd_annotations_simple.tsv.gz \
                   data/final/nmd_annotations_simple.tsv.gz.tbi \
                   data/manual/header_lines_nmd_annotation.txt \
 
+plots = data/plots/regions_cds_proportions.png \
+        data/plots/regions_cds_proportions.svg \
+
 all : data/interim/gencode_v39_canonical_cds.bed \
       data/interim/gencode_v39_canonical_cds_no_chr.bed \
 	  data/interim/cds_counts_and_coords.tsv \
 	  $(gene_ids) \
 	  data/interim/nmd_annotations.tsv \
 	  $(indexed_regions) \
+	  data/statistics/regions_cds_proportions.tsv \
+	  $(plots) \
 
 # Extract canonical CDS from GTF file
 data/interim/gencode_v39_canonical_cds.bed \
@@ -54,4 +59,15 @@ $(indexed_regions) &: src/regions/index_nmd_annotation.sh \
                       data/interim/nmd_annotations.tsv
 	source activate vep
 	bash src/regions/index_nmd_annotation.sh
-	
+
+# Get proportion of CDS occupied by NMD escape regions
+data/statistics/regions_cds_proportions.tsv : src/regions/stats_cds_proportions.py \
+                                              data/final/nmd_annotations_simple.tsv.gz
+	source activate ukb
+	python3 -m src.regions.stats_cds_proportions
+
+# Plot proportion of CDS occupied by NMD regions
+$(plots) &: data/statistics/regions_cds_proportions.tsv \
+            src/regions/plot_cds_proportions.py
+	source activate ukb
+	python3 -m src.regions.plot_cds_proportions

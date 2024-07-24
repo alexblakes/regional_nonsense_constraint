@@ -43,7 +43,7 @@ def customise_plot(ax=None):
 
     # x axis
     labels = ax.get_xticklabels()
-    ticks = np.arange(len(ticks))
+    ticks = np.arange(len(labels))
     ax.set_xticks(ticks, labels, rotation=45, ha="right", rotation_mode="anchor")
 
     # y axis
@@ -71,7 +71,7 @@ def main():
     plt.savefig(_PNG, dpi=600)
     plt.savefig(_SVG)
 
-    return cds_proportions
+    return ax
 
 
 if __name__ == "__main__":
