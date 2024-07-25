@@ -1,50 +1,47 @@
-"""Package docstring."""
+"""Produce summary statistics for plots."""
 
-# Imports
 import pandas as pd
 from scipy import stats
 
-from src import constants as C
+_REGION_LABELS = {
+    "full_cds": "Full CDS",
+    "nmd_target": "NMD target",
+    "start_proximal": "Start proximal",
+    "long_exon": "Long exon",
+    "distal_nmd": "Distal",
+}
 
 
-# Functions
-## Sort by categorical columns / indices
-def categorical_regions_column(series, categories=C.REGIONS, labels=C.REGION_LABELS):
-    """Create a categorical column."""
-    return pd.Categorical(
-        series,
-        categories=categories,
-        ordered=True,
+def sort_column(df, column="region", labels=_REGION_LABELS, **kwargs):
+    """Rename and reorder the column of a dataframe."""
+
+    kwargs.setdefault("ordered", True)
+
+    assert all(
+        i in labels for i in df[column]
+    ), "Some values in the column are missing from the labels."
+
+    df[column] = pd.Categorical(
+        df[column], categories=labels, **kwargs
     ).rename_categories(labels)
 
-
-def sort_region_column(df, column="region", **kwargs):
-    """Sort a DataFrame by a categorical column."""
-
-    df[column] = categorical_regions_column(df[column], **kwargs)
     return df.sort_values(column)
 
 
-def categorical_regions_index(
-    index, name="region", categories=C.REGIONS, labels=C.REGION_LABELS
-):
-    """Create a categorical index."""
-    return pd.CategoricalIndex(
-        index,
-        categories=categories,
-        ordered=True,
-        name=name,
-    ).rename_categories(labels)
+def sort_index(df, labels=_REGION_LABELS, **kwargs):
+    """Rename and reorder the index of a series or dataframe."""
+
+    kwargs.setdefault("name", "region")
+
+    assert all(
+        i in labels.keys() for i in df.index
+    ), "Some values in the index are missing from the labels."
+
+    index = pd.Index(labels, **kwargs)
+
+    return df.reindex(index).rename(index=labels)
 
 
-def sort_region_index(df, **kwargs):
-    """Sort a DataFrame by a categorical column."""
-
-    df.index = categorical_regions_index(df.index, **kwargs)
-    return df.sort_index()
-
-
-## Statistical tests
 def test_constrained_vs_unconstrained(df, **kwargs):
     """Welch's T-test of mean values in constrained vs unconstrained regions."""
 
