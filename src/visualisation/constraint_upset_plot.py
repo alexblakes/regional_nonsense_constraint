@@ -1,17 +1,12 @@
 """Create an upset plot of intersecting constrained regions."""
 
-# Imports
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 import upsetplot
 
 from src import constants as C
 from src import visualisation as vis
-
-
-# Module constants
-_GREY = vis.color_palette("default").grey
+from src import statistics_for_plots as sp
 
 _UPSET_ARGS = dict(
     max_subset_size=2500,
@@ -19,12 +14,11 @@ _UPSET_ARGS = dict(
     element_size=20,
     intersection_plot_elements=3,
     totals_plot_elements=3,
-    facecolor=_GREY,
+    facecolor="grey",
 )
 
 
-# Visualise the plot
-def create_upset_data(df, indicators=C.REGION_LABELS):
+def create_upset_data(df, indicators=sp._REGION_LABELS):
     return upsetplot.from_indicators(indicators, data=df)
 
 

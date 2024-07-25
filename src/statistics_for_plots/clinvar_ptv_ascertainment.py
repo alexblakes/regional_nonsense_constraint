@@ -8,7 +8,7 @@ import pandas as pd
 import src
 from src import statistics_for_plots as sp
 from src.statistics_for_plots import clinvar_proportion_vus_by_region as vus
-from src.visualisation import plot_cds_proportions as cds
+from src.visualisation import regions_cds_proportions as cds
 
 _LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
 _FILE_IN = "data/interim/clinvar_variants_vep_tidy.tsv"
@@ -23,7 +23,7 @@ def count_ptvs_per_region(df):
 
 
 def count_ptvs_per_cds(df):
-    return pd.Series(data=[df.csq.count()], index=["full_cds"], name="n_ptvs")
+    return pd.Series(data=[df.csq.count()], index=["transcript"], name="n_ptvs")
 
 
 def concat_ptvs_per_region_and_cds(df):

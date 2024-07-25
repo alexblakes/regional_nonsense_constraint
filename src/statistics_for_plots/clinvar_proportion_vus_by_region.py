@@ -37,7 +37,7 @@ def get_proportion_vus_per_cds(df):
         df.acmg.value_counts(normalize=True)
         .rename("proportion_vus")
         .loc[["VUS"]]
-        .set_axis(["full_cds"])
+        .set_axis(["transcript"])
     )
 
 

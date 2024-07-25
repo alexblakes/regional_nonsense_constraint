@@ -34,7 +34,7 @@ def proportion_value_counts(series):
 
 def append_full_cds(series):
     """Append the proportion of sites in the full CDS (1)."""
-    cds = pd.Series(data=[1.0], index=["full_cds"], name="proportion")
+    cds = pd.Series(data=[1.0], index=["transcript"], name="proportion")
     return pd.concat([series, cds])
 
 

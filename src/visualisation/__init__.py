@@ -1,47 +1,10 @@
 """Visualisation tools for regional nonsense constraint paper."""
 
-# Imports
-from collections import namedtuple
-from pathlib import Path
-
 import colorsys
+
 import matplotlib.colors as mc
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-from src import constants as C
-from src import setup_logger
-
-
-# Logging
-logger = setup_logger(Path(__file__).stem)
-
-
-# Functions
-def color_palette(style="default"):
-    """Choose a color palette."""
-
-    if not style in ["default", "regions", "maps"]:
-        raise ValueError("style must be one of 'default', 'regions', or 'maps'.")
-
-    if style == "default":
-        labels = "blue green orange red light_blue pink grey black"
-        plt.style.use(C.COLOR_VIBRANT)
-
-    if style == "regions":
-        labels = "transcript nmd_target start_proximal long_exon distal"
-        plt.style.use(C.COLOR_REGIONS)
-
-    if style == "maps":
-        labels = C.MAPS_CONSEQUENCES
-        plt.style.use(C.COLOR_MAPS)
-
-    # Assign the color palette to a variable.
-    # Colors can be selected by index or name (e.g. cp[0], cp.red)
-    palette = namedtuple("color_palette", labels)
-    palette = palette(*sns.color_palette().as_hex())
-
-    return palette
 
 
 def adjust_lightness(color, amount=0.5):
@@ -59,14 +22,34 @@ def adjust_alpha(color, alpha):
 
 
 def panel_label(ax, s, x=-0.05, y=1.05, **kwargs):
+    
+    kwargs.setdefault("fontsize", 8)
+    kwargs.setdefault("fontweight", "bold")
+    kwargs.setdefault("transform", ax.transAxes)
+    kwargs.setdefault("va", "bottom")
+    kwargs.setdefault("ha", "right")
+
     ax.text(
         x,
         y,
         s,
-        transform=ax.transAxes,
-        va="bottom",
-        ha="right",
-        fontsize=8,
-        fontweight="bold",
         **kwargs,
     )
+
+    return ax
+
+
+def vertical_bars(series, ax=None, **kwargs):
+    """Vertical bar chart for values in a series.
+    
+    xticklabels are taken from the series' index.
+    """
+
+    kwargs.setdefault("color", sns.color_palette())
+
+    if not ax:
+        ax = plt.gca()
+
+    ax.bar(x=series.index, height=series, **kwargs)
+
+    return ax
