@@ -6,9 +6,9 @@ from pathlib import Path
 import pandas as pd
 
 import src
-from src import utils
+from src import statistics_for_plots as sp
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
 _FILE_IN = "data/final/nmd_annotations_simple.tsv.gz"
 _FILE_OUT = "data/statistics/regions_cds_proportions.tsv"
 
@@ -50,7 +50,7 @@ def main():
         read_nmd_regions(_FILE_IN)
         .pipe(proportion_value_counts)
         .pipe(append_full_cds)
-        .pipe(utils.sort_index)
+        .pipe(sp.sort_index)
         .pipe(write_out, _FILE_OUT)
     )
     logger.info(f"CDS proportions:\n{cds_proportions}")

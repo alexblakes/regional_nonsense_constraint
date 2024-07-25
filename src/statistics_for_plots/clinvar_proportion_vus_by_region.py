@@ -6,9 +6,9 @@ from pathlib import Path
 import pandas as pd
 
 import src
-from src import utils
+from src import statistics_for_plots as sp
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
 _FILE_IN = "data/interim/clinvar_variants_vep_tidy.tsv"
 _FILE_OUT = "data/statistics/clinvar_vus_by_region.tsv"
 
@@ -68,7 +68,7 @@ def main():
         read_clinvar_variants(_FILE_IN)
         .pipe(filter_for_ptvs)
         .pipe(concat_proportion_vus_in_cds_and_regions)
-        .pipe(utils.sort_index)
+        .pipe(sp.sort_index)
         .pipe(write_out, _FILE_OUT)
     )
 

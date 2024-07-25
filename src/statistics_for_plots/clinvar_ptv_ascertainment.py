@@ -6,11 +6,11 @@ from pathlib import Path
 import pandas as pd
 
 import src
-from src import utils
-from src.clinvar import stats_proportion_vus_by_region as vus
+from src import statistics_for_plots as sp
+from src.statistics_for_plots import clinvar_proportion_vus_by_region as vus
 from src.visualisation import plot_cds_proportions as cds
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
 _FILE_IN = "data/interim/clinvar_variants_vep_tidy.tsv"
 _FILE_CDS_PROPORTION = "data/statistics/regions_cds_proportions.tsv"
 _FILE_OUT = "data/statistics/clinvar_ptv_ascertainment.tsv"
@@ -51,7 +51,7 @@ def main():
         vus.read_clinvar_variants(_FILE_IN)
         .pipe(vus.filter_for_ptvs)
         .pipe(concat_ptvs_per_region_and_cds)
-        .pipe(utils.sort_index)
+        .pipe(sp.sort_index)
         .pipe(normalise_to_cds_footprint)
         .pipe(normalise_to_ptvs_in_cds)
         .pipe(write_out, _FILE_OUT)

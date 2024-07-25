@@ -4,6 +4,7 @@ import pandas as pd
 from scipy import stats
 
 _REGION_LABELS = {
+    "transcript": "Full CDS",
     "full_cds": "Full CDS",
     "nmd_target": "NMD target",
     "start_proximal": "Start proximal",

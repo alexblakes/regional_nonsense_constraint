@@ -12,7 +12,7 @@ _FORMATTER = logging.Formatter(
 def setup_logger(
     logfile=None,
     mode="w",
-    name=None,
+    name="src",
     formatter=_FORMATTER,
     stream=False,
     level=logging.DEBUG,
@@ -38,6 +38,5 @@ def setup_logger(
 
     return logger
 
-
-root_logger = setup_logger() # Sponge for logging output from external packages
-src_logger = setup_logger(name="src", stream=True) # Main logger for the package
+root_logger = setup_logger(name=None) # Sponge for logging output from external packages
+src_logger = setup_logger(stream=True) # Main logger for the package
