@@ -8,7 +8,7 @@ import pandas as pd
 import src
 from src import utils
 from src.clinvar import stats_proportion_vus_by_region as vus
-from src.regions import plot_cds_proportions as cds
+from src.visualisation import plot_cds_proportions as cds
 
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _FILE_IN = "data/interim/clinvar_variants_vep_tidy.tsv"

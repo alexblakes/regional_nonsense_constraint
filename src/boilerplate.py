@@ -8,7 +8,7 @@ import pandas as pd
 import src
 from src import constants as C
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
 
 logger = logging.getLogger(__name__)
 
