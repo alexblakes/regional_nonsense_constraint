@@ -63,8 +63,8 @@ def main():
         vis.vertical_grouped_bars(data, ax)
         customise_plot(ax, region, legend)
 
-    plt.savefig(f"{_PNG}.png", dpi=600)
-    plt.savefig(f"{_SVG}.svg")
+    plt.savefig(_PNG, dpi=600)
+    plt.savefig(_SVG)
     # plt.close("all")
 
     return axs
