@@ -4,9 +4,10 @@
 SHELL = bash
 
 all : data/plots/regions/regions_cds_proportions.png \
+	  data/plots/constraint/upset_plot.png \
       data/plots/clinvar/clinvar_vus_by_region.png \
 	  data/plots/clinvar/clinvar_ptvs_ascertainment.png \
-	  data/plots/constraint/upset_plot.png \
+	  data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png \
 
 # Plot proportion of CDS per region
 data/plots/regions/regions_cds_proportions.png : data/statistics/regions_cds_proportions.tsv \
@@ -14,6 +15,11 @@ data/plots/regions/regions_cds_proportions.png : data/statistics/regions_cds_pro
 	source activate ukb
 	python3 -m src.visualisation.regions_cds_proportions
 
+# Constraint upset plot
+data/plots/constraint/upset_plot.png : data/statistics/constraint_upset_data.tsv \
+                                       src/visualisation/constraint_upset_plot.py 
+	source activate ukb
+	python3 -m src.visualisation.constraint_upset_plot
 
 # Plot proportion VUS per region
 data/plots/clinvar/clinvar_vus_by_region.png : data/statistics/clinvar_vus_by_region.tsv \
@@ -27,8 +33,8 @@ data/plots/clinvar/clinvar_ptvs_ascertainment.png : data/statistics/clinvar_ptv_
 	source activate ukb
 	python3 -m src.visualisation.clinvar_ptv_ascertainment
 
-# Constraint upset plot
-data/plots/constraint/upset_plot.png : data/statistics/constraint_upset_data.tsv \
-                                       src/visualisation/constraint_upset_plot.py 
+# Plot ACMG classifications of PTVs in ClinVar by region and constraint
+data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png : data/statistics/clinvar_acmg_by_region_and_constraint.tsv \
+                                                               src/visualisation/clinvar_acmg_by_region_and_constraint.py
 	source activate ukb
-	python3 -m src.visualisation.constraint_upset_plot
+	python3 -m src.visualisation.clinvar_acmg_by_region_and_constraint

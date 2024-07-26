@@ -1,136 +1,73 @@
 """Plot ACMG classification of nonsense / frameshift variants in ClinVar."""
 
-import itertools
 import logging
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
 import src
 from src import constants as C
-from src.clinvar.annotate_with_constraint import read_clinvar
+from src import visualisation as vis
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
-_FILE_IN = "data/interim/clinvar_variants_constraint.tsv"
-_ACMG_DICT = {"P": "P/LP", "LP": "P/LP", "B": "B/LB", "LB": "B/LB"}
-_FIG_OUT = "data/plots/clinvar/clinvar_acmg"
+_LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
+_FILE_IN = "data/statistics/clinvar_acmg_by_region_and_constraint.tsv"
+_PNG = "data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png"
+_SVG = "data/plots/clinvar/clinvar_acmg_by_region_and_constraint.svg"
+_REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
 
 logger = logging.getLogger(__name__)
 
 
-def read_clinvar_data(path):
-    return (
-        pd.read_csv(
-            path,
-            sep="\t",
-            usecols=["csq", "region", "acmg", "constraint"],
-        )
-        .query("csq == 'stop_gained' | csq== 'frameshift_variant'")
-        .query("constraint != 'indeterminate'")
-        .drop("csq", axis=1)
-    )
+def read_data(path):
+    return pd.read_csv(
+        path, sep="\t", index_col=["region", "constraint", "acmg"]
+    ).squeeze()
 
 
-def tidy_labels(df):
-    df = df.replace(
-        {
-            "acmg": _ACMG_DICT,
-            "region": C.NMD_REGIONS_DICT,
-        }
-    )
-    df["constraint"] = df["constraint"].str.capitalize()
-
-    # Sort by region and ACMG
-    df["region"] = pd.Categorical(
-        df["region"], categories=C.NMD_REGION_LABELS, ordered=True
-    )
-    df["acmg"] = pd.Categorical(
-        df["acmg"], categories=["P/LP", "VUS", "B/LB"], ordered=True
-    )
-
-    df.sort_values(["region", "acmg"])
-
-    return df
-
-
-def get_acmg_proportions(df):
-    grouped = df.groupby(["region", "constraint"])
-    proportions = grouped["acmg"].value_counts(normalize=True, dropna=False)
-
-    # Reindex to keep categories with zero variants
-    n_index_levels = proportions.index.nlevels
-    index_values = [proportions.index.levels[n] for n in range(n_index_levels)]
-    new_index = itertools.product(*index_values)
-    proportions = proportions.reindex(new_index, fill_value=0)
-
-    logger.info(f"ACMG proportions:\n{proportions}")
-
-    return proportions
-
-
-def plot_bars(data, ax=None, title=None, legend=0):
+def customise_plot(ax=None, title=None, legend=False):
     if not ax:
         ax = plt.gca()
 
-    acmg_categories = data.index.get_level_values("acmg").unique()
+    ax.tick_params(labelbottom=True)
+    ax.set_ylabel("Proportion of PTVs in ClinVar")
+    ax.label_outer()
 
-    for i, acmg in enumerate(acmg_categories):
-        multiplier = i
-        _data = data.xs(acmg, level="acmg")
-        n_groups = len(_data)
-        x = np.arange(n_groups)
-        n_bars = len(acmg_categories)
-        bar_width = 1 / (n_bars + 1)
-        offset = bar_width * multiplier
-
-        bars = ax.bar(x + offset, _data, bar_width)
-        ax.set_xticks(x + bar_width, labels=_data.index)
-        ax.set_ylabel("Proportion of variants")
-        ax.label_outer()
-        ax.set_title(title)
+    ax.set_title(title)
 
     if legend:
-        bars = [b for b in ax.containers]
-        ax.legend(bars, acmg_categories)
+        ax.legend()
 
-    return None
+    return ax
 
 
 def main():
     """Run as script."""
 
-    # Parse and tidy the data
-    clinvar = read_clinvar_data(_FILE_IN).pipe(tidy_labels).pipe(get_acmg_proportions)
+    clinvar = read_data(_FILE_IN)
 
-    # Style and palette
-    plt.style.use(C.STYLE_DEFAULT)
-    plt.style.use(C.COLOR_REGIONS)
+    plt.style.use([C.STYLE_DEFAULT, C.COLOR_REGIONS])
     sns.set_palette([sns.color_palette()[n] for n in [1, 0, -1]])
 
-    # Instantiate the figure
     fig, axs = plt.subplots(
-        1,
-        4,
-        figsize=(18 * C.CM, 4 * C.CM),
-        sharey=True,
-        layout="constrained",
+        1, 4, figsize=(18 * C.CM, 4 * C.CM), sharey=True, layout="constrained"
     )
 
-    # Create plots, stratified by region
-    regions = clinvar.index.get_level_values("region").unique()
+    axs = axs.flatten()
+    regions = _REGION_LABELS
     legends = [0, 0, 0, 1]
+
     for ax, region, legend in zip(axs, regions, legends):
         data = clinvar.xs(region, level="region")
-        plot_bars(data, ax, title=region, legend=legend)
+        vis.vertical_grouped_bars(data, ax)
+        customise_plot(ax, region, legend)
 
-    # Save the figure
-    plt.savefig(f"{_FIG_OUT}.png", dpi=600)
-    plt.savefig(f"{_FIG_OUT}.svg")
+    plt.savefig(f"{_PNG}.png", dpi=600)
+    plt.savefig(f"{_SVG}.svg")
+    # plt.close("all")
 
-    return None
+    return axs
 
 
 if __name__ == "__main__":
