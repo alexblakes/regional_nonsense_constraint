@@ -62,34 +62,3 @@ data/interim/clinvar_variants_constraint.tsv : data/interim/clinvar_variants_vep
 											   src/clinvar/annotate_with_constraint.py
 	source activate ukb
 	python3 -m src.clinvar.annotate_with_constraint
-
-# Get stats for VUS proportions by region
-data/statistics/clinvar_vus_by_region.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
-                                            src/clinvar/stats_proportion_vus_by_region.py
-	source activate ukb
-	python3 -m src.clinvar.stats_proportion_vus_by_region
-
-# Plot VUS proportions by region
-$(vus_plots) &: data/statistics/clinvar_vus_by_region.tsv \
-                src/clinvar/plot_proportion_vus_by_region.py
-	source activate ukb
-	python3 -m src.clinvar.plot_proportion_vus_by_region
-
-# Get stats for PTV ascertainment by region
-data/statistics/clinvar_ptv_ascertainment.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
-                                                data/statistics/regions_cds_proportions.tsv \
-												src/clinvar/stats_ptv_ascertainment.py
-	source activate ukb
-	python3 -m src.clinvar.stats_ptv_ascertainment
-
-# Plot PTV ascertainment by region
-$(ptv_ascertainment_plots) &: data/statistics/clinvar_ptv_ascertainment.tsv \
-                              src/clinvar/plot_ptv_ascertainment.py
-	source activate ukb
-	python3 -m src.clinvar.plot_ptv_ascertainment
-
-# Plot ACMG proportions
-$(acmg_plots) &: data/interim/clinvar_variants_constraint.tsv \
-                              src/clinvar/plot_acmg.py
-	source activate ukb
-	python3 -m src.clinvar.plot_acmg
