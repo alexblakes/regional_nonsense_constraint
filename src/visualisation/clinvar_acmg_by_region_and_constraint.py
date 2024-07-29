@@ -65,7 +65,7 @@ def main():
 
     plt.savefig(_PNG, dpi=600)
     plt.savefig(_SVG)
-    # plt.close("all")
+    plt.close("all")
 
     return axs
 

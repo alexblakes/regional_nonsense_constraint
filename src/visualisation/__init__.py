@@ -83,8 +83,8 @@ def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", **kwargs):
 
         # Place xticks centrally below the bar grouping...
         ax.set_xticks(x_position + bar_width, labels=data_subset.index)
-        # ...But turn off xticklabels by default. 
-        # To turn on elsewhere, use: 
+        # ...But turn off xticklabels by default.
+        # To turn on elsewhere, use:
         #   ax.tick_params(labelbottom=True)
         ax.tick_params(labelbottom=False)
 
