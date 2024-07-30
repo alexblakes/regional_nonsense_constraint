@@ -34,7 +34,7 @@ def read_data(path: str) -> pd.DataFrame:
 
 
 def tidy_constraint_values(df: pd.DataFrame) -> pd.DataFrame:
-    return (
+    df = (
         df.query("constraint != 'indeterminate'")
         .dropna(subset="constraint")
         .assign(constraint=lambda x: x.constraint.cat.remove_unused_categories())
@@ -44,6 +44,10 @@ def tidy_constraint_values(df: pd.DataFrame) -> pd.DataFrame:
             )
         )
     )
+
+    logger.info(f"Scores after tidying constraint:\n{df.notna().sum()}")
+
+    return df
 
 
 def main():
