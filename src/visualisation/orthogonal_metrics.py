@@ -36,12 +36,13 @@ def read_data(path: str) -> pd.DataFrame:
     return df
 
 
-def sort_data(df: pd.DataFrame) -> pd.DataFrame:
-    return df.assign(
-        region=lambda x: pd.Categorical(
-            x.region, categories=C.REGION_LABELS, ordered=True
-        )
-    ).sort_values("region")
+def sort_data(df: pd.DataFrame, column: str = "region", **kwargs) -> pd.DataFrame:
+    kwargs.setdefault("categories", C.REGION_LABELS)
+    kwargs.setdefault("ordered", True)
+
+    return df.assign(region=lambda x: pd.Categorical(x[column], **kwargs)).sort_values(
+        column
+    )
 
 
 def grouped_boxplot(df: pd.DataFrame, ax: plt.Axes = None, **kwargs):  # type: ignore
