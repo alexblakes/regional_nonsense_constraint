@@ -1,27 +1,19 @@
-"""Plot phyloP, AlphaMissense, and pext scores in constrained and unconstrained 
-regions.
-"""
+"""Plot CADD scores in constrained and unconstrained regions."""
 
-from collections import defaultdict
 import logging
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib import patches
-import pandas as pd
 import seaborn as sns
 
 import src
 from src import constants as C
-from src import visualisation as vis
 from src.visualisation import orthogonal_metrics as om
 
 _LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
-# _FILE_IN = "data/statistics/orthogonal_metrics_cadd.tsv.gz"
-_FILE_IN = "data/scratch/orthogonal_metrics_cadd_shuffled.tsv"
+_FILE_IN = "data/statistics/orthogonal_metrics_cadd.tsv.gz"
 _PNG = "data/plots/orthogonal_metrics/cadd.png"
 _SVG = "data/plots/orthogonal_metrics/cadd.svg"
-_DTYPES = defaultdict(lambda: "float16", region="category", constraint="category")
 
 logger = logging.getLogger(__name__)
 

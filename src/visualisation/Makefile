@@ -8,6 +8,8 @@ all : data/plots/regions/regions_cds_proportions.png \
       data/plots/clinvar/clinvar_vus_by_region.png \
 	  data/plots/clinvar/clinvar_ptvs_ascertainment.png \
 	  data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png \
+	  data/plots/orthogonal_metrics/phylop_alphamis_pext.png \
+	  data/plots/orthogonal_metrics/cadd.png \
 
 # Plot proportion of CDS per region
 data/plots/regions/regions_cds_proportions.png : data/statistics/regions_cds_proportions.tsv \
@@ -38,3 +40,15 @@ data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png : data/statistics/c
                                                                src/visualisation/clinvar_acmg_by_region_and_constraint.py
 	source activate ukb
 	python3 -m src.visualisation.clinvar_acmg_by_region_and_constraint
+
+# Plot phyloP, AlphaMissense, and pext scores
+data/plots/orthogonal_metrics/phylop_alphamis_pext.png : data/statistics/orthogonal_metrics.tsv.gz \
+                                                         src/visualisation/orthogonal_metrics.py
+	source activate ukb
+	python3 -m src.visualisation.orthogonal_metrics
+
+# Plot CADD scores
+data/plots/orthogonal_metrics/cadd.png : data/statistics/orthogonal_metrics_cadd.tsv.gz \
+                                         src/visualisation/orthogonal_metrics_cadd.py
+	source activate ukb
+	python3 -m src.visualisation.orthogonal_metrics_cadd
