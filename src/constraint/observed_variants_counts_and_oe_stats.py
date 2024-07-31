@@ -53,7 +53,7 @@ def read_data(path):
         dtype=_NAMES_DICT,
         comment="#",
         header=None,
-        names=_NAMES_DICT.keys(),
+        names=_NAMES_DICT.keys(), # type: ignore
         na_values=".",
     )
 
