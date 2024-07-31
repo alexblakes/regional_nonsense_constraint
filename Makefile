@@ -6,7 +6,6 @@
 		snv_annotation \
 		constraint \
 		maps \
-		cadd \
 		clinvar \
 		orthogonal_metrics \
 		omim \
@@ -39,9 +38,6 @@ constraint :
 maps :
 	make -f src/maps/Makefile all
 
-cadd : 
-	make -f src/cadd/Makefile all
-
 clinvar :
 	make -f src/clinvar/Makefile all
 
@@ -69,7 +65,6 @@ all : downloads \
 	  snv_annotation \
 	  constraint \
 	  maps \
-	  cadd \
 	  clinvar \
 	  orthogonal_metrics \
 	  omim \
