@@ -11,7 +11,9 @@
 		orthogonal_metrics \
 		omim \
 		protein_paint \
-		notebooks \
+		statistics_for_plots \
+		visualisation \
+		figures \
 		all \
 
 SHELL = /bin/bash
@@ -52,23 +54,13 @@ omim :
 protein_paint :
 	make -f src/protein_paint/Makefile all
 
-statistics : 
-	papermill src/statistics_for_plots/clinvar_ascertainment.ipynb src/statistics_for_plots/clinvar_ascertainment.ipynb
-	papermill src/statistics_for_plots/maps.ipynb src/statistics_for_plots/maps.ipynb
-	papermill src/statistics_for_plots/oe.ipynb src/statistics_for_plots/oe.ipynb
-	papermill src/statistics_for_plots/z_loeuf.ipynb src/statistics_for_plots/z_loeuf.ipynb
-	papermill src/statistics_for_plots/z_distributions.ipynb src/statistics_for_plots/z_distributions.ipynb
-	papermill src/statistics_for_plots/upset.ipynb src/statistics_for_plots/upset.ipynb
+statistics_for_plots :
+	make -f src/statistics_for_plots/Makefile all
+
+visualisation :
+	make -f src/visualisation/Makefile all
 
 figures :
-
-notebooks :
-	# Expectation model choices
-	for N in 0 10 20 30 ; do \
-		papermill notebooks/01_expectation_model_choices.ipynb \
-		notebooks/01_expectation_model_choices.ipynb \
-		-p coverage $$N ; \
-	done
 
 all : downloads \
 	  regions \
@@ -82,6 +74,6 @@ all : downloads \
 	  orthogonal_metrics \
 	  omim \
 	  protein_paint \
-	  statistics \
+	  statistics_for_plots \
+	  visualisation \
 	  figures \
-
