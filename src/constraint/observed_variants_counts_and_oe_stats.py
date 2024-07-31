@@ -3,7 +3,6 @@
 Constraint statistics are only calculated using variants above a coverage level.
 """
 
-import argparse
 import logging
 from pathlib import Path
 
@@ -11,14 +10,16 @@ from fast_poibin import PoiBin
 import numpy as np
 import pandas as pd
 from scipy import stats
+from sklego import pandas_utils as pu
 from tqdm import tqdm
 
 import src
-from src import constants as C
 
 _FILE_IN = "data/interim/cds_all_possible_snvs_annotated.tsv.gz"
-_FILE_OUT = "data/interim/oe_stats_regions_cov_"  # Suffix appended when written
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+_MU = "mu_roulette_scaled"  # The mutation rate estimate used in constraint calculations
+_MIN_COVERAGE = 20
+_FILE_OUT = f"data/interim/oe_stats_regions_cov_{_MIN_COVERAGE}.tsv"
 _NAMES_DICT = {
     "chr": "category",
     "pos": "int32",
@@ -37,12 +38,11 @@ _NAMES_DICT = {
     "mu_roulette_scaled": "float32",
     "mu_gnomad": "float32",
 }
-_MU = "mu_roulette_scaled"
 
 logger = logging.getLogger(__name__)
 
 
-def get_variant_annotations(path):
+def read_data(path):
     """Read variant annotation data."""
 
     logger.info("Reading variant annotation data.")
@@ -55,7 +55,6 @@ def get_variant_annotations(path):
         header=None,
         names=_NAMES_DICT.keys(),
         na_values=".",
-        # nrows=100000,  #! Testing
     )
 
     return df
@@ -64,12 +63,18 @@ def get_variant_annotations(path):
 def mark_observed_variants(df):
     """Assign a new boolean column showing observed variants."""
 
-    df = df.fillna({"ac": 0})
-    df["obs"] = np.where(df["ac"] >= 1, True, False)
+    return df.fillna({"ac": 0}).assign(
+        obs=lambda x: np.where(x["ac"] >= 1, True, False)
+    )
 
-    return df
+
+@pu.log_step(print_fn=lambda x: logger.info(x), shape_delta=True)
+def drop_mu_nans(df, mu=_MU):
+    """Drop variants with no mutation rate annotation."""
+    return df.dropna(subset=mu)
 
 
+@pu.log_step(print_fn=lambda x: logger.info(x), shape_delta=True)
 def filter_covered_sites(df, coverage):
     """Filter for sites with minimum coverage requirement."""
 
@@ -101,28 +106,19 @@ def filter_covered_sites(df, coverage):
     return df
 
 
-def per_row_binom_ci(row):
-    try:
-        result = stats.binomtest(
-            row["n_obs"], row["n_pos"], row["prop_exp"], alternative="less"
-        )
+def per_row_binom_test(row):
+    return stats.binomtest(
+        row["n_obs"], row["n_pos"], row["prop_exp"], alternative="less"
+    )
 
-        # Return the upper bound of the 95% CI around the O/E value
-        return (result.proportion_ci().high * row["n_pos"]) / row["n_exp"]
 
-    except:
-        pass
+def per_row_binom_oe_ci_hi(row):
+    """Find the upper bound of the 95% CI around the O/E value."""
+    return (per_row_binom_test(row).proportion_ci().high * row["n_pos"]) / row["n_exp"]
 
 
 def per_row_poisson_binom_p(row):
-    try:
-        poibin = PoiBin(row["mu_list"])
-
-        # Return a one-sided P value (H0: n_obs >= n_exp)
-        return poibin.cdf[row["n_obs"]]
-
-    except:
-        pass
+    return PoiBin(row["mu_list"]).cdf[row["n_obs"]]
 
 
 def agg_stats(df, grouping_columns, mu=_MU):
@@ -142,12 +138,35 @@ def agg_stats(df, grouping_columns, mu=_MU):
             oe=lambda x: x.n_obs / x.n_exp,
             prop_obs=lambda x: x.n_obs / x.n_pos,
             prop_exp=lambda x: x.n_exp / x.n_pos,  # Equals mu.mean()
-            oe_ci_hi=lambda x: x.progress_apply(per_row_binom_ci, axis=1),
+            oe_ci_hi=lambda x: x.progress_apply(per_row_binom_oe_ci_hi, axis=1),
             p=lambda x: x.apply(per_row_poisson_binom_p, axis=1),
         )
         .drop("mu_list", axis=1)
         .reset_index()
     )
+
+    return df
+
+
+def get_stats_per_region(df):
+    df = agg_stats(df, ["enst", "csq", "region"])
+    logger.info(f"Counts grouped by enst/csq/region: {len(df)}")
+    return df
+
+
+def get_stats_per_transcript(df):
+    df = agg_stats(df, ["enst", "csq"]).assign(region="transcript")
+    logger.info(f"Counts grouped by enst/csq: {len(df)}")
+    return df
+
+
+def combine_stats(df):
+    df = pd.concat([get_stats_per_region(df), get_stats_per_transcript(df)])
+
+    logger.info(f"Number of entries: {len(df)}")
+    logger.info(f"NaN values:\n{df.isna().sum()}")
+    logger.info(f"Unique transcripts: {df.enst.nunique()}")
+    logger.info(f"Region value counts:\n{df.groupby('region').csq.value_counts()}")
 
     return df
 
@@ -170,62 +189,24 @@ def reorder_data(df):
     ]
 
 
-def parse_args():
-    """Parse command line arguments."""
-
-    parser = argparse.ArgumentParser(usage=__doc__)
-
-    parser.add_argument(
-        "-c",
-        "--coverage",
-        type=int,
-        default=[20],
-        nargs="*",
-        help="Minimum coverage of sites to include. Accepts multiple integer values.",
-    )
-
-    return parser.parse_args()
+def write_out(df, path):
+    logger.info("Writing to output.\n")
+    df.to_csv(path, sep="\t", index=False)
+    return df
 
 
 def main():
     """Run as script."""
 
-    df = get_variant_annotations(_FILE_IN).pipe(mark_observed_variants)
-
-    # Filter for coverage
-    coverage = parse_args().coverage
-    for cov in coverage:
-        df_min_coverage = filter_covered_sites(df, cov)
-
-        # Get variants by region for constraint calculations.
-        # ? Should we limit to rare variants only?
-        transcript = (
-            agg_stats(df_min_coverage, ["enst", "csq"])
-            .assign(region="transcript")
-            .pipe(reorder_data)
-        )
-
-        regions = agg_stats(df_min_coverage, ["enst", "csq", "region"]).pipe(
-            reorder_data
-        )
-
-        combined = pd.concat([regions, transcript])
-
-        # Logging
-        logger.info(f"Counts grouped by enst/csq: {len(transcript)}")
-        logger.info(f"Counts grouped by nmd/enst/csq: {len(regions)}")
-        logger.info(f"Number of entries: {len(combined)}")
-        logger.info(f"NaN values:\n{combined.isna().sum()}")
-        logger.info(f"Unique transcripts: {combined.enst.nunique()}")
-        logger.info(
-            f"Region value counts:\n{combined.groupby('region').csq.value_counts()}"
-        )
-
-        # Write to output
-        logger.info("Writing to output.\n")
-        combined.to_csv(f"{_FILE_OUT}{str(cov)}.tsv", sep="\t", index=False)
-
-    return combined  #! Testing
+    return (
+        read_data(_FILE_IN)
+        .pipe(mark_observed_variants)
+        .pipe(drop_mu_nans)
+        .pipe(filter_covered_sites, _MIN_COVERAGE)
+        .pipe(combine_stats)
+        .pipe(reorder_data)
+        .pipe(write_out, f"{_FILE_OUT}")
+    )
 
 
 if __name__ == "__main__":
