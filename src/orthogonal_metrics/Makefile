@@ -59,8 +59,10 @@ data/interim/cadd_scores_coding.tsv : src/orthogonal_metrics/cadd_coding_snvs.sh
 	bash src/orthogonal_metrics/cadd_coding_snvs.sh
 
 # Annotate coding sites with CADD scores
-data/interim/cadd_scores_coding_annotated.tsv : src/orthogonal_metrics/cadd_scores_annotate.py \
-												data/final/regional_nonsense_constraint.tsv \
+data/interim/cadd_scores_coding_annotated.tsv : data/interim/cadd_scores_coding.tsv \
+                                                data/interim/nmd_annotations.tsv \
+                                                data/final/regional_nonsense_constraint.tsv \
                                                 data/interim/cadd_scores_coding.tsv \
+												src/orthogonal_metrics/cadd_scores_annotate.py
 	source activate ukb
 	python3 -m src.orthogonal_metrics.cadd_scores_annotate

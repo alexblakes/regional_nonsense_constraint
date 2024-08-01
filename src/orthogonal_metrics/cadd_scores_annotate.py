@@ -25,8 +25,6 @@ _DTYPES = {
     "cadd_phred": np.float16,
 }
 
-
-# Logging
 logger = logging.getLogger(__name__)
 
 
