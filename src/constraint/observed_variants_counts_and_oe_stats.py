@@ -69,12 +69,6 @@ def mark_observed_variants(df):
 
 
 @pu.log_step(print_fn=lambda x: logger.info(x), shape_delta=True)
-def drop_mu_nans(df, mu=_MU):
-    """Drop variants with no mutation rate annotation."""
-    return df.dropna(subset=mu)
-
-
-@pu.log_step(print_fn=lambda x: logger.info(x), shape_delta=True)
 def filter_covered_sites(df, coverage):
     """Filter for sites with minimum coverage requirement."""
 
@@ -106,6 +100,16 @@ def filter_covered_sites(df, coverage):
     return df
 
 
+def drop_mu_nans(grouped_series):
+    """Drop invalid mutation rate annotations (NaNs) from the series.
+    
+    Some variants do not have a mutability score. For regions harbouring these sites,
+    the number of expected variants will be under-estimated. The constraint results will
+    be more conservative in these regions.
+    """
+    return [x for x in grouped_series if 0 <= x <= 1]
+
+
 def per_row_binom_test(row):
     return stats.binomtest(
         row["n_obs"], row["n_pos"], row["prop_exp"], alternative="less"
@@ -114,10 +118,20 @@ def per_row_binom_test(row):
 
 def per_row_binom_oe_ci_hi(row):
     """Find the upper bound of the 95% CI around the O/E value."""
+    if row["n_exp"] == 0: # binomtest not applicable.
+        return np.nan
+    
     return (per_row_binom_test(row).proportion_ci().high * row["n_pos"]) / row["n_exp"]
 
 
 def per_row_poisson_binom_p(row):
+
+    # Rarely, there seem to be more observed variants than possible variant sites. This
+    # is because sites without a mutability score have been dropped. We can't run a 
+    # Poissin-Binomial test in this case.
+    if row["n_obs"] > len(row["mu_list"]):
+        return np.nan
+    
     return PoiBin(row["mu_list"]).cdf[row["n_obs"]]
 
 
@@ -132,7 +146,7 @@ def agg_stats(df, grouping_columns, mu=_MU):
             n_obs=("obs", "sum"),
             n_pos=("pos", "count"),
             n_exp=(mu, "sum"),
-            mu_list=(mu, lambda x: list(x)),
+            mu_list=(mu, drop_mu_nans),
         )
         .assign(
             oe=lambda x: x.n_obs / x.n_exp,
@@ -201,7 +215,6 @@ def main():
     return (
         read_data(_FILE_IN)
         .pipe(mark_observed_variants)
-        .pipe(drop_mu_nans)
         .pipe(filter_covered_sites, _MIN_COVERAGE)
         .pipe(combine_stats)
         .pipe(reorder_data)

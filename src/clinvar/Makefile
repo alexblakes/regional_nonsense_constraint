@@ -3,27 +3,12 @@
 
 SHELL = bash
 
-vus_plots = data/plots/clinvar/clinvar_vus_by_region.png \
-            data/plots/clinvar/clinvar_vus_by_region.svg \
-
-ptv_ascertainment_plots = data/plots/clinvar/clinvar_ptvs_ascertainment.png \
-                          data/plots/clinvar/clinvar_ptvs_ascertainment.svg \
-
-acmg_plots = data/plots/clinvar/clinvar_acmg.png \
-             data/plots/clinvar/clinvar_acmg.svg \
-
 all : data/interim/clinvar_variants_selected.tsv \
       data/interim/clinvar_variants_selected.vcf \
 	  data/interim/clinvar_variants_annotated.vcf \
 	  data/interim/clinvar_variants_vep.vcf \
 	  data/interim/clinvar_variants_vep_tidy.tsv \
 	  data/interim/clinvar_variants_constraint.tsv \
-	  data/statistics/clinvar_vus_by_region.tsv \
-	  data/statistics/clinvar_vus_by_region.tsv \
-	  $(vus_plots) \
-	  data/statistics/clinvar_ptv_ascertainment.tsv \
-	  $(ptv_ascertainment_plots) \
-	  $(acmg_plots) \
 
 # Parse ClinVar summary text file
 data/interim/clinvar_variants_selected.tsv : data/raw/variant_summary.txt \

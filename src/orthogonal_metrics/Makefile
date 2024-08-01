@@ -46,6 +46,9 @@ data/interim/cds_sites_phylop_pext_missense.tsv \
 data/final/phylop_pext_missense_annotations_stats.tsv : data/interim/alpha_missense_tidy.tsv \
                                                         data/interim/phylop_cds_sites.tsv \
 														data/interim/pext_38.bed \
+														data/interim/nmd_annotations.tsv \
+														data/interim/gene_ids.tsv \
+														data/final/regional_nonsense_constraint.tsv \
 														src/orthogonal_metrics/merge_orthogonal_annotations.py
 	source activate ukb
 	python3 -m src.orthogonal_metrics.merge_orthogonal_annotations
@@ -57,6 +60,7 @@ data/interim/cadd_scores_coding.tsv : src/orthogonal_metrics/cadd_coding_snvs.sh
 
 # Annotate coding sites with CADD scores
 data/interim/cadd_scores_coding_annotated.tsv : src/orthogonal_metrics/cadd_scores_annotate.py \
-                                                data/interim/cadd_scores_coding.tsv
+												data/final/regional_nonsense_constraint.tsv \
+                                                data/interim/cadd_scores_coding.tsv \
 	source activate ukb
 	python3 -m src.orthogonal_metrics.cadd_scores_annotate
