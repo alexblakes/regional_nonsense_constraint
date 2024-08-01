@@ -29,7 +29,6 @@ def read_nmd_annotations(path, **kwargs):
     nmd = pd.read_csv(
         path,
         sep="\t",
-        # nrows=10000,  #! Testing
         usecols=["chr", "pos", "transcript_id", "nmd_definitive"],
         **kwargs,
     ).rename(columns={"nmd_definitive": "region", "transcript_id": "enst"})

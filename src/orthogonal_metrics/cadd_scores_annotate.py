@@ -1,34 +1,38 @@
 """Annotate sites with CADD scores."""
 
-# Imports
-import argparse
+import itertools
 import logging
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklego.pandas_utils import log_step
 
 import src
+from src.constraint.observed_variants_counts_and_oe_stats import reorder_data
 from src.orthogonal_metrics import merge_orthogonal_annotations as moa
-from src.data import observed_variants
 
 _CADD = "data/interim/cadd_scores_coding.tsv"
 _NMD = "data/interim/nmd_annotations.tsv"
 _VEP = "data/interim/cds_all_possible_snvs_vep_tidy.tsv"
 _CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
 _FILE_OUT = "data/interim/cadd_scores_coding_annotated.tsv"
-_CADD_HEADER = "chr pos ref alt cadd_raw cadd_phred".split()
-_CADD_USECOLS = "chr pos ref alt cadd_phred".split()
 _LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _DTYPES = {
+    "chr": "category",
     "pos": np.int32,
+    "ref": "category",
+    "alt": "category",
     "cadd_phred": np.float16,
+    "csq": "category",
+    "enst": "category",
+    "region": "category",
+    "constraint": "category",
 }
 
 logger = logging.getLogger(__name__)
 
 
-# Functions
 def read_cadd(path, **kwargs):
     """Read CADD data."""
 
@@ -39,28 +43,66 @@ def read_cadd(path, **kwargs):
         sep="\t",
         comment="#",
         header=None,
-        names=_CADD_HEADER,
-        usecols=_CADD_USECOLS,
-        low_memory=False,
+        names="chr pos ref alt cadd_raw cadd_phred".split(),
+        usecols="chr pos ref alt cadd_phred".split(),
+        # low_memory=False,
         dtype=_DTYPES,
+        # nrows=10000,
         **kwargs,
     )
-
-    logger.info(f"CADD annotations: {len(cadd)}")
 
     return cadd
 
 
+@log_step(print_fn=lambda x: logger.info(x), shape_delta=True)
 def tidy_cadd(df):
-    """Tidy the CADD annotations for later merging."""
+    return (
+        df.drop_duplicates()
+        .assign(chr=lambda x: ["".join(["chr", str(c)]) for c in x["chr"]])
+        .assign(chr=lambda x: pd.Categorical(x["chr"]))
+    )
 
-    logger.info("Dropping CADD duplicates.")
-    df = df.drop_duplicates().copy()
-    logger.info(f"CADD annotations (duplicates dropped): {len(df)}")
 
-    logger.info('Adding "chr" prefix to CADD contig names.')
-    df["chr"] = ["".join(["chr", str(x)]) for x in df["chr"]]
+def read_vep(path):
+    return pd.read_csv(
+        path,
+        sep="\t",
+        header=None,
+        names=["chr", "pos", "ref", "alt", "csq", "enst"],
+        dtype={**_DTYPES},
+        # nrows=10000,
+    )
 
+
+def set_dtypes(df):
+    return df.astype({x: _DTYPES[x] for x in df.columns})
+
+
+def harmonise_categories(dfs):
+    get_cat_columns = lambda x: x.select_dtypes(include="category").columns
+    cat_columns = [set(get_cat_columns(df)) for df in dfs]
+    shared_cat_columns = set.intersection(*cat_columns)
+
+    for col in shared_cat_columns:
+        uc = pd.api.types.union_categoricals([df[col] for df in dfs])
+        for df in dfs:
+            df[col] = df[col].cat.set_categories(uc.categories)
+
+    return dfs
+
+
+@log_step(print_fn=lambda x: logger.info(x), shape_delta=True, display_args=False)
+def merge_l_and_r(l, r):
+    l, r = harmonise_categories([l, r])
+    return l.merge(r, how="inner", validate="many_to_one")
+
+
+def reorder_data(df):
+    return df[["enst", "region", "csq", "constraint", "cadd_phred"]]
+
+
+def write_out(df, path):
+    df.to_csv(path, sep="\t", index=False)
     return df
 
 
@@ -69,30 +111,22 @@ def main():
 
     # Read the data
     cadd = read_cadd(_CADD).pipe(tidy_cadd)
-    vep = observed_variants.get_vep_annotations(_VEP)
-    nmd = moa.read_nmd_annotations(_NMD, dtype=_DTYPES)
-    constraint = moa.read_regional_nonsense_constraint(_CONSTRAINT)
+    vep = read_vep(_VEP)
+    nmd = moa.read_nmd_annotations(_NMD).pipe(set_dtypes)
+    constraint = moa.read_regional_nonsense_constraint(_CONSTRAINT).pipe(set_dtypes)
 
-    # Merge annotations
-    logger.info("Merging VEP and CADD annotations.")
-    df = vep.merge(cadd, how="inner", validate="many_to_one")
-    del vep, cadd  # Manage memory
-    logger.info(f"Remaining variants: {len(df)}")
+    df = (
+        merge_l_and_r(vep, cadd)
+        .pipe(merge_l_and_r, nmd)
+        .pipe(merge_l_and_r, constraint)
+        .pipe(reorder_data)
+        .pipe(write_out, _FILE_OUT)
+    )
+    # # Write to output
+    # logger.info("Writing to output.")
+    # df.to_csv(_FILE_OUT, sep="\t", index=False)
 
-    logger.info("Merging NMD annotations.")
-    df = df.merge(nmd, how="inner", validate="many_to_one")
-    del nmd  # Manage memory
-    logger.info(f"Remaining variants: {len(df)}")
-
-    logger.info("Merging constraint annotations.")
-    df = df.merge(constraint, how="inner", validate="many_to_one")
-    logger.info(f"Remaining variants: {len(df)}")
-
-    # Write to output
-    logger.info("Writing to output.")
-    df.to_csv(_FILE_OUT, sep="\t", index=False)
-
-    logger.info("Done.")
+    # logger.info("Done.")
 
     return df
 

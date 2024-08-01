@@ -31,7 +31,7 @@ all : data/interim/oe_stats_regions_cov_20.tsv \
 data/interim/oe_stats_regions_cov_20.tsv : data/interim/cds_all_possible_snvs_annotated.tsv.gz \
                                            src/constraint/observed_variants_counts_and_oe_stats.py
 	source activate ukb
-	python3 -m src.constraint.observed_variants_counts_and_oe_stats --coverage 20
+	python3 -m src.constraint.observed_variants_counts_and_oe_stats
 	# Takes about 20 minutes to run
 
 # Quantify constraint statistics
