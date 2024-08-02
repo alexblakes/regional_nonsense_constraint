@@ -8,14 +8,14 @@ import pandas as pd
 import src
 from src import constants as C
 
-_LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
+_LOGFILE = f"data/logs/{'.'.join(Path(__file__).relative_to(Path.cwd()).with_suffix('.log').parts)}"
 
 logger = logging.getLogger(__name__)
 
 
 def main():
     """Run as script."""
-    pass
+    return None
 
 
 if __name__ == "__main__":
