@@ -1,6 +1,7 @@
 """"Package docstring."""
 
 import logging
+from pathlib import Path
 
 
 def setup_logger(logfile=None, name="src", level=logging.DEBUG, stream=False):
@@ -28,6 +29,10 @@ def setup_logger(logfile=None, name="src", level=logging.DEBUG, stream=False):
         logger.addHandler(stream_handler)
 
     return logger
+
+
+def log_file(file):
+    return f"data/logs/{'.'.join(Path(file).relative_to(Path.cwd()).with_suffix('.log').parts)}"
 
 
 root_logger = setup_logger(name="")  # Sponge for logging output from external packages
