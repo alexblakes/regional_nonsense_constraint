@@ -47,6 +47,7 @@ def vertical_bars(series, ax=None, **kwargs):
     """
 
     kwargs.setdefault("color", sns.color_palette())
+    kwargs.setdefault("ecolor", [adjust_lightness(c, 0.8) for c in sns.color_palette()])
 
     if not ax:
         ax = plt.gca()
@@ -89,3 +90,14 @@ def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", **kwargs):
         ax.tick_params(labelbottom=False)
 
     return ax
+
+def add_significance_asterisk(xs, ys, ps, ax=None, **kwargs):
+    kwargs.setdefault("ha", "center")
+    kwargs.setdefault("va", "center")
+
+    if not ax:
+        ax = plt.gca()
+    
+    for x, y, p in zip(xs, ys, ps):
+        if p:
+            ax.text(x,y, r"$\star$", **kwargs)

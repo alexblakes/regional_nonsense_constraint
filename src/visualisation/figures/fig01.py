@@ -53,7 +53,7 @@ def main():
     # Proportion VUS
     proportion_vus = cpv.read_vus_proportions(CLINVAR_VUS)
     vis.vertical_bars(proportion_vus["proportion_vus"], ax=axs_right[2])
-    cpv.customise_plot(ax=axs_right[2])
+    cpv.customise_plot(proportion_vus, ax=axs_right[2])
 
     # Tidy axes
     for ax in axs_right:

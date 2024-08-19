@@ -24,7 +24,7 @@ def read_vus_proportions(path):
     return pd.read_csv(path, sep="\t", index_col="region")
 
 
-def customise_plot(ax=None):
+def customise_plot(df, ax=None):
     if not ax:
         ax = plt.gca()
 
@@ -38,8 +38,16 @@ def customise_plot(ax=None):
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=0))
 
     # Bar labels
-    bars = ax.containers[0]
-    ax.bar_label(bars, fmt="{:.0%}")
+    bars = ax.containers[1]
+    ax.bar_label(bars, fmt="{:.0%}", padding=2)
+
+    # # Significance asterisks
+    # vis.add_significance_asterisk(
+    #     xs=np.arange(len(df)),
+    #     ys=df["proportion_vus"] + df["err"],
+    #     ps=df.bfr_p, va="bottom", ha="center"
+    # )
+
 
     return ax
 
@@ -52,8 +60,8 @@ def main():
 
     fig, ax = plt.subplots(1, 1, figsize=(5 * C.CM, 5 * C.CM), layout="constrained")
 
-    vis.vertical_bars(vus_proportions["proportion_vus"])
-    customise_plot()
+    vis.vertical_bars(vus_proportions["proportion_vus"], yerr=vus_proportions["err"])
+    customise_plot(vus_proportions)
 
     plt.savefig(_PNG, dpi=600)
     plt.savefig(_SVG)
