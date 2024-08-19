@@ -75,7 +75,7 @@ def main():
     logger.info(f"VUS proportions by region:\n{vus_proportions}")
     logger.info("Done.")
 
-    return
+    return vus_proportions
 
 
 if __name__ == "__main__":

@@ -39,6 +39,9 @@ def customise_plot(ax=None):
     bars = ax.containers[0]
     ax.bar_label(bars, fmt="{:.2f}")
 
+    # Hline
+    ax.axhline(1, color="grey", ls="--")
+
     return ax
 
 
