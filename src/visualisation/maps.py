@@ -31,13 +31,24 @@ def h_pointrange(y, x, xerr, ax=None):
 
     return None
 
+def customise_plot(ax, **kwargs):
+    if not ax:
+        ax = plt.gca()
+
+    ax.set_xlabel("MAPS")
+    
+    ax.set(**kwargs)
+
+    return ax    
+
 
 def plot(ax=None):
     if not ax:
         ax = plt.gca()
 
     maps = read_data()
-    h_pointrange(y=maps.index, x=maps["maps"], xerr=maps["ci95"])
+    h_pointrange(y=maps.index, x=maps["maps"], xerr=maps["ci95"], ax=ax)
+    customise_plot(ax)
 
     return ax
 

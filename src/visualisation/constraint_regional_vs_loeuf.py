@@ -1,6 +1,7 @@
 """Create a hexbin plot for regional constraint vs LOEUF scores."""
 
 import logging
+from re import I
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -21,7 +22,7 @@ def read_data(path=FILE_IN):
 def filter_transcripts(df):
     return df.query("region == 'transcript'")
 
-def hexbin(x, y, ax=None, **kwargs):
+def hexbin(x, y, ax=None, colorbar=True, **kwargs):
     kwargs.setdefault("mincnt", 1)
     kwargs.setdefault("gridsize", 40)
     kwargs.setdefault("linewidth", 0)
@@ -30,7 +31,10 @@ def hexbin(x, y, ax=None, **kwargs):
     if not ax:
         ax = plt.gca()
 
-    ax.hexbin(x, y, **kwargs)
+    im = ax.hexbin(x, y, **kwargs)
+
+    if colorbar:
+        plt.colorbar(im, ax=ax, label="Transcripts")
 
     return None
 
@@ -53,15 +57,17 @@ def customise_plot(rho, ax=None):
         transform=ax.transAxes,
     )
 
-    return ax
+    # Aspect
+    ax.set_box_aspect(1)
 
+    return ax
 
 def plot(ax=None):
     if not ax:
         ax = plt.gca()
 
     df = read_data().pipe(filter_transcripts)
-    rho = stats.spearmanr(df.oe_ci_hi, df.loeuf, nan_policy="omit").statistic
+    rho = stats.spearmanr(df.oe_ci_hi, df.loeuf, nan_policy="omit").statistic # type: ignore
     hexbin(df.oe_ci_hi, df.loeuf, extent=[0,2,0,2], ax=ax)
     customise_plot(rho, ax)
 

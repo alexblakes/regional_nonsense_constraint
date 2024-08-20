@@ -24,7 +24,7 @@ _DTYPES = defaultdict(lambda: "float16", region="category", constraint="category
 logger = logging.getLogger(__name__)
 
 
-def read_data(path: str) -> pd.DataFrame:
+def read_data(path: str = _FILE_IN) -> pd.DataFrame:
     logger.info("Reading data.")
 
     df = pd.read_csv(
@@ -86,7 +86,7 @@ def customise_plot(ax: plt.Axes = None, legend: bool = False, **kwargs):
     )
 
     if legend:
-        ax.legend(labelcolor="black", loc="lower left", bbox_to_anchor=(0, 1), ncols=1)
+        ax.legend(labelcolor="black", loc="lower left", bbox_to_anchor=(0, 1), ncols=2)
 
     return ax
 
@@ -110,7 +110,7 @@ def main():
     plt.style.use([C.STYLE_DEFAULT, C.COLOR_REGIONS])
     fig, axs = plt.subplots(1, 3, figsize=(18 * C.CM, 6 * C.CM), layout="constrained")
 
-    annotations = read_data(_FILE_IN).pipe(sort_data)
+    annotations = read_data().pipe(sort_data)
 
     metrics = ["phylop", "alpha_mis", "pext"]
     labels = ["phyloP", "AlphaMissense", "pext"]
