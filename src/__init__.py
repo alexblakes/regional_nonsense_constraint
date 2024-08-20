@@ -11,7 +11,7 @@ def setup_logger(logfile=None, name="src", level=logging.DEBUG, stream=False):
     logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
-        "{asctime} {levelname} | {module}  {funcName}  {lineno} :: {message}\n",
+        "{asctime} | {levelname} | {module}  {funcName}  {lineno}\n{message}\n",
         style="{",
         datefmt="%d-%m-%y %H:%M:%S",
     )

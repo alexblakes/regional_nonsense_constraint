@@ -36,9 +36,9 @@ MAPS_CONSEQUENCES = [
     "distal_nmd",
 ]
 MAPS_LABELS = [
-    "Synonymous (Whole transcript)",
-    "Missense (Whole transcript)",
-    "Nonsense (Whole transcript)",
+    "Synonymous (Full CDS)",
+    "Missense (Full CDS)",
+    "Nonsense (Full CDS)",
     "Nonsense (NMD target)",
     "Nonsense (Start proximal)",
     "Nonsense (Long exon)",

@@ -11,6 +11,7 @@ all : data/statistics/regions_cds_proportions.tsv \
 	  data/statistics/clinvar_acmg_by_region_and_constraint.tsv \
 	  data/statistics/orthogonal_metrics.tsv.gz \
 	  data/statistics/orthogonal_metrics_cadd.tsv.gz \
+	  data/statistics/maps.tsv \
 
 # Get relative footprint of NMD regions
 data/statistics/regions_cds_proportions.tsv : data/final/nmd_annotations_simple.tsv.gz \
@@ -60,3 +61,9 @@ data/statistics/orthogonal_metrics_cadd.tsv.gz : data/interim/cadd_scores_coding
                                                  src/statistics_for_plots/orthogonal_metrics_cadd.py
 	source activate ukb
 	python3 -m src.statistics_for_plots.orthogonal_metrics_cadd
+
+# MAPS
+data/statistics/maps.tsv : data/interim/maps.tsv \
+                           src/statistics_for_plots/maps.py
+	source activate ukb
+	python3 -m src.statistics_for_plots.maps

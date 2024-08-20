@@ -19,25 +19,29 @@ SVG = "data/plots/figures/fig_01.svg"
 
 
 def main():
-
     # Get data
     transcript_diagram = plt.imread(NMD_DIAGRAM)
     footprint = pd.read_csv(CDS_PROPORTION, sep="\t")
     ascertainment = pd.read_csv(CLINVAR_ASCERTAINMENT, sep="\t")
     vus = pd.read_csv(CLINVAR_VUS, sep="\t")
-    
+
     # Plotting style
     plt.style.use(C.STYLE_DEFAULT)
     plt.style.use(C.COLOR_REGIONS)
 
     # Instantiate the figure
-    fig = plt.figure(figsize=(12 * C.CM, 12 * C.CM), layout="constrained",)
+    fig = plt.figure(
+        figsize=(12 * C.CM, 12 * C.CM),
+        layout="constrained",
+    )
     subfigs = fig.subfigures(1, 2, width_ratios=(7, 5))
     ax_left = subfigs[0].subplots(1, 1)
     axs_right = subfigs[1].subplots(3, 1).flatten()
 
     # Biorender images (transcript diagram)
-    ax_left.imshow(transcript_diagram, )
+    ax_left.imshow(
+        transcript_diagram,
+    )
     ax_left.axis("off")
 
     # NMD region footprints
@@ -52,18 +56,18 @@ def main():
 
     # Proportion VUS
     proportion_vus = cpv.read_vus_proportions(CLINVAR_VUS)
-    vis.vertical_bars(proportion_vus["proportion_vus"], ax=axs_right[2])
+    vis.vertical_bars(proportion_vus["proportion_vus"], ax=axs_right[2], yerr=proportion_vus["err"])
     cpv.customise_plot(proportion_vus, ax=axs_right[2])
 
     # Tidy axes
     for ax in axs_right:
         ax.label_outer()
-    
+
     # Panel labels
     axes = [ax_left] + list(axs_right)
     labels = list("ABCD")
-    xs = [0.05] + [-0.05]*3
-    ys = [0.98] + [1.05]*3
+    xs = [0.05] + [-0.05] * 3
+    ys = [0.98] + [1.05] * 3
 
     for ax, label, x, y in zip(axes, labels, xs, ys):
         vis.panel_label(ax, label, x, y)
@@ -75,7 +79,6 @@ def main():
 
     pass
 
+
 if __name__ == "__main__":
     main()
-
-

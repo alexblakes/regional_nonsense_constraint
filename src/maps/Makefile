@@ -22,9 +22,3 @@ data/interim/maps.tsv : data/interim/maps_snvs_filtered.tsv \
                         src/maps/maps.py 
 	source activate ukb
 	python3 -m src.maps.maps
-
-# Plots MAPS
-$(plots) &: data/interim/maps.tsv \
-            src/maps/plot_maps.py
-	source activate ukb
-	python3 -m src.maps.plot_maps

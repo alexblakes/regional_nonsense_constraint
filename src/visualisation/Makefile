@@ -10,6 +10,7 @@ all : data/plots/regions/regions_cds_proportions.png \
 	  data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png \
 	  data/plots/orthogonal_metrics/phylop_alphamis_pext.png \
 	  data/plots/orthogonal_metrics/cadd.png \
+	  data/plots/maps/maps.png \
 
 # Plot proportion of CDS per region
 data/plots/regions/regions_cds_proportions.png : data/statistics/regions_cds_proportions.tsv \
@@ -52,3 +53,9 @@ data/plots/orthogonal_metrics/cadd.png : data/statistics/orthogonal_metrics_cadd
                                          src/visualisation/orthogonal_metrics_cadd.py
 	source activate ukb
 	python3 -m src.visualisation.orthogonal_metrics_cadd
+
+# MAPS
+data/plots/maps/maps.png : data/statistics/maps.tsv \
+                           src/visualisation/maps.py
+	source activate ukb
+	python3 -m src.visualisation.maps
