@@ -50,7 +50,7 @@ def main():
 
     # Panel labels
     axs = list(axs_top) + [ax_middle] + list(axs_bottom)
-    labels = list("ABCDE")
+    labels = list("abcde")
     xs = [-0.05] * 2 + [0.05] + [-0.05] * 2
     ys = [1.05] * 2 + [0.95] + [1.05] * 2
     for ax, label, x, y in zip(axs, labels, xs, ys):

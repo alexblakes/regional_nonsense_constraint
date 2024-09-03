@@ -65,7 +65,7 @@ def main():
 
     # Panel labels
     axes = [ax_left] + list(axs_right)
-    labels = list("ABCD")
+    labels = list("abcd")
     xs = [0.05] + [-0.05] * 3
     ys = [0.98] + [1.05] * 3
 
