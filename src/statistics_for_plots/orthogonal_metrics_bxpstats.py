@@ -59,7 +59,7 @@ def main():
         .agg(
             med=("score", lambda x: x.quantile([0.5])),
             q1=("score", lambda x: x.quantile([0.25])),
-            q2=("score", lambda x: x.quantile([0.75])),
+            q3=("score", lambda x: x.quantile([0.75])),
             whislo=("score", lambda x: x.quantile([0.05])),
             whishi=("score", lambda x: x.quantile([0.95])),
             mean=("score", "mean"),
