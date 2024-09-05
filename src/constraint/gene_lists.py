@@ -41,6 +41,8 @@ def get_constrained_gnomad_transcripts(gnomad):
     return gnomad_strong
 
 
+#! The merge causes a handful of transcripts to be lost. Try to refactor without 
+#! needing to merge with gene IDs.
 def get_gene_ids(df, gene_ids):
     """Get gene IDs for a dataframe with a list of transcript IDs."""
 
