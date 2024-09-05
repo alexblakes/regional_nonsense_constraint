@@ -7,3 +7,5 @@
 # Except for these files
 !.gitignore
 !protein_paint
+!regional_constraint_stats.tsv
+!regional_nonsense_constraint.tsv
