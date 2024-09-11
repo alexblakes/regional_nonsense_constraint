@@ -13,9 +13,9 @@ _METRICS = "data/statistics/orthogonal_metrics.tsv.gz"
 _FILE_OUT = "data/statistics/orthogonal_metrics_bxp_stats.tsv"
 _DTYPES = defaultdict(lambda: "float32", region="category", constraint="category")
 _METRIC_NAMES = dict(
-    cadd_phred="CADD Phred",
     phylop="phyloP",
     alpha_mis="AlphaMissense",
+    cadd_phred="CADD Phred",
     pext="pext",
 )
 
@@ -28,7 +28,7 @@ def read_data(path=_CADD):
             path,
             sep="\t",
             dtype=_DTYPES,
-            # nrows=1000000
+            # nrows=100000
         )
         .melt(id_vars=["region", "constraint"], var_name="metric", value_name="score")
         .astype({"metric": "category"})
@@ -64,6 +64,7 @@ def main():
             whishi=("score", lambda x: x.quantile([0.95])),
             mean=("score", "mean"),
             count=("score", "count"),
+            std=("score","std")
         )
     ).pipe(write_out)
 

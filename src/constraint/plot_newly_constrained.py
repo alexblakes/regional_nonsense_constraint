@@ -14,7 +14,6 @@ from src import constants as C
 from src.constraint import plot_venn_diagrams as venn
 from src.visualisation import phylop_plots as pp
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _FILE_IN_GNOMAD_CST = "data/final/gene_list_gnomad_constrained.txt"
 _FILE_IN_NMD_TARGET = "data/final/gene_list_nmd_target_constrained.txt"
 _FILE_IN_START_PROX = "data/final/gene_list_start_proximal_constrained.txt"
@@ -101,5 +100,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    logger = src.setup_logger(src.log_file(__file__))
     main()

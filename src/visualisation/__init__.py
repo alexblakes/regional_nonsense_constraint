@@ -4,6 +4,7 @@ import colorsys
 
 import matplotlib.colors as mc
 import matplotlib.pyplot as plt
+from matplotlib import transforms
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -38,6 +39,25 @@ def panel_label(ax, s, x=-0.05, y=1.05, **kwargs):
     )
 
     return ax
+
+
+def add_significance_asterisk(xs, ys, ps, ax=None, x_adj=0, y_adj=0, **kwargs):
+    kwargs.setdefault("marker", (6, 2))
+    kwargs.setdefault("color", "black")
+    kwargs.setdefault("linewidth", 0.5)
+    kwargs.setdefault("zorder", 3)
+    kwargs.setdefault("clip_on", False)
+
+    if not ax:
+        ax = plt.gca()
+
+    trans = ax.transData + transforms.ScaledTranslation(
+        x_adj / 72, y_adj / 72, plt.gcf().dpi_scale_trans
+    )
+
+    for x, y, p in zip(xs, ys, ps):
+        if p:
+            ax.scatter(x, y, transform=trans, **kwargs)
 
 
 def vertical_bars(series, ax=None, **kwargs):
@@ -91,13 +111,4 @@ def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", **kwargs):
 
     return ax
 
-def add_significance_asterisk(xs, ys, ps, ax=None, **kwargs):
-    kwargs.setdefault("ha", "center")
-    kwargs.setdefault("va", "center")
 
-    if not ax:
-        ax = plt.gca()
-    
-    for x, y, p in zip(xs, ys, ps):
-        if p:
-            ax.text(x,y, r"$\star$", **kwargs)

@@ -78,17 +78,11 @@ def recolor(ax: plt.Axes, palette) -> plt.Axes:
 
     return ax
 
-
-def main():
-    """Run as script."""
-
-    plt.style.use([C.STYLE_DEFAULT, C.COLOR_REGIONS])
-    fig, axs = plt.subplots(2, 2, figsize=(12 * C.CM, 12 * C.CM), layout="constrained")
-    axs = axs.flatten()
-
+def plot(axs):
+    
     df = read_data().set_index(["metric", "region", "constraint"])
 
-    subsets = [g for _, g in df.groupby("metric")]
+    subsets = [g for _, g in df.groupby(level="metric", sort=False)]
     legends = [1, 0, 0, 0]
 
     for subset, ax, legend in zip(subsets, axs, legends):
@@ -126,6 +120,18 @@ def main():
             legend_kwargs=dict(ncols=2)
         )
         recolor(ax, sns.color_palette())
+    
+    return None
+
+
+def main():
+    """Run as script."""
+
+    plt.style.use([C.STYLE_DEFAULT, C.COLOR_REGIONS])
+    fig, axs = plt.subplots(2, 2, figsize=(12 * C.CM, 12 * C.CM), layout="constrained")
+    axs = axs.flatten()
+
+    plot(axs)
 
     plt.savefig(_PNG, dpi=600)
     plt.savefig(_SVG)

@@ -67,7 +67,8 @@ def plot(ax=None):
         ax = plt.gca()
 
     df = read_data().pipe(filter_transcripts)
-    rho = stats.spearmanr(df.oe_ci_hi, df.loeuf, nan_policy="omit").statistic # type: ignore
+    rho, pvalue = stats.spearmanr(df.oe_ci_hi, df.loeuf, nan_policy="omit") # type: ignore
+    logger.info(f"Spearman rho: {rho}, pvalue: {pvalue}")
     hexbin(df.oe_ci_hi, df.loeuf, extent=[0,2,0,2], ax=ax)
     customise_plot(rho, ax)
 
