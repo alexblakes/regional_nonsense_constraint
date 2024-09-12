@@ -59,7 +59,7 @@ def customise_plot(ax=None, legend=False, legend_kwargs={}, **kwargs):
             label="Unconstrained",
         )
 
-        ax.legend(handles=[patch1, patch2], **legend_kwargs)
+        ax.legend(handles=[patch2, patch1], **legend_kwargs)
 
     ax.set(**kwargs)
 
@@ -87,10 +87,7 @@ def plot(axs):
 
     for subset, ax, legend in zip(subsets, axs, legends):
         groups = [g for _, g in subset.groupby("constraint")]
-        start_positions = [1, 2]
-        ylabel = subset.index.get_level_values("metric")[0]
-        xticks = [1.5 + i * 3 for i in range(len(C.REGIONS))]
-        xticklabels = subset.index.get_level_values("region").unique()
+        start_positions = [2, 1]
 
         for data, start in zip(groups, start_positions):
             data = data.to_dict(orient="records")
@@ -111,6 +108,10 @@ def plot(axs):
                 patch_artist=True,
             )
 
+        ylabel = subset.index.get_level_values("metric")[0]
+        xticks = [1.5 + i * 3 for i in range(len(C.REGIONS))]
+        xticklabels = subset.index.get_level_values("region").unique()
+
         customise_plot(
             ax,
             legend,
@@ -120,6 +121,11 @@ def plot(axs):
             legend_kwargs=dict(ncols=2)
         )
         recolor(ax, sns.color_palette())
+
+        asterisk_xs = [i for i in range(16) if not i % 3 == 0]
+        asterisk_ys = subset["whishi"]
+        asterisk_ps = [0,1] * 5
+        vis.add_significance_asterisk(asterisk_xs, asterisk_ys, asterisk_ps, ax=ax, y_adj=4)
     
     return None
 
