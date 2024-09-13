@@ -37,10 +37,14 @@ def customise_plot(ax=None):
 
     # Bar labels
     bars = ax.containers[0]
-    ax.bar_label(bars, fmt="{:.2f}")
+    ax.bar_label(bars, fmt="{:.2f}", padding=5)
 
     # Hline
     ax.axhline(1, color="grey", ls="--")
+
+    # Significance asterisks
+    vis.add_significance_asterisk(xs=[1,3], ys=[1.18, 1.11], ps=[1,1], ax=ax, y_adj=3)
+    vis.add_significance_asterisk(xs=[2,4], ys=[0.63, 0.6], ps=[1,1], ax=ax, y_adj=3, marker="$\u2020$")
 
     return ax
 
