@@ -39,15 +39,15 @@ def customise_plot(df, ax=None):
 
     # Bar labels
     bars = ax.containers[1]
-    ax.bar_label(bars, fmt="{:.0%}", padding=2)
+    ax.bar_label(bars, fmt="{:.0%}", padding=5)
 
-    # # Significance asterisks
-    # vis.add_significance_asterisk(
-    #     xs=np.arange(len(df)),
-    #     ys=df["proportion_vus"] + df["err"],
-    #     ps=df.bfr_p, va="bottom", ha="center"
-    # )
-
+    # Significance asterisks
+    vis.add_significance_asterisk(
+        xs=np.arange(len(df)),
+        ys=df["proportion_vus"] + df["err"],
+        ps=[0, 1, 1, 1, 1],
+        y_adj=3
+    )
 
     return ax
 

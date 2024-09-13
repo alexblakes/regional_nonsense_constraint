@@ -42,7 +42,7 @@ def tidy_maps(df):
 
 
 def write_out(df, path):
-    df.to_csv(path, sep="\t")
+    df.to_csv(path, sep="\t", index=False)
     return df
 
 

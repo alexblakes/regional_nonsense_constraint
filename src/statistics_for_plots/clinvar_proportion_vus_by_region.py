@@ -16,7 +16,7 @@ _FILE_OUT = "data/statistics/clinvar_vus_by_region.tsv"
 logger = logging.getLogger(__name__)
 
 
-def read_clinvar_variants(path):
+def read_clinvar_variants(path=_FILE_IN):
     logger.info("Reading ClinVar data")
     return pd.read_csv(
         path,

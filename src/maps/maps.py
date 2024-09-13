@@ -83,8 +83,7 @@ def pred_ps(df, poly1d):
 
 
 def get_maps(df):
-    df["maps"] = df["ps"] - df["pred_ps"]
-    return df
+    return df.assign(maps=lambda x: x["ps"] - x["pred_ps"])
 
 
 def get_confidence_interval(df):
