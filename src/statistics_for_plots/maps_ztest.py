@@ -7,8 +7,6 @@ import pandas as pd
 from statsmodels.stats import proportion
 
 import src
-from src import constants as C
-from src import statistics_for_plots as sp
 
 _FILE_IN = "data/statistics/maps.tsv"
 _FILE_OUT = "data/statistics/maps_ztest.tsv"
