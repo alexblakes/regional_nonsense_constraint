@@ -54,7 +54,7 @@ def get_constrained_regions(df, region):
 
 
 def write_out(series, path):
-    series.to_csv(path, sep="\t", index=False)
+    series.to_csv(path, sep="\t", index=False, header=False)
     return series
 
 
@@ -99,5 +99,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(__file__)
+    logger = src.setup_logger(src.log_file(__file__))
     main()

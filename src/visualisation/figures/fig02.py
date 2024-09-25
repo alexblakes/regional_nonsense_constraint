@@ -1,7 +1,6 @@
 """Plot figure 2."""
 
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 from src import constants as C
 import src.visualisation as vis

@@ -9,6 +9,7 @@ import src
 
 _LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}"
 _FILE_IN = "data/final/regional_nonsense_constraint.tsv"
+_CANONICAL_TRANSCRIPTS = "data/final/transcript_list_all.txt"
 _FILE_OUT = "data/statistics/constraint_upset_data.tsv"
 _REGION_LABELS = {
     "transcript": "Full CDS",
@@ -25,6 +26,16 @@ def read_constraint_data(path):
         sep="\t",
         usecols=["region", "enst", "constraint"],
     )
+
+
+def read_canonical_transcripts(path=_CANONICAL_TRANSCRIPTS):
+    return pd.read_csv(path, sep="\t")
+
+
+def filter_canonical_transcripts(df):
+    canonical_transcripts = read_canonical_transcripts().squeeze()
+
+    return df.loc[lambda x: x["enst"].isin(canonical_transcripts)]
 
 
 def find_constrained_regions(df):
@@ -49,7 +60,7 @@ def main():
 
     return (
         read_constraint_data(_FILE_IN)
-        .dropna()
+        .pipe(filter_canonical_transcripts)
         .pivot(index="enst", columns="region", values="constraint")
         .rename(columns=_REGION_LABELS)
         .loc[:, _REGION_LABELS.values()]
@@ -59,9 +70,8 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    logger = src.setup_logger(src.log_file(__file__))
     main()
 
 else:
     logger = logging.getLogger(__name__)
-

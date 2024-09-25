@@ -14,11 +14,11 @@ from src import constants as C
 from src.constraint import plot_venn_diagrams as venn
 from src.visualisation import phylop_plots as pp
 
-_FILE_IN_GNOMAD_CST = "data/final/gene_list_gnomad_constrained.txt"
-_FILE_IN_NMD_TARGET = "data/final/gene_list_nmd_target_constrained.txt"
-_FILE_IN_START_PROX = "data/final/gene_list_start_proximal_constrained.txt"
-_FILE_IN_LONG_EXON = "data/final/gene_list_long_exon_constrained.txt"
-_FILE_IN_DISTAL = "data/final/gene_list_distal_constrained.txt"
+_FILE_IN_GNOMAD_CST = "data/final/transcript_list_gnomad_constrained.txt"
+_FILE_IN_NMD_TARGET = "data/final/transcript_list_nmd_target_constrained.txt"
+_FILE_IN_START_PROX = "data/final/transcript_list_start_proximal_constrained.txt"
+_FILE_IN_LONG_EXON = "data/final/transcript_list_long_exon_constrained.txt"
+_FILE_IN_DISTAL = "data/final/transcript_list_distal_constrained.txt"
 _LABELS = ["Any region", "NMD target", "Start proximal", "Long exon", "Distal"]
 _SVG = "data/plots/constraint/newly_constrained.svg"
 _PNG = "data/plots/constraint/newly_constrained.png"
