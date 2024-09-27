@@ -29,7 +29,8 @@ def parse_data(path=FILE_IN):
 def customise_plot(ax=None, title=None):
     ax = ax or plt.gca()
 
-    ax.set_title(title)
+    # ax.set_title(title, ma="left", ha="right", va="top")
+    ax.text(1, 1, s=title, ma="left", ha="right", va="top", transform=ax.transAxes)
     ax.set_xlabel("Nonsense OE95")
     ax.set_xlim(0, 4)
     ax.axvline(0.6, ls="--", color="black")

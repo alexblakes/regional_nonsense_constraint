@@ -34,7 +34,7 @@ def hexbin(x, y, ax=None, colorbar=True, **kwargs):
     im = ax.hexbin(x, y, **kwargs)
 
     if colorbar:
-        plt.colorbar(im, ax=ax, label="Transcripts")
+        plt.colorbar(im, ax=ax, label="Transcripts", shrink=0.8, aspect=15)
 
     return None
 
