@@ -41,6 +41,10 @@ def customise_plot(ax=None):
     bars = ax.containers[0]
     ax.bar_label(bars, fmt="{:.0%}")
 
+    # NMD-escape annotation
+    ax.plot([2,4], [0.4,0.4], color="black", lw=0.75)
+    ax.annotate("38.7%", xy=(3,0.4), xytext=(0,3), textcoords="offset points", ha="center")
+
     return ax
 
 
