@@ -34,7 +34,7 @@ def customise_plot(df, ax=None):
     ax.set_xticks(ticks, labels, rotation=45, ha="right", rotation_mode="anchor")
 
     # y axis
-    ax.set_ylabel("Proportion of PTVs\nwhich are VUS in ClinVar")
+    ax.set_ylabel("Nonsense and frameshift\nproportion VUS in ClinVar")
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=0))
 
     # Bar labels

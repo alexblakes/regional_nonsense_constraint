@@ -53,9 +53,9 @@ def plot(ax=None):
     maps = read_data()
     h_pointrange(y=maps.index, x=maps["maps"], xerr=maps["ci95"], ax=ax)
     customise_plot(ax)
-    vis.add_significance_asterisk(
-        maps.maps, ys=np.arange(len(maps)), ps=np.ones(len(maps)), y_adj=4, ax=ax
-    )
+    # vis.add_significance_asterisk(
+    #     maps.maps, ys=np.arange(len(maps)), ps=np.ones(len(maps)), y_adj=4, ax=ax
+    # )
 
     return ax
 

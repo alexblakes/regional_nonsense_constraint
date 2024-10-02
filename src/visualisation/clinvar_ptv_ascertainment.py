@@ -33,7 +33,7 @@ def customise_plot(ax=None):
     ax.set_xticks(ticks, labels, rotation=45, ha="right", rotation_mode="anchor")
 
     # y axis
-    ax.set_ylabel("Relative PTV count\nin ClinVar (normalised)")
+    ax.set_ylabel("Nonsense and frameshift\nvariant counts in ClinVar\n(normalised)")
 
     # Bar labels
     bars = ax.containers[0]

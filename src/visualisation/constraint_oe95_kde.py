@@ -29,13 +29,43 @@ def parse_data(path=FILE_IN):
 def customise_plot(ax=None, title=None):
     ax = ax or plt.gca()
 
-    # ax.set_title(title, ma="left", ha="right", va="top")
-    ax.text(1, 1, s=title, ma="left", ha="right", va="top", transform=ax.transAxes)
+    ax.set_title(title, ma="center")
+    # ax.text(1, 1, s=title, ma="left", ha="right", va="top", transform=ax.transAxes)
     ax.set_xlabel("Nonsense OE95")
+    ax.set_ylabel(None)
+    ax.set_yticks([])
     ax.set_xlim(0, 4)
     ax.axvline(0.6, ls="--", color="black")
 
     return ax
+
+
+def annotate_plot(ax=None):
+    ax = ax or plt.gca()
+
+    # Annotate vertical line
+    ax.text(s="0.6", x=0.55, y=0.95, ha="right", va="top", rotation=90)
+    
+    # Annotate constraint arrow
+    ax.annotate(
+        "",
+        (0.8, 0.1),
+        (4, 0.1),
+        ax.transData,
+        ax.transData,
+        arrowprops=dict(arrowstyle="->,head_width=0.4"),
+        ha="right",
+        va="bottom",
+    )
+    ax.text(
+        s="Stronger\nconstraint",
+        x=3.9,
+        y=0.12,
+        ha="right",
+        va="bottom",
+        ma="right",
+        transform=ax.transData,
+    )
 
 
 def plot(axs):
@@ -52,6 +82,8 @@ def plot(axs):
 
         sns.kdeplot(ax=ax, x=x, gridsize=500, color=color, fill=True)
         customise_plot(ax, title)
+    
+    annotate_plot(axs[0])
 
     return axs
 
