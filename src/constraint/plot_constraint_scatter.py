@@ -24,12 +24,9 @@ _REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
 logger = logging.getLogger(__name__)
 
 
-def main():
-    """Run as script."""
-
-    # Read data
-    df = pd.read_csv(
-        _REGIONAL_NONSENSE_CONSTRAINT,
+def read_constraint(path=_REGIONAL_NONSENSE_CONSTRAINT):
+    return pd.read_csv(
+        path,
         sep="\t",
         usecols=[
             "enst",
@@ -45,23 +42,33 @@ def main():
         ],
     )
 
-    # Filter data
-    df = df.dropna(subset="p")
-    df = df[df["syn_p"] >= stats.norm.cdf(-1)]
-    df = df[df["n_exp"] >= 5]
 
-    # Annotate with gene symbols
-    gene_ids = pd.read_csv(
-        _GENE_IDS,
+def filter_constraint(df):
+    return (
+        df.dropna()
+        .loc[lambda x: x["syn_p"] >= stats.norm.cdf(-1), :]
+        .loc[lambda x: x["n_exp"] >= 5, :]
+    )
+
+
+def get_gene_ids(path=_GENE_IDS):
+    return pd.read_csv(
+        path,
         sep="\t",
         usecols=["transcript_id", "gene_name"],
         header=0,
     ).set_axis(["enst", "symbol"], axis=1)
 
-    df = df.merge(gene_ids, validate="many_to_one")
 
-    # Pivot table
-    df = (
+def parse_data():
+    constraint = read_constraint().pipe(filter_constraint)
+    gene_ids = get_gene_ids()
+
+    return constraint.merge(gene_ids, validate="many_to_one")
+
+
+def reorient_data(df):
+    return (
         df.pivot(
             index=["enst", "symbol"],
             columns="region",
@@ -70,35 +77,72 @@ def main():
         .reorder_levels([1, 0], axis=1)
         .sort_index(axis=1)
     )
-    df.columns = ["_".join([x, y]) for x, y in df.columns]
 
-    # Set plot style
+
+def rename_columns(df):
+    df.columns = ["_".join([x, y]) for x, y in df.columns]
+    return df
+
+
+def keep_relevant_columns(df, xlabel, ylabel):
+    # Get column names
+    x_constraint = xlabel + "_constraint"
+    y_constraint = ylabel + "_constraint"
+    x_oe = xlabel + "_oe_ci_hi"
+    y_oe = ylabel + "_oe_ci_hi"
+
+    return (
+        df[[x_constraint, x_oe, y_constraint, y_oe]]
+        .copy()
+        .reset_index("symbol")
+        .rename(
+            columns={
+                x_constraint: "x_constraint",
+                y_constraint: "y_constraint",
+                x_oe: "x_oe_ci_hi",
+                y_oe: "y_oe_ci_hi",
+            }
+        )
+    )
+
+
+def keep_constrained_regions(df):
+    m1 = df["x_constraint"] == "constrained"
+    m2 = df["y_constraint"] == "constrained"
+
+    return df.loc[m1 | m2, :]
+
+
+def main():
+    """Run as script."""
+
+    df = parse_data().pipe(reorient_data).pipe(rename_columns)
+
+    # Instantiate figure
     plt.style.use(C.STYLE_DEFAULT)
     plt.style.use(C.COLOR_REGIONS)
 
-    # Get parameters for plots
-    region_dict = {a: b for a, b in zip(_REGION_NAMES, _REGION_LABELS)}
-    dim = len(_REGION_NAMES)
-    subsets = itertools.product(_REGION_NAMES, _REGION_NAMES)
-
-    # Instantiate the figure
     fig, axs = plt.subplots(
-        dim,
-        dim,
+        4,
+        4,
         figsize=(18 * C.CM, 18 * C.CM),
         layout="tight",
         sharex="col",
         sharey="row",
         subplot_kw=dict(box_aspect=1),
     )
-    axs = axs.ravel("F")
 
-    # Color palette
+    # Define iterables for plotting
+    axs = axs.ravel("F")
+    subsets = itertools.product(_REGION_NAMES, _REGION_NAMES)
     palette = sns.color_palette()
-    colors = [palette[i] for i in [1]*4 + [2]*4 + [3]*4 + [4]*4]
+    x_colors = [palette[i] for i in [1] * 4 + [2] * 4 + [3] * 4 + [4] * 4]
+    y_colors = [palette[i] for i in [1, 2, 3, 4] * 4]
+    grey = palette[0]
+    region_dict = {a: b for a, b in zip(_REGION_NAMES, _REGION_LABELS)}
 
     # Create plots
-    for ax, (xlabel, ylabel), color in zip(axs, subsets, colors):
+    for ax, (xlabel, ylabel), x_color, y_color in zip(axs, subsets, x_colors, y_colors):
         ax.set_xlabel(f"O/E upper 95% CI\n{region_dict[xlabel]}")
         ax.set_ylabel(f"O/E upper 95% CI\n{region_dict[ylabel]}")
         ax.label_outer()
@@ -106,31 +150,41 @@ def main():
         if xlabel == ylabel:
             continue
 
-        # Keep only relevant columns
-        x_constraint = xlabel + "_constraint"
-        y_constraint = ylabel + "_constraint"
-        x_oe = xlabel + "_oe_ci_hi"
-        y_oe = ylabel + "_oe_ci_hi"
+        # Subset the data for each scatter plot
+        ax_data = keep_relevant_columns(df, xlabel, ylabel).pipe(
+            keep_constrained_regions
+        )
 
-        data = df[[x_constraint, x_oe, y_constraint, y_oe]].copy().reset_index("symbol")
+        # Plot the data in three parts
+        m1 = ax_data["x_constraint"] == "constrained"
+        m2 = ax_data["y_constraint"] == "constrained"
 
-        # Keep entries where at least one region is constrained
-        m1 = data[x_constraint] == "constrained"
-        m2 = data[y_constraint] == "constrained"
+        x_only = ax_data[m1 & ~m2]
+        y_only = ax_data[~m1 & m2]
+        both = ax_data[m1 & m2]
 
-        data = data[m1 | m2]
-
-        # Plot scatter plots
-        x = data[x_oe]
-        y = data[y_oe]
-        ax.scatter(x, y, alpha=0.5, linewidth=0, color=color)
+        for data, color in zip(
+            [x_only, y_only, both], [x_color, y_color, grey]
+        ):
+            # Plot scatter plots
+            ax.scatter(
+                data["x_oe_ci_hi"],
+                data["y_oe_ci_hi"],
+                alpha=0.5,
+                linewidth=0,
+                color=color,
+            )
 
         # Highlight the strongest outliers
-        data["diff"] = (data[x_oe] - data[y_oe]).astype(float)
-        min3 = data.nsmallest(5, "diff")
+        ax_data["diff"] = (ax_data["x_oe_ci_hi"] - ax_data["y_oe_ci_hi"]).astype(float)
+        min3 = ax_data.nsmallest(5, "diff")
 
         ax.scatter(
-            min3[x_oe], min3[y_oe], color="None", edgecolor="black", linewidth=0.5
+            min3["x_oe_ci_hi"],
+            min3["y_oe_ci_hi"],
+            color="None",
+            edgecolor="black",
+            linewidth=0.5,
         )
 
         # Annotate the N largest outliers
@@ -138,8 +192,8 @@ def main():
         for i, row in min3.iterrows():
             annots.append(
                 ax.text(
-                    x=row[x_oe],
-                    y=row[y_oe],
+                    x=row["x_oe_ci_hi"],
+                    y=row["y_oe_ci_hi"],
                     s=row["symbol"],
                     ha="left",
                     va="top",
