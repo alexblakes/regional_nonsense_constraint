@@ -48,25 +48,25 @@ def annotate_plot(ax=None):
     
     # Annotate constraint arrow
     ax.annotate(
-        "Stronger\nconstraint",
+        "",
         (0.8, 0.1),
-        (4, 0.1001),
+        (4, 0.1),
         ax.transData,
         ax.transData,
-        arrowprops=dict(arrowstyle="->,head_width=0.4", relpos=(1,0)),
+        arrowprops=dict(arrowstyle="->,head_width=0.4"),
         ha="right",
         va="bottom",
         ma="right"
     )
-    # ax.text(
-    #     s="Stronger\nconstraint",
-    #     x=3.9,
-    #     y=0.12,
-    #     ha="right",
-    #     va="bottom",
-    #     ma="right",
-    #     transform=ax.transData,
-    # )
+    ax.text(
+        s="Stronger\nconstraint",
+        x=3.9,
+        y=0.12,
+        ha="right",
+        va="bottom",
+        ma="right",
+        transform=ax.transData,
+    )
 
 
 def plot(axs):

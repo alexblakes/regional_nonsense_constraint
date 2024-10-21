@@ -47,6 +47,7 @@ def customise_plot(ax=None, title=None):
 
 
 def plot(fig, axs):
+    
     # Get data
     df = parse_data()
 
@@ -61,6 +62,10 @@ def plot(fig, axs):
         ax.hexbin(x, y, bins="log", cmap="Greys_r", linewidths=0, gridsize=40)
         customise_plot(ax, title)
 
+    # Remove needless Y labels
+    axs[1].set_ylabel("")
+    axs[2].set_ylabel("")
+
     # Add colorbar
     hb = axs[-1].collections[-1]  # Get mappable for colorbar
     fig.colorbar(
@@ -68,6 +73,7 @@ def plot(fig, axs):
         ax=axs,
         label="Transcripts",
         shrink=0.6,
+        aspect=15,
         ticks=ticker.LogLocator(numticks=10),
     )
 
@@ -77,7 +83,7 @@ def main():
     fig, axs = plt.subplots(
         1,
         3,
-        figsize=(12 * C.CM, 4 * C.CM),
+        figsize=(18 * C.CM, 6 * C.CM),
         layout="constrained",
     )
 

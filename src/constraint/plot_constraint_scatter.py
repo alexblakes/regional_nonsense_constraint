@@ -4,10 +4,11 @@ import itertools
 import logging
 from pathlib import Path
 
+import adjustText
+import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
-import matplotlib.pyplot as plt
-import adjustText
+import seaborn as sns
 
 import src
 from src import constants as C
@@ -92,8 +93,12 @@ def main():
     )
     axs = axs.ravel("F")
 
+    # Color palette
+    palette = sns.color_palette()
+    colors = [palette[i] for i in [1]*4 + [2]*4 + [3]*4 + [4]*4]
+
     # Create plots
-    for ax, (xlabel, ylabel) in zip(axs, subsets):
+    for ax, (xlabel, ylabel), color in zip(axs, subsets, colors):
         ax.set_xlabel(f"O/E upper 95% CI\n{region_dict[xlabel]}")
         ax.set_ylabel(f"O/E upper 95% CI\n{region_dict[ylabel]}")
         ax.label_outer()
@@ -118,7 +123,7 @@ def main():
         # Plot scatter plots
         x = data[x_oe]
         y = data[y_oe]
-        ax.scatter(x, y, alpha=0.5, linewidth=0)
+        ax.scatter(x, y, alpha=0.5, linewidth=0, color=color)
 
         # Highlight the strongest outliers
         data["diff"] = (data[x_oe] - data[y_oe]).astype(float)
