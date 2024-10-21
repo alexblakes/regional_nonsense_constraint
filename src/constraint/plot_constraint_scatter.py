@@ -137,12 +137,11 @@ def main():
     subsets = itertools.product(_REGION_NAMES, _REGION_NAMES)
     palette = sns.color_palette()
     x_colors = [palette[i] for i in [1] * 4 + [2] * 4 + [3] * 4 + [4] * 4]
-    y_colors = [palette[i] for i in [1, 2, 3, 4] * 4]
     grey = palette[0]
     region_dict = {a: b for a, b in zip(_REGION_NAMES, _REGION_LABELS)}
 
     # Create plots
-    for ax, (xlabel, ylabel), x_color, y_color in zip(axs, subsets, x_colors, y_colors):
+    for ax, (xlabel, ylabel), x_color in zip(axs, subsets, x_colors):
         ax.set_xlabel(f"O/E upper 95% CI\n{region_dict[xlabel]}")
         ax.set_ylabel(f"O/E upper 95% CI\n{region_dict[ylabel]}")
         ax.label_outer()
@@ -155,17 +154,13 @@ def main():
             keep_constrained_regions
         )
 
-        # Plot the data in three parts
+        # Plot the data in two parts
         m1 = ax_data["x_constraint"] == "constrained"
-        m2 = ax_data["y_constraint"] == "constrained"
 
-        x_only = ax_data[m1 & ~m2]
-        y_only = ax_data[~m1 & m2]
-        both = ax_data[m1 & m2]
+        constrained = ax_data[m1]
+        unconstrained = ax_data[~m1]
 
-        for data, color in zip(
-            [x_only, y_only, both], [x_color, y_color, grey]
-        ):
+        for data, color in zip([constrained, unconstrained], [x_color, grey]):
             # Plot scatter plots
             ax.scatter(
                 data["x_oe_ci_hi"],
