@@ -41,6 +41,14 @@ GENCODE v39 comprehensive gene annotation (GTF format)
 Downloaded with: qsub src/downloads/download_gencode.sh
 md5sum (not confirmed) 1efe634b076160b5b9d7027c91a4a518
 
+## genebayes_shet_estimates.tsv
+Text file with posterior means and 95% confidence intervals for gene-level shet estimates.
+Reference: Zeng et al. Nature Genetics 2024 "Bayesian estimation of gene constraint from an evolutionary model with gene features"
+DOI: 10.1038/s41588-024-01820-9
+Downloaded from: https://static-content.springer.com/esm/art%3A10.1038%2Fs41588-024-01820-9/MediaObjects/41588_2024_1820_MOESM4_ESM.xlsx
+Download date 18/11/24.
+Manually converted worksheet 2 to TSV.
+
 ## genemap2.txt
 A tab-delimited file containing OMIM's Synopsis of the Human Gene Map including additional information such as genomic coordinates and inheritance.
 Downloaded with: qsub src/downloads/download_small_files.sh
