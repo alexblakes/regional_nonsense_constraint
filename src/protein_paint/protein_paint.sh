@@ -9,6 +9,7 @@ COLOURS="data/final/protein_paint/_colours.txt"
 
 # Add entries to the arguments file
 cat << EOF > $FILE_ARGS
+ASXL3 chr18 33578219 33751195
 KANSL1 chr17 46029916 46193429
 BTF3 chr5 73498442 73505667
 FBXL17 chr5 107859035 108382098
