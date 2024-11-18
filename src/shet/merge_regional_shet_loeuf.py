@@ -112,7 +112,7 @@ def find_constrained_genes(df):
 def reorder_columns(df):
     return df[
         [
-            "enst",
+            "ensg",
             "transcript",
             "nmd_target",
             "start_proximal",

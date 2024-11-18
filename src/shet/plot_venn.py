@@ -2,6 +2,7 @@
 
 import logging
 
+import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib_venn as mv
@@ -12,13 +13,9 @@ from src import constants as C
 
 logger = logging.getLogger(__name__)
 
-FILE_IN = "data/interim/shet_gnomad_regional_constraint.tsv"
-PNG = "data/plots/shet/venn_shet.png"
-SVG = "data/plots/shet/venn_shet.svg"
 
-
-def read_data(path=FILE_IN):
-    return pd.read_csv(path, sep="\t", index_col="enst")
+def read_data(path):
+    return pd.read_csv(path, sep="\t", index_col="ensg")
 
 
 def get_constrained_transcript_set(df, column):
@@ -32,8 +29,15 @@ def get_constrained_transcript_set(df, column):
 def main():
     """Run as script."""
 
+    # Parse command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file_in")
+    parser.add_argument("target_metric", choices=["gnomad","shet"], help="Metric to compare against.")
+    parser.add_argument("file_out_name")
+    args = parser.parse_args()
+
     # Get data for Venn diagrams
-    df = read_data()
+    df = read_data(args.file_in)
 
     any_region = get_constrained_transcript_set(df, "any_region_constrained")
     nmd_target = get_constrained_transcript_set(df, "nmd_target")
@@ -55,12 +59,20 @@ def main():
     labels = ["Any region", "NMD target", "Start proximal", "Long exon", "Distal"]
     colors = sns.color_palette()
 
+    if args.target_metric == "gnomad":
+        target_set = gnomad
+        venn_label="pLI > 0.9 or\nLOEUF < 0.6"
+    elif args.target_metric == "shet":
+        target_set = shet
+        venn_label="shet > 0.06"
+
     # Plot Venn diagrams
     for ax, _set, label, color in zip(axs, gene_sets, labels, colors):
+        
         v = mv.venn2_unweighted(
             ax=ax,
-            subsets=[shet, _set],
-            set_labels=["shet > 0.060", label],
+            subsets=[target_set, _set],
+            set_labels=[venn_label, label],
             set_colors=[sns.color_palette()[0], color],
         )
 
@@ -69,8 +81,9 @@ def main():
         )
         v.get_label_by_id("B").set(color=color, fontsize=8)
 
-    plt.savefig(PNG, dpi=600)
-    plt.savefig(SVG)
+    plt.savefig(f"data/plots/shet/{args.file_out_name}.png", dpi=600)
+    plt.savefig(f"data/plots/shet/{args.file_out_name}.svg")
+    
     plt.close("all")
 
     return None

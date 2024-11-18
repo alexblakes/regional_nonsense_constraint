@@ -47,6 +47,9 @@ orthogonal_metrics :
 omim :
 	make -f src/omim/Makefile all
 
+shet :
+	make -f src/shet/Makefile all
+
 protein_paint :
 	make -f src/protein_paint/Makefile all
 
