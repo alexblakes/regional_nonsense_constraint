@@ -87,8 +87,10 @@ def find_constrained_genes(df):
     quantile = (
         stats.percentileofscore(df.loeuf, 0.6, kind="strict", nan_policy="omit") / 100
     )
+    shet_cutoff = df.shet_post_mean.quantile(1 - quantile)
 
     logger.info(f"Proportion of LOEUF scores < 0.6: {quantile}")
+    logger.info(f"shet cutoff at {1 - quantile:2f} quantile: {shet_cutoff}")
 
     df = (
         df.assign(
@@ -96,10 +98,7 @@ def find_constrained_genes(df):
                 :, ["distal_nmd", "long_exon", "nmd_target", "start_proximal"]
             ].any(axis=1)
         )
-        .assign(
-            shet_constrained=lambda x: x.shet_post_mean
-            >= x.shet_post_mean.quantile(1 - quantile)
-        )
+        .assign(shet_constrained=lambda x: x.shet_post_mean > shet_cutoff)
         .assign(gnomad_constrained=lambda x: (x.loeuf < 0.6) | (x.pli > 0.9))
     )
 
