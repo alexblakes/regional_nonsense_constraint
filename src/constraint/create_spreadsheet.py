@@ -9,6 +9,7 @@ import src
 FILE_REGIONAL_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
 FILE_GENE_IDS = "data/interim/gene_ids.tsv"
 FILE_SHET = "data/raw/genebayes_shet_estimates.tsv"
+FILE_OMIM = "data/interim/genemap2_simple.tsv"
 FILE_OUT = "data/final/regional_nonsense_constraint_for_excel.tsv"
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,29 @@ def read_shet(path=FILE_SHET):
     return df
 
 
+def read_omim(path=FILE_OMIM):
+    df = pd.read_csv(path, sep="\t")
+    logger.info(f"OMIM data shape: {df.shape}")
+    logger.info(f"Unique ENSGs in OMIM data: {df.ensg.nunique()}")
+    return df
+
+
+def implode_omim(df):
+    df = (
+        df.groupby("ensg")
+        .agg(
+            omim_phenotype=("phenotype", ";".join),
+            omim_inheritance=("inheritance", ";".join),
+        )
+        .reset_index()
+    )
+
+    logger.info(f"Shape: {df.shape}")
+    logger.info(f"Unique ENSGs: {df.ensg.nunique()}")
+
+    return df
+
+
 def merge_gene_ids(left, right):
     df = left.merge(right, how="inner", validate="many_to_one")
     logger.info(f"Merged data shape: {df.shape}")
@@ -64,6 +88,16 @@ def merge_shet(left, right):
         f"ENSGs with shet scores: "
         f"{df[['ensg','shet_post_mean']].drop_duplicates('ensg').shet_post_mean.count()}"
     )
+    return df
+
+
+def merge_omim(left, right):
+    df = left.merge(right, how="left", validate="many_to_one")
+
+    logger.info(f"Merged data shape: {df.shape}")
+    logger.info(f"Unique ENSGs after merge: {df.ensg.nunique()}")
+    logger.info(f"ENSGs with OMIM annotations: {df[['ensg','omim_inheritance']].drop_duplicates().omim_inheritance.count()}")
+    
     return df
 
 
@@ -90,6 +124,8 @@ def reorder_columns(df):
             "loeuf",
             "gnomad_flags",
             "shet_post_mean",
+            "omim_phenotype",
+            "omim_inheritance",
         ]
     ]
 
@@ -106,13 +142,17 @@ def main():
     constraint = read_constraint()
     gene_ids = read_gene_ids()
     shet = read_shet()
+    omim = read_omim().pipe(implode_omim)
 
-    return (
+    df = (
         merge_gene_ids(constraint, gene_ids)
         .pipe(merge_shet, shet)
+        .pipe(merge_omim, omim)
         .pipe(reorder_columns)
         .pipe(write_out)
     )
+
+    return df
 
 
 if __name__ == "__main__":
