@@ -46,6 +46,14 @@ data/final/regional_nonsense_constraint.tsv : data/final/regional_constraint_sta
 	source activate ukb
 	python3 -m src.constraint.regional_nonsense_constraint
 
+# Reformat for spreadsheet
+data/final/regional_nonsense_constraint_for_excel.tsv : data/final/regional_nonsense_constraint.tsv \
+                                                        data/interim/gene_ids.tsv \
+														data/raw/genebayes_shet_estimates.tsv \
+														src/constraint/create_spreadsheet.py
+	source activate ukb
+	python3 -m src.constraint.create_spreadsheet
+
 # Get constrained gene lists
 $(gene_lists) &: data/final/regional_nonsense_constraint.tsv \
                 data/interim/gene_ids.tsv \
