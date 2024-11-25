@@ -21,6 +21,21 @@ Text file containing G2P disease gene annotations.
 Downloaded with: qsub src/downloads/download_small_files.sh
 md5sum (not confirmed) 817b82ff899c9ba61816a526f63ad6a6
 
+## ensembl_paralogs.tsv.gz
+Compressed text file containing paralogous human gene IDs.
+Downloaded from Ensembl BioMart manually.
+Dataset:
+- Ensembl Genes 113
+- Human genes (GRCh38.p14)
+Filters:
+- Chromosome/scaffold {1..22}
+- Paralogous Human Genes: Only
+Attributes:
+- Gene stable ID
+- Human paralogue gene stable ID
+- Human paralogue homology type
+- Paralogue %id. target Human gene identical to query gene
+
 ## EyeG2P_23_8_2023.csv
 Text file containing G2P disease gene annotations.
 Downloaded with: qsub src/downloads/download_small_files.sh
