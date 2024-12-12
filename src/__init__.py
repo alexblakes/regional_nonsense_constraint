@@ -29,7 +29,6 @@ def get_log_file_path(dir="data/logs"):
 
 
 def setup_logger(name="src", level=logging.DEBUG, stream=True, log_file=True):
-
     logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.propagate = False  # Disconnect from the root logger
@@ -51,16 +50,18 @@ def setup_logger(name="src", level=logging.DEBUG, stream=True, log_file=True):
 
     if not log_file:
         return logger
-    elif log_file is True: # Use the default log file
+    elif log_file is True:  # Use the default log file
         log_file_path = get_log_file_path()
-    elif isinstance(log_file, str): # Specify a bespoke log file
-        log_file_path = log_file # Valid path checks are done behind the scenes
+    elif isinstance(log_file, str):  # Specify a bespoke log file
+        log_file_path = log_file  # Valid path checks are done behind the scenes
     else:
-        raise ValueError(f'Invalid parameter for log_file: "{log_file}". '
-                         f'Must be of type bool or str.')
+        raise ValueError(
+            f'Invalid parameter for log_file: "{log_file}". '
+            f"Must be of type bool or str."
+        )
 
-    logger.info(f"Logging to file: {log_file_path}") # Stream handler already in place
-    
+    logger.info(f"Logging to file: {log_file_path}")  # Stream handler already in place
+
     file_handler = logging.FileHandler(log_file_path, mode="w")
     file_handler.setLevel(level)
     file_handler.setFormatter(formatter)
