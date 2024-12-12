@@ -5,6 +5,13 @@ import os
 from pathlib import Path
 import sys
 
+LOGGER_NAME = "src"
+LOG_FORMAT = logging.Formatter(
+    "{asctime}|{levelname}|{module}.{funcName}|#{lineno:d} - {message}",
+    style="{",
+    datefmt="%d-%m-%y %H:%M:%S",
+)
+
 
 def get_module_dot_path():
     """Get the current module's path in dot notation."""
@@ -13,6 +20,14 @@ def get_module_dot_path():
     rel_path = abs_path.relative_to(cwd)
     rel_path_no_suffix = rel_path.with_suffix("")
     return ".".join(rel_path_no_suffix.parts)
+
+
+def add_stream_handler(logger, level):
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(level)
+    stream_handler.setFormatter(LOG_FORMAT)
+    logger.addHandler(stream_handler)
+    pass
 
 
 def get_log_file_path(dir="data/logs"):
@@ -28,40 +43,37 @@ def get_log_file_path(dir="data/logs"):
     return Path(dir).joinpath(log_file)
 
 
-def setup_logger(name="src", level=logging.DEBUG, stream=True, log_file=True):
+def setup_logger(name=LOGGER_NAME, level=logging.DEBUG, stream=True):
+    """Create a package-level logger.
+
+    Only a stream handler is included by default. Logs are not written to file unless a
+    file handler is added separately.
+    """
+
     logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.propagate = False  # Disconnect from the root logger
 
-    """ Imported modules will call setup_logger before the __main__ module.
-    We want only handlers from the __main__ module to persist.
-    The last call to setup_logger must come from the __main__module.
-    """
-    logger.handlers.clear() 
+    if stream:
+        add_stream_handler(logger, level)
 
-    """
-    We could instead prevent overwrite of the handlers. But this would cause trouble
-    if we provide a custom log_file param to setup_logger.
-    """
-    # if logger.hasHandlers():
-    #     return logger  # Imported modules won't create a separate log file
+    return logger
 
-    # The best framework for this will be:
-    #   The logger is instantiated in __init__.py
-    #   Find the logger in all modules using logging.get_logger("src")
-    #   Handlers are only added to the logger after the if __name__ == "__main__" clause 
-    
-    formatter = logging.Formatter(
-        "{asctime}|{levelname}|{module}.{funcName}|#{lineno:d}\n{message}",
-        style="{",
-        datefmt="%d-%m-%y %H:%M:%S",
-    )
+
+def add_log_handlers(name=LOGGER_NAME, level=logging.DEBUG, stream=True, log_file=True):
+    """Add handlers to the package-level logger.
+
+    Imported modules may call the package logger before the __main__ module does. We
+    want only handlers from the __main__ module to persist. This function should be
+    called from the __main__ module, after the if __name__ == "__main__" clause.
+    """
+
+    logger = logging.getLogger(name)
+
+    logger.handlers.clear()
 
     if stream:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(level)
-        stream_handler.setFormatter(formatter)
-        logger.addHandler(stream_handler)
+        add_stream_handler(logger, level)
 
     if not log_file:
         return logger
@@ -79,11 +91,14 @@ def setup_logger(name="src", level=logging.DEBUG, stream=True, log_file=True):
 
     file_handler = logging.FileHandler(log_file_path, mode="w")
     file_handler.setLevel(level)
-    file_handler.setFormatter(formatter)
+    file_handler.setFormatter(LOG_FORMAT)
     logger.addHandler(file_handler)
 
     return logger
 
 
-# A sponge for loggers from external modules
-root_logger = setup_logger(name="", log_file=None, stream=True)
+# The root logger acts as a sponge for loggers from external modules:
+root_logger = setup_logger(name="", stream=True)
+
+# This is the main logger for the package:
+logger = setup_logger()
