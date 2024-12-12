@@ -54,6 +54,9 @@ def setup_logger(name=LOGGER_NAME, level=logging.DEBUG, stream=True):
     logger.setLevel(level)
     logger.propagate = False  # Disconnect from the root logger
 
+    if logger.hasHandlers():
+        return logger
+    
     if stream:
         add_stream_handler(logger, level)
 
