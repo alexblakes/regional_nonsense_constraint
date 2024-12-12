@@ -38,7 +38,7 @@ def setup_logger(name="src", level=logging.DEBUG, stream=True, log_file=True):
         return logger  # Imported modules won't create a separate log file
 
     formatter = logging.Formatter(
-        "{asctime}|{levelname}|{name}.{funcName}|#{lineno:d}\n{message}",
+        "{asctime}|{levelname}|{module}.{funcName}|#{lineno:d}\n{message}",
         style="{",
         datefmt="%d-%m-%y %H:%M:%S",
     )
@@ -49,20 +49,22 @@ def setup_logger(name="src", level=logging.DEBUG, stream=True, log_file=True):
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
 
-    if log_file:
-        if type(log_file) is bool:
-            log_file_path = get_log_file_path()  # The default path to log file
-        else:
-            log_file_path = Path(log_file)  # Allows a bespoke log file
+    if not log_file:
+        return logger
+    elif log_file is True: # Use the default log file
+        log_file_path = get_log_file_path()
+    elif isinstance(log_file, str): # Specify a bespoke log file
+        log_file_path = log_file # Valid path checks are done behind the scenes
+    else:
+        raise ValueError(f'Invalid parameter for log_file: "{log_file}". '
+                         f'Must be of type bool or str.')
 
-        logger.info(
-            f"Writing log to: {log_file_path}"
-        )  # Stream handler already defined
-
-        file_handler = logging.FileHandler(log_file_path, mode="w")
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+    logger.info(f"Logging to file: {log_file_path}") # Stream handler already in place
+    
+    file_handler = logging.FileHandler(log_file_path, mode="w")
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
     return logger
 
