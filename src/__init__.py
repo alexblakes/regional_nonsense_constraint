@@ -33,9 +33,24 @@ def setup_logger(name="src", level=logging.DEBUG, stream=True, log_file=True):
     logger.setLevel(level)
     logger.propagate = False  # Disconnect from the root logger
 
-    if logger.hasHandlers():
-        return logger  # Imported modules won't create a separate log file
+    """ Imported modules will call setup_logger before the __main__ module.
+    We want only handlers from the __main__ module to persist.
+    The last call to setup_logger must come from the __main__module.
+    """
+    logger.handlers.clear() 
 
+    """
+    We could instead prevent overwrite of the handlers. But this would cause trouble
+    if we provide a custom log_file param to setup_logger.
+    """
+    # if logger.hasHandlers():
+    #     return logger  # Imported modules won't create a separate log file
+
+    # The best framework for this will be:
+    #   The logger is instantiated in __init__.py
+    #   Find the logger in all modules using logging.get_logger("src")
+    #   Handlers are only added to the logger after the if __name__ == "__main__" clause 
+    
     formatter = logging.Formatter(
         "{asctime}|{levelname}|{module}.{funcName}|#{lineno:d}\n{message}",
         style="{",
