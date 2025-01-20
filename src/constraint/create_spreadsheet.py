@@ -1,6 +1,6 @@
 """Create regional constraint TSV ready for export to Excel."""
 
-import logging
+
 
 import pandas as pd
 
@@ -12,7 +12,7 @@ FILE_SHET = "data/raw/genebayes_shet_estimates.tsv"
 FILE_OMIM = "data/interim/genemap2_simple.tsv"
 FILE_OUT = "data/final/regional_nonsense_constraint_for_excel.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_constraint(path=FILE_REGIONAL_CONSTRAINT):

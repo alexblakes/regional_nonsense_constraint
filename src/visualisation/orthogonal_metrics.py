@@ -3,8 +3,7 @@ regions.
 """
 
 from collections import defaultdict
-import logging
-from pathlib import Path
+
 
 import matplotlib.pyplot as plt
 from matplotlib import patches
@@ -21,7 +20,7 @@ _PNG = "data/plots/orthogonal_metrics/phylop_alphamis_pext.png"
 _SVG = "data/plots/orthogonal_metrics/phylop_alphamis_pext.svg"
 _DTYPES = defaultdict(lambda: "float16", region="category", constraint="category")
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path: str = _FILE_IN) -> pd.DataFrame:
@@ -130,5 +129,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

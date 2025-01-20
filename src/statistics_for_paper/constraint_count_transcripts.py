@@ -1,6 +1,6 @@
 """Count transcripts with regional nonsense constraint."""
 
-import logging
+
 
 import pandas as pd
 
@@ -11,7 +11,7 @@ from src.constraint import gene_lists as gl
 _REGIONAL_NONSENSE_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
 _GNOMAD_V4_CONSTRAINT = "data/raw/gnomad.v4.0.constraint_metrics.tsv"
 _GENE_IDS = "data/interim/gene_ids.tsv"
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def main():

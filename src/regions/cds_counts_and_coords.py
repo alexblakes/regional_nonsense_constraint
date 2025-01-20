@@ -4,8 +4,7 @@ Also annotate exon start and end positions. The output is an interim TSV which w
 used to produce NMD annotations for each CDS position.
 """
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 import gtfparse  # * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
@@ -14,9 +13,9 @@ import src
 from src import constants as C
 from src.regions import canonical_cds as ccds
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
-logger = logging.getLogger(__name__)
+
+logger = src.logger
 
 
 def count_exons(df):
@@ -116,5 +115,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

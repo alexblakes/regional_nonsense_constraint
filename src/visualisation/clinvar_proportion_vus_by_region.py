@@ -1,7 +1,6 @@
 """Plot ACMG classification of nonsense / frameshift variants in ClinVar."""
 
-import logging
-from pathlib import Path
+
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -12,12 +11,12 @@ import src
 from src import constants as C
 from src import visualisation as vis
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _FILE_IN = "data/statistics/clinvar_vus_by_region.tsv"
 _PNG = "data/plots/clinvar/clinvar_vus_by_region.png"
 _SVG = "data/plots/clinvar/clinvar_vus_by_region.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_vus_proportions(path):
@@ -70,5 +69,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

@@ -1,6 +1,6 @@
 """Get boxplot statistics for orthogonal metrics."""
 
-import logging
+
 from collections import defaultdict
 import pandas as pd
 
@@ -19,7 +19,7 @@ _METRIC_NAMES = dict(
     pext="pext",
 )
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path=_CADD):

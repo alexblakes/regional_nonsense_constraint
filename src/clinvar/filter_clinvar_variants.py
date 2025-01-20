@@ -3,17 +3,13 @@
 Save tidied data as TSV and VCF for downstream annotation with VEP.
 """
 
-from pathlib import Path
-import logging
-
 import pandas as pd
 
 import src
 from src import constants as C
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 _USECOLS = [
     "Type",
     "GeneSymbol",
@@ -36,7 +32,9 @@ _NAMES = [
     "alt",
     "review",
 ]
-_CHROMS = ["chr" + str(x) for x in list(range(1, 23))] # Autosomes and major contigs only
+_CHROMS = [
+    "chr" + str(x) for x in list(range(1, 23))
+]  # Autosomes and major contigs only
 _NULL_REVIEW = [
     "no assertion",
     "no interpretation",
@@ -217,5 +215,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

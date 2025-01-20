@@ -8,18 +8,17 @@ Notes:
   modes). These genes are also duplicated in the merged annotation.
 """
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
 import src
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _FILE_IN = "data/interim/genemap2_parsed.tsv"
 _FILE_OUT = "data/interim/genemap2_simple.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_parsed_genemap_data(path):
@@ -101,5 +100,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

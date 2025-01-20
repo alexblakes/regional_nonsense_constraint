@@ -1,6 +1,6 @@
 """Create KDE plots for Nonsense OE95 per region."""
 
-import logging
+
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -14,7 +14,7 @@ FILE_IN = "data/final/regional_nonsense_constraint.tsv"
 PNG = "data/plots/constraint/oe95_kde.png"
 SVG = "data/plots/constraint/oe95_kde.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def parse_data(path=FILE_IN):

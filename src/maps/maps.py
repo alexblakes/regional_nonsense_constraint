@@ -1,14 +1,13 @@
 """MAPS calculation."""
 
-import logging
-from pathlib import Path
+
 
 import numpy as np
 import pandas as pd
 
 import src
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _FILE_IN = "data/interim/maps_snvs_filtered.tsv"
 _FILE_OUT = "data/interim/maps.tsv"
 _USECOLS = ["csq", "region", "ac", "mu_scaled"]
@@ -19,7 +18,7 @@ _DTYPES = {
     "mu_scaled": np.float32,
 }
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path=_FILE_IN):
@@ -130,5 +129,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

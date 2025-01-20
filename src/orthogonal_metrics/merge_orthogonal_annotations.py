@@ -1,13 +1,12 @@
 """Merge NMD, phyloP, AlphaMissense, and pext annotations."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
 import src
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _NMD = "data/interim/nmd_annotations.tsv"
 _PHYLOP = "data/interim/phylop_cds_sites.tsv"
 _PEXT = "data/interim/pext_38.bed"
@@ -18,7 +17,7 @@ _FILE_OUT = "data/interim/cds_sites_phylop_pext_missense.tsv"
 _STATS_OUT = "data/final/phylop_pext_missense_annotations_stats.tsv"
 _METRICS = ["phylop", "pext", "alpha_mis"]
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_nmd_annotations(path, **kwargs):
@@ -218,5 +217,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

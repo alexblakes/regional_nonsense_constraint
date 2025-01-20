@@ -1,7 +1,6 @@
 """Plot CADD scores in constrained and unconstrained regions."""
 
-import logging
-from pathlib import Path
+
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -15,7 +14,7 @@ _FILE_IN = "data/statistics/orthogonal_metrics_cadd.tsv.gz"
 _PNG = "data/plots/orthogonal_metrics/cadd.png"
 _SVG = "data/plots/orthogonal_metrics/cadd.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def main():
@@ -41,5 +40,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

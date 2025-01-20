@@ -1,7 +1,6 @@
 """ Get the lowest Alpha Missense score per site / transcript."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
@@ -9,7 +8,7 @@ import src
 
 _FILE_IN = "data/raw/AlphaMissense_hg38.tsv"
 _FILE_OUT = "data/interim/alpha_missense_tidy.tsv"
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _NAMES = [
     "chr",
     "pos",
@@ -24,7 +23,7 @@ _NAMES = [
 ]
 _USECOLS = ["chr", "pos", "ref", "alt", "enst", "alpha_missense"]
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_alpha_missense(path):
@@ -97,5 +96,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

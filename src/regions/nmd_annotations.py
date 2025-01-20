@@ -8,8 +8,7 @@ Label all CDS positions with an NMD annotation. The annotations include:
 4) 50nt rule (within the most 3' 50nt of the penultimate exon)
 """
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 import numpy as np
@@ -17,9 +16,9 @@ import numpy as np
 import src
 from src import constants as C
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
-logger = logging.getLogger(__name__)
+
+logger = src.logger
 
 
 def get_cds_positions(df):
@@ -259,5 +258,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

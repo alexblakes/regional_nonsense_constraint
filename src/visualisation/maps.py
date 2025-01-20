@@ -1,6 +1,6 @@
 """Create a horizontal point-range plot for MAPS scores."""
 
-import logging
+
 
 import numpy as np
 import pandas as pd
@@ -15,7 +15,7 @@ _FILE_IN = "data/statistics/maps.tsv"
 _PNG = "data/plots/maps/maps.png"
 _SVG = "data/plots/maps/maps.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path=_FILE_IN):

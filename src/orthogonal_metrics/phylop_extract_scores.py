@@ -1,7 +1,6 @@
 """Extract Zoonomia phyloP scores for 241 mammalian species."""
 
 # Imports
-from pathlib import Path
 
 import pandas as pd
 import pyBigWig

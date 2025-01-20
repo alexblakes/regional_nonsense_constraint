@@ -1,7 +1,6 @@
 """Gene set enrichment analysis."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 from gprofiler import GProfiler
@@ -9,9 +8,9 @@ from gprofiler import GProfiler
 import src
 from src import constants as C
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
-logger = logging.getLogger(__name__)
+
+logger = src.logger
 
 
 def gost(query, background, query_name, bg_name, **kwargs):
@@ -131,5 +130,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

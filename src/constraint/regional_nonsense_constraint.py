@@ -1,7 +1,6 @@
 """Find constrained and unconstrained regions."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
@@ -9,12 +8,12 @@ import src
 
 _FILE_IN = "data/final/regional_constraint_stats.tsv"
 _FILE_OUT = "data/final/regional_nonsense_constraint.tsv"
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _OE_CI_HI = 0.6
 _P = 0.05
 _OBS = 1
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def get_synonymous_p_vals(df):
@@ -79,5 +78,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

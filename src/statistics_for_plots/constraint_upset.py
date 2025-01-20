@@ -1,7 +1,6 @@
 """Tidy constraint annotations for an upset plot."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
@@ -74,4 +73,4 @@ if __name__ == "__main__":
     main()
 
 else:
-    logger = logging.getLogger(__name__)
+    logger = src.logger

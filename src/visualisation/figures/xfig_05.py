@@ -1,6 +1,6 @@
 """Plot extended data figure 5"""
 
-import logging
+
 
 from matplotlib import pyplot as plt
 
@@ -12,7 +12,7 @@ from src.visualisation import orthogonal_metrics_bxp as omb
 PNG = "data/plots/figures/ext_fig_05.png"
 SVG = "data/plots/figures/ext_fig_05.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def main():

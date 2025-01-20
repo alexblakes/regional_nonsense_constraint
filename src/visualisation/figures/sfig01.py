@@ -1,6 +1,6 @@
 """Plot Supplementary Figure 1."""
 
-import logging
+
 
 from matplotlib import pyplot as plt
 import pandas as pd
@@ -15,7 +15,7 @@ from src.visualisation import constraint_regional_vs_loeuf as rvl
 PNG = "data/plots/figures/supp_fig_01.png"
 SVG = "data/plots/figures/supp_fig_01.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def main():

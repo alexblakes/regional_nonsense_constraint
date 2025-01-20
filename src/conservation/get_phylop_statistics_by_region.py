@@ -1,6 +1,6 @@
 """Get phyloP statistics by region."""
 
-import logging
+
 from collections import defaultdict
 
 import pandas as pd
@@ -13,7 +13,7 @@ FILE_REGIONAL_CONSTRAINT = "data/final/regional_nonsense_constraint_for_excel.ts
 FILE_OUT = "data/interim/phylop_stats_per_region.tsv"
 NROWS_PHYLOP = 64_286_505
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_phylop(path=FILE_PHYLOP, chunksize=100_000):

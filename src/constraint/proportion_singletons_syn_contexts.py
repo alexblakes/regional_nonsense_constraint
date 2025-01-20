@@ -1,7 +1,6 @@
 """Get the proportion of singletons for synonymous variant contexts."""
 
 # Imports
-from pathlib import Path
 
 import pandas as pd
 

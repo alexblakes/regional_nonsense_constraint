@@ -1,6 +1,6 @@
 """Perform Welch's T test for metrics in constrained vs unconstrained regions."""
 
-import logging
+
 import pandas as pd
 from scipy import stats
 
@@ -8,7 +8,7 @@ import src
 
 _FILE_IN = "data/statistics/orthogonal_metrics_bxp_stats.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path=_FILE_IN):

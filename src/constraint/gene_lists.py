@@ -1,6 +1,6 @@
 """Get constrained gene lists."""
 
-import logging
+
 
 import pandas as pd
 
@@ -12,7 +12,7 @@ _GENE_IDS = "data/interim/gene_ids.tsv"
 _GNOMAD_V4_CONSTRAINT = "data/raw/gnomad.v4.0.constraint_metrics.tsv"
 _FILE_OUT_CANONICAL = "data/final/transcript_list_all.txt"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def get_transcript_ids(path=_GENE_IDS):

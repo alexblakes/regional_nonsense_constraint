@@ -1,6 +1,6 @@
 """Conduct pairwise Z tests for proportions."""
 
-import logging
+
 import itertools
 
 import pandas as pd
@@ -11,7 +11,7 @@ from src.statistics_for_plots import clinvar_proportion_vus_by_region as cv
 
 _FILE_OUT = "data/statistics/clinvar_vus_by_region_ztest.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def get_proportion_vus_per_region(df):

@@ -6,8 +6,7 @@ input GTF file, annotates annotates the number of CDS exons in each transcript, 
 writes the results to a BED file.
 """
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 import gtfparse # * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
@@ -18,9 +17,9 @@ from src import constants as C
 _BED_COLUMNS = ["seqname", "start", "end", "id", "score", "strand"]
 _BED_IDS = ["gene_id", "transcript_id", "exon_id", "cds_number"]
 _CHR_PREFIX = "chr"
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
 
-logger = logging.getLogger(__name__)
+
+logger = src.logger
 
 
 def get_canonical(gtf, features=["CDS"]):
@@ -127,5 +126,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

@@ -1,7 +1,6 @@
 """Get ACMG classifications of PTVs in ClinVar by region and constraint."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
@@ -14,7 +13,7 @@ _FILE_IN = "data/interim/clinvar_variants_constraint.tsv"
 _FILE_OUT = "data/statistics/clinvar_acmg_by_region_and_constraint.tsv"
 _ACMG_DICT = {"P": "P/LP", "LP": "P/LP", "VUS": "VUS", "B": "B/LB", "LB": "B/LB"}
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_clinvar_data(path):
@@ -73,5 +72,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

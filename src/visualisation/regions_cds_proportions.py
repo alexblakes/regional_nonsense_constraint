@@ -1,7 +1,6 @@
 """Plot ACMG classification of nonsense / frameshift variants in ClinVar."""
 
-import logging
-from pathlib import Path
+
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -17,7 +16,7 @@ _FILE_IN = "data/statistics/regions_cds_proportions.tsv"
 _PNG = "data/plots/regions/regions_cds_proportions.png"
 _SVG = "data/plots/regions/regions_cds_proportions.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_cds_proportions(path):
@@ -65,5 +64,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

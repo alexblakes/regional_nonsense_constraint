@@ -1,7 +1,6 @@
 """Plot Venn diagrams of newly constrained transcripts."""
 
-import logging
-from pathlib import Path
+
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -23,7 +22,7 @@ _LABELS = ["Any region", "NMD target", "Start proximal", "Long exon", "Distal"]
 _SVG = "data/plots/constraint/newly_constrained.svg"
 _PNG = "data/plots/constraint/newly_constrained.png"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def get_pct_new(region_set, transcript_set, label):

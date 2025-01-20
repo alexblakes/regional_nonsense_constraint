@@ -1,8 +1,7 @@
 """Prepare cadd statistics for plotting."""
 
 from collections import defaultdict
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
@@ -15,7 +14,7 @@ _FILE_IN = "data/interim/cadd_scores_coding_annotated.tsv"
 _FILE_OUT = "data/statistics/orthogonal_metrics_cadd.tsv.gz"
 _DTYPES = defaultdict(lambda: "float16", region="category", constraint="category")
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path: str) -> pd.DataFrame:
@@ -47,5 +46,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

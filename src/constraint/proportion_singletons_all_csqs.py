@@ -1,7 +1,6 @@
 """Get the proportion of singletons for all variant classes."""
 
 # Imports
-from pathlib import Path
 
 import pandas as pd
 

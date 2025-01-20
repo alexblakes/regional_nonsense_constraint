@@ -1,7 +1,6 @@
 """Plot Venn diagrams of newly constrained transcripts."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,7 +10,7 @@ import seaborn as sns
 import src
 from src import constants as C
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _FILE_IN_GNOMAD_CST = "data/final/transcript_list_gnomad_constrained.txt"
 _FILE_IN_NMD_TARGET = "data/final/transcript_list_nmd_target_constrained.txt"
 _FILE_IN_START_PROX = "data/final/transcript_list_start_proximal_constrained.txt"
@@ -19,7 +18,7 @@ _FILE_IN_LONG_EXON = "data/final/transcript_list_long_exon_constrained.txt"
 _FILE_IN_DISTAL = "data/final/transcript_list_distal_constrained.txt"
 _LABELS = ["Any region", "NMD target", "Start proximal", "Long exon", "Distal"]
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def get_gene_set(path):

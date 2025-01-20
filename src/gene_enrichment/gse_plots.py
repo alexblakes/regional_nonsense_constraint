@@ -1,8 +1,7 @@
 """Plot gene set enrichment comparisons."""
 
 import itertools
-import logging
-from pathlib import Path
+
 import textwrap
 
 import matplotlib.pyplot as plt
@@ -12,7 +11,7 @@ import seaborn as sns
 import src
 from src import constants as C
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _FILE_IN_NMD_TARGET = "data/statistics/ora_nmd_target.tsv"
 _FILE_IN_START_PROXIMAL = "data/statistics/ora_start_proximal.tsv"
 _FILE_IN_LONG_EXON = "data/statistics/ora_long_exon.tsv"
@@ -36,7 +35,7 @@ _NMD_REGIONS_DICT = {
 }
 _SOURCES = ["hpo", "bp", "mf"]
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_ora_data(paths):
@@ -167,5 +166,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

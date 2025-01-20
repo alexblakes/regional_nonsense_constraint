@@ -1,7 +1,7 @@
 """Calculate correlation coefficients for regional constraint vs LOEUF / pLI."""
 
 import itertools
-import logging
+
 
 import pandas as pd
 from scipy import stats
@@ -10,7 +10,7 @@ import src
 
 FILE_IN = "data/final/regional_nonsense_constraint.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path):

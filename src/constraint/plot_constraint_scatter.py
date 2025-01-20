@@ -1,8 +1,7 @@
 """Plot constraint pairplots."""
 
 import itertools
-import logging
-from pathlib import Path
+
 
 import adjustText
 import matplotlib.pyplot as plt
@@ -13,7 +12,7 @@ import seaborn as sns
 import src
 from src import constants as C
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _REGIONAL_NONSENSE_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
 _GENE_IDS = "data/interim/gene_ids.tsv"
 _PNG = "data/plots/constraint/region_pair_plots.png"
@@ -21,7 +20,7 @@ _SVG = "data/plots/constraint/region_pair_plots.svg"
 _REGION_NAMES = ["nmd_target", "start_proximal", "long_exon", "distal_nmd"]
 _REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_constraint(path=_REGIONAL_NONSENSE_CONSTRAINT):
@@ -214,5 +213,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

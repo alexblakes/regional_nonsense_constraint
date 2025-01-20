@@ -1,6 +1,6 @@
 """Get plot statistics for MAPS."""
 
-import logging
+
 import itertools
 
 import pandas as pd
@@ -11,7 +11,7 @@ import src
 _FILE_IN = "data/statistics/maps.tsv"
 _FILE_OUT = "data/statistics/maps_ztest.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path=_FILE_IN):

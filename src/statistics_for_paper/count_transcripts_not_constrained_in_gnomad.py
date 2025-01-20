@@ -1,6 +1,6 @@
 """Boilerplate code for most modules."""
 
-import logging
+
 
 import pandas as pd
 
@@ -9,7 +9,7 @@ import src
 CANONICAL_TRANSCRIPTS = "data/interim/transcript_ids.tsv"
 REGIONAL_NONSENSE_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def main():

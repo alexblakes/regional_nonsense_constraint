@@ -1,6 +1,6 @@
 """Find the number of PTVs per region, relative to the total size of the region."""
 
-import logging
+
 import itertools
 
 import pandas as pd
@@ -15,7 +15,7 @@ _FILE_IN = "data/interim/clinvar_variants_vep_tidy.tsv"
 _FILE_CDS_PROPORTION = "data/statistics/regions_cds_proportions.tsv"
 _FILE_OUT = "data/statistics/clinvar_ptv_ascertainment_chi2.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def count_ptvs_per_region(df):

@@ -1,6 +1,6 @@
 """Get plot statistics for MAPS."""
 
-import logging
+
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,7 +13,7 @@ from src import statistics_for_plots as sp
 _FILE_IN = "data/interim/maps.tsv"
 _FILE_OUT = "data/statistics/maps.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path=_FILE_IN):

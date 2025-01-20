@@ -1,7 +1,6 @@
 """Plot ACMG classification of nonsense / frameshift variants in ClinVar."""
 
-import logging
-from pathlib import Path
+
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -17,7 +16,7 @@ _PNG = "data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png"
 _SVG = "data/plots/clinvar/clinvar_acmg_by_region_and_constraint.svg"
 _REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path):
@@ -71,5 +70,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

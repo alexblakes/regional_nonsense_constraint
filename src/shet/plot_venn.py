@@ -1,6 +1,6 @@
 """Plot Venn diagrams of newly constrained transcripts."""
 
-import logging
+
 
 import argparse
 import pandas as pd
@@ -11,7 +11,7 @@ import seaborn as sns
 import src
 from src import constants as C
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path):

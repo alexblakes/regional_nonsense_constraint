@@ -1,6 +1,6 @@
 """Create a scatter plot for transcript-level O/E statistics."""
 
-import logging
+
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -19,7 +19,7 @@ CSQS = {
 PNG = "data/plots/constraint/oe_scatter.png"
 SVG = "data/plots/constraint/oe_scatter.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def parse_data(path=FILE_IN):

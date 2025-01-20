@@ -1,7 +1,6 @@
 """Plot ACMG classification of nonsense / frameshift variants in ClinVar."""
 
-import logging
-from pathlib import Path
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,12 +10,12 @@ import src
 from src import constants as C
 from src import visualisation as vis
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _FILE_IN = "data/statistics/clinvar_ptv_ascertainment.tsv"
 _PNG = "data/plots/clinvar/clinvar_ptvs_ascertainment.png"
 _SVG = "data/plots/clinvar/clinvar_ptvs_ascertainment.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_ptv_ascertainment(path):
@@ -67,5 +66,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

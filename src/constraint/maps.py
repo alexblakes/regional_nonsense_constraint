@@ -1,7 +1,6 @@
 """MAPS calculation."""
 
 # Imports
-from pathlib import Path
 
 import numpy as np
 from numpy.polynomial import Polynomial as P

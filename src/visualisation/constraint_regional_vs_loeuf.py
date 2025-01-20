@@ -1,6 +1,6 @@
 """Create a hexbin plot for regional constraint vs LOEUF scores."""
 
-import logging
+
 from re import I
 
 import matplotlib.pyplot as plt
@@ -13,7 +13,7 @@ from src import constants as C
 FILE_IN = "data/final/regional_nonsense_constraint.tsv"
 PNG = "data/plots/constraint/oe_ci_hi_vs_loeuf.png"
 SVG = "data/plots/constraint/oe_ci_hi_vs_loeuf.svg"
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path=FILE_IN):

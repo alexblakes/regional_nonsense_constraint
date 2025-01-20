@@ -1,7 +1,6 @@
 """Count the number of transcripts with each NMD region."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 
@@ -12,7 +11,7 @@ _LOGFILE = f"data/logs/{'.'.join(Path(__file__).with_suffix('.log').parts[-2:])}
 _FILE_IN = "data/final/nmd_annotations_simple.tsv.gz"
 _FILE_OUT = "data/statistics/region_counts.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path):
@@ -59,5 +58,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

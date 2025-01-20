@@ -1,7 +1,6 @@
 """Identify regions and transcripts which are constrained for nonsense variants."""
 
-import logging
-from pathlib import Path
+
 
 import pandas as pd
 from statsmodels.stats import multitest
@@ -11,12 +10,12 @@ import src
 _FILE_IN = "data/interim/oe_stats_regions_cov_20.tsv"
 _FILE_OUT = "data/final/regional_constraint_stats.tsv"
 _GNOMAD_V4_CONSTRAINT = "data/raw/gnomad.v4.0.constraint_metrics.tsv"
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _TRANSCRIPT = ["transcript"]
 _REGIONS = ["distal_nmd", "nmd_target", "long_exon", "start_proximal"]
 _CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def fdr_adjustment(df, region, csq):
@@ -99,5 +98,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

@@ -1,13 +1,13 @@
 """Merge regional, shet, and gnomAD constraint annotations."""
 
-import logging
+
 
 import pandas as pd
 from scipy import stats
 
 import src
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 FILE_REGIONAL_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
 FILE_GENE_IDS = "data/interim/gene_ids.tsv"

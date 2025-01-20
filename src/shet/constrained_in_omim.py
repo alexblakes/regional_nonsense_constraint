@@ -1,6 +1,6 @@
 """Find OMIM morbid genes with regional nonsense constraint."""
 
-import logging
+
 
 import pandas as pd
 
@@ -10,7 +10,7 @@ FILE_OMIM = "data/interim/genemap2_simple.tsv"
 FILE_CONSTRAINT = "data/interim/shet_gnomad_regional_constraint.tsv"
 FILE_OUT = "data/interim/shet_gnomad_regional_omim_ad.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_constraint(path=FILE_CONSTRAINT):

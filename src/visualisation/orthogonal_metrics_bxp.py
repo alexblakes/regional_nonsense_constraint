@@ -2,7 +2,7 @@
 regions.
 """
 
-import logging
+
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -18,7 +18,7 @@ _FILE_IN = "data/statistics/orthogonal_metrics_bxp_stats.tsv"
 _PNG = "data/plots/orthogonal_metrics/boxplots.png"
 _SVG = "data/plots/orthogonal_metrics/boxplots.svg"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_data(path: str = _FILE_IN) -> pd.DataFrame:

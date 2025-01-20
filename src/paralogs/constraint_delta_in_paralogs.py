@@ -1,6 +1,6 @@
 """Find paralogous genes with strongly different constraint."""
 
-import logging
+
 
 import pandas as pd
 
@@ -10,7 +10,7 @@ FILE_PARALOG_FAMILIES = "data/interim/paralog_families.tsv"
 FILE_CONSTRAINT = "data/final/regional_nonsense_constraint_for_excel.tsv"
 FILE_OUT = "data/interim/paralogs_delta_constraint.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_paralogs(path=FILE_PARALOG_FAMILIES):

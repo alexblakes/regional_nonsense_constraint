@@ -1,7 +1,6 @@
 """Reformat pext scores to bed file for liftover."""
 
 # Imports
-from pathlib import Path
 
 import pandas as pd
 

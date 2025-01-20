@@ -20,20 +20,19 @@ Notes:
   output. 
 """
 
-import logging
+
 import re
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 import src
 
-_LOGFILE = f"data/logs/{Path(__file__).stem}.log"
+
 _FILE_IN = "data/raw/genemap2.txt"
 _FILE_OUT = "data/interim/genemap2_parsed.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_gm(path):
@@ -241,5 +240,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(_LOGFILE)
+    src.add_log_handlers()
     main()

@@ -3,7 +3,6 @@ Get gene IDs and transcript IDs for canonical protein-coding transcripts in GENC
 """
 
 # Imports
-from pathlib import Path
 
 import gtfparse  # * read_gtf makes a call to logging.basicConfig() which overwrites my logging config.
 import pandas as pd

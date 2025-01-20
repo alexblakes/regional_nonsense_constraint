@@ -1,12 +1,10 @@
 """Boilerplate code for most modules."""
 
-import logging
-
 import pandas as pd
 
 import src
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def main():
@@ -15,5 +13,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(src.log_file(__file__))
+    src.add_log_handlers()
     main()

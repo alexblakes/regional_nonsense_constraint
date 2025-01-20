@@ -1,6 +1,6 @@
 """Group ENSG IDs into "families" of paralogs."""
 
-import logging
+
 
 import pandas as pd
 
@@ -9,7 +9,7 @@ import src
 FILE_IN = "data/interim/ensembl_paralogs_filtered.tsv"
 FILE_OUT = "data/interim/paralog_families.tsv"
 
-logger = logging.getLogger(__name__)
+logger = src.logger
 
 
 def read_paralogs(path=FILE_IN):
