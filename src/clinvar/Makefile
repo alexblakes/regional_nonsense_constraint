@@ -3,7 +3,8 @@
 
 SHELL = bash
 
-all : data/interim/clinvar_variants_selected.tsv \
+all : data/interim/clinvar_parsed.tsv \
+	  data/interim/clinvar_variants_selected.tsv \
       data/interim/clinvar_variants_selected.vcf \
 	  data/interim/clinvar_variants_annotated.vcf \
 	  data/interim/clinvar_variants_vep.vcf \
@@ -11,10 +12,13 @@ all : data/interim/clinvar_variants_selected.tsv \
 	  data/interim/clinvar_variants_constraint.tsv \
 
 # Parse ClinVar summary text file
-data/interim/clinvar_variants_selected.tsv : data/raw/variant_summary.txt \
-                                             src/clinvar/filter_clinvar_variants.py
+data/interim/clinvar_parsed.tsv : data/raw/variant_summary.txt \
+                                  src/clinvar/filter_clinvar_variants.py
 	source activate ukb
 	python3 -m src.clinvar.filter_clinvar_variants
+
+# Filter for transcript IDs of interest
+data/interim/clinvar_variants_selected.tsv : data/interim/clinvar_parsed.tsv \
 
 # Convert variants to VCF
 data/interim/clinvar_variants_selected.vcf \

@@ -2,7 +2,7 @@
 
 Save tidied data as TSV and VCF for downstream annotation with VEP.
 """
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 import pandas as pd
 
@@ -11,37 +11,25 @@ from src import constants as C
 
 logger = src.logger
 
-CLINVAR_VARIANT_SUMMARY = "data/raw/variant_summary.txt"
-
-_COLUMNS = {
-    "Name": "name",
-    "GeneSymbol": "hgnc",
-    "ClinicalSignificance": "acmg",
-    "ClinSigSimple": "acmg_simple",
-    "OriginSimple": "origin_simple",
-    "Assembly": "assembly",
-    "Chromosome": "chr",
-    "PositionVCF": "pos",
-    "ReferenceAlleleVCF": "ref",
-    "AlternateAlleleVCF": "alt",
-    "ReviewStatus": "review",
-    "NumberSubmitters": "n_submitters",
-}
-_CHROMS = [
-    "chr" + str(x) for x in list(range(1, 23))
-]  # Autosomes and major contigs only
-_NULL_REVIEW = [
+FILE_IN = "data/raw/variant_summary.txt"
+FILE_OUT = "data/interim/clinvar_parsed.tsv"
+COLUMNS = OrderedDict(
+    Name="name",
+    ClinicalSignificance="acmg",
+    OriginSimple="origin_simple",
+    Assembly="assembly",
+    Chromosome="chr",
+    PositionVCF="pos",
+    ReferenceAlleleVCF="ref",
+    AlternateAlleleVCF="alt",
+    ReviewStatus="review",
+)
+KEEP_CONTIGS = ["chr" + str(x) for x in list(range(1, 23))]
+NULL_REVIEW = [
     "no assertion",
     "no interpretation",
 ]
-_REVIEW = [
-    "criteria provided, single submitter",
-    "criteria provided, multiple submitters, no conflicts",
-    "reviewed by expert panel",
-    "practice guideline",
-]
-_REVIEW_BRIEF = "single multiple expert guideline".split()
-_NULL_ACMG = [
+NULL_ACMG = [
     "not provided",
     "drug response",
     "other",
@@ -53,86 +41,104 @@ _NULL_ACMG = [
     "protective",
     "confers sensitivity",
 ]
-_ACMG = [
-    "Uncertain significance",
-    "Likely benign",
-    "Benign",
-    "Likely pathogenic",
-    "Pathogenic",
-]
-_ACMG_BRIEF = "VUS LB B LP P".split()
+REPLACE_REVIEW = {
+    "criteria provided, single submitter": "single",
+    "criteria provided, multiple submitters, no conflicts": "multiple",
+    "reviewed by expert panel": "expert",
+    "practice guideline": "guideline",
+}
+REPLACE_ACMG = {
+    "Uncertain significance": "VUS",
+    "Likely benign": "B/LB",
+    "Benign": "B/LB",
+    "Benign/Likely benign": "B/LB",
+    "Likely pathogenic": "P/LP",
+    "Pathogenic": "P/LP",
+    "Pathogenic/Likely pathogenic": "P/LP",
+}
 
 
-def read_data(path=CLINVAR_VARIANT_SUMMARY):
+def read_data(path=FILE_IN):
     """Read ClinVar summary text file."""
 
     logger.info("Reading ClinVar variants.")
 
-    dtypes = defaultdict(lambda: "category")
-    dtypes.update(name=str,pos=int, n_submitters=int)
+    dtypes = defaultdict(
+        lambda: "category", Name="str", PositionVCF="int32", NumberSubmitters="int32"
+    )
 
     df = pd.read_csv(
         path,
         sep="\t",
-        usecols=_COLUMNS.keys(),
+        usecols=COLUMNS.keys(),
         low_memory=False,
         dtype=dtypes,
         na_values="na",
-        nrows=100,
-    ).rename(columns=_COLUMNS)
+    ).rename(columns=COLUMNS)
 
-    logger.info(f"ClinVar entries: {len(df)}\n" f"NaN values:\n{df.isna().sum()}")
-
-    return df
-
-    # Drop entries with missing data.
-    df = df.dropna()
-
-    logger.info(f"Entries after dropping NaNs: {len(df)}")
-    logger.info(
-        f"Duplicated by chr/pos/ref/alt: {df.duplicated('chr pos ref alt'.split()).sum()}"
-    )
+    logger.info(f"ClinVar entries: {len(df)}\n\n" f"NaN values:\n{df.isna().sum()}")
 
     return df
 
 
+@src.log_step
 def filter_grch38(df):
-    """Filter for entries in GRCh38."""
+    return df.query("assembly == 'GRCh38'").drop("assembly", axis=1)
 
-    df = df.query("assembly == 'GRCh38'").drop("assembly", axis=1)
 
-    # Add "chr" prefix to chromosome numbers
-    df["chr"] = "chr" + df["chr"]
+def get_refseq_transcript_ids(df):
+    df = df.assign(
+        refseq_transcript=lambda x: x.name.str.extract(r"(^NM_[0-9]+)\.[0-9]+\(")
+    ).drop("name", axis=1)
+
+    logger.info(
+        f"Entries without RefSeq transcript ID: {df.refseq_transcript.isna().sum()}"
+    )
 
     return df
 
 
-def filter_major_contigs(df):
-    """Filter for variants on the major chromosomes."""
-
-    df = df.query(f"chr.isin({_CHROMS})")
-
-    logger.info(f"Variants on major contigs: {len(df)}")
-
+def extract_refseq_transcript_id(df):
+    df["refseq_transcript"] = df.name.str.extract(r"(^NM_[0-9]+\.[0-9]+)\(")
+    df = df.drop("name", axis=1)
+    logger.info(f"Entries without{df.refseq_transcript.isna().sum()}")
     return df
 
 
-def filter_null_annotations(df):
-    """Exclude variants with irrelevant review or ACMG annotations."""
+def drop_nans(df):
+    logger.info(f"NaN counts: {df.isna().sum()}")
+    df = df.dropna()
+    logger.info(f"Data shape: {df.shape}")
+    return df
 
-    # Create masks for filtering
-    m1 = ~df.review.str.lower().str.contains("|".join(_NULL_REVIEW))
-    m2 = ~df.acmg.str.lower().str.contains("|".join(_NULL_ACMG))
 
-    # Filter for irrelevant review or ACMG values
-    df = df[m1 & m2]
+@src.log_step
+def filter_contigs(df):
+    return df.assign(
+        chr=lambda x: x.chr.cat.rename_categories(lambda y: "chr" + str(y))
+    ).loc[lambda z: z.chr.isin(KEEP_CONTIGS)]
 
-    logger.info(
-        f"ClinVar variants with relevant review and ACMG annotations: {len(df)}"
+
+@src.log_step
+def filter_germline_origin(df):
+    return df.loc[lambda x: x.origin_simple.str.contains("germline")].drop(
+        "origin_simple", axis=1
     )
-    logger.info(
-        f"Duplicated by chr/pos/ref/alt: {df.duplicated('chr pos ref alt'.split()).sum()}"
-    )
+
+
+@src.log_step(display_args=True)
+def filter_null_annotation(df, column: str, filter_terms: list):
+    filter_string = "|".join(filter_terms)
+    mask = df[column].str.lower().str.contains(filter_string)
+
+    return df.loc[~mask]
+
+
+def simplify_annotations(df, column: str, replace_dict: dict):
+    df = df.replace({column: replace_dict})
+    df[column] = df[column].cat.remove_unused_categories()
+
+    logger.info(f"{column} value counts:\n{df[column].value_counts()}")
 
     return df
 
@@ -141,79 +147,57 @@ def drop_conflicting_acmg_annotations(df):
     """Drop variants with conflicting ACMG entries."""
 
     df = (
-        df.replace(
-            {
-                "Benign/Likely benign": "Likely benign",
-                "Pathogenic/Likely pathogenic": "Likely pathogenic",
-            }
-        )
-        .drop_duplicates()
-        .drop_duplicates("chr pos ref alt hgnc acmg".split())
-        .drop_duplicates("chr pos ref alt hgnc".split(), keep=False)
+        df.drop_duplicates()
+        .drop_duplicates("chr pos ref alt refseq_transcript acmg".split())
+        .drop_duplicates("chr pos ref alt refseq_transcript".split(), keep=False)
     )
 
     logger.info(
-        f"Variants remaining after dropping conflicting ACMG annotations: {len(df)}"
+        f"Data shape: {len(df)}\n\n"
+        f"Duplicated by chr/pos/ref/alt: {df.duplicated('chr pos ref alt'.split()).sum()}\n\n"
+        f"ACMG value counts:\n{df.acmg.value_counts()}\n\n"
+        f"Review status value counts:\n{df.review.value_counts()}"
     )
-    logger.info(
-        f"Duplicated by chr/pos/ref/alt: {df.duplicated('chr pos ref alt'.split()).sum()}"
-    )
-    logger.info(f"ACMG value counts:\n{df.acmg.value_counts()}")
-    logger.info(f"Review status value counts:\n{df.review.value_counts()}")
-
-    return df
-
-
-def replace_annotations(df, col, replace_list, value_list):
-    replace_dict = {a: b for a, b in zip(replace_list, value_list)}
-    df = df.replace({col: replace_dict})
-    logger.info(f'Value counts in "{col}":\n{df[col].value_counts()}')
-
-    return df
-
-
-def rationalise_gene_symbols(df):
-    """Keep only one HGNC gene symbol per variant."""
-
-    # Get HGNC symbols for canonical transcripts.
-    symbols = pd.read_csv(C.CANONICAL_CDS_GENE_SYMBOLS, header=None).squeeze()
-
-    # Explode and filter any nested gene symbols.
-    df["hgnc"] = df["hgnc"].str.split(";")
-    df = df.explode("hgnc")
-    df = df[df.hgnc.isin(symbols)]
-
-    logger.info(f"ClinVar entries with HGNC symbols: {len(df)}")
 
     return df
 
 
 def format_to_tsv(df):
-    df = df.sort_values(["chr", "pos"]).reset_index()  # Required for VEP
-    return df[["chr", "pos", "ref", "alt", "hgnc", "acmg", "review"]]
+    # Sorting required for VEP
+    return (
+        df.sort_values(["chr", "pos"])
+        .reset_index()
+        .loc[:, ["chr", "pos", "ref", "alt", "refseq_transcript", "acmg", "review"]]
+    )
 
 
 def main():
     """Run as script."""
 
-    clinvar = (
+    return (
         read_data(C.CLINVAR_VARIANT_SUMMARY)
-        # .pipe(filter_grch38)
-        # .pipe(filter_major_contigs)
-        # .pipe(filter_null_annotations)
-        # .pipe(drop_conflicting_acmg_annotations)
-        # .pipe(replace_annotations, "acmg", _ACMG, _ACMG_BRIEF)
-        # .pipe(replace_annotations, "review", _REVIEW, _REVIEW_BRIEF)
-        # .pipe(rationalise_gene_symbols)
-        # .pipe(format_to_tsv)
+        .pipe(filter_grch38)
+        .pipe(get_refseq_transcript_ids)
+        .pipe(drop_nans)
+        .pipe(filter_contigs)
+        .pipe(filter_germline_origin)
+        .pipe(filter_null_annotation, "review", NULL_REVIEW)
+        .pipe(simplify_annotations, "review", REPLACE_REVIEW)
+        .pipe(filter_null_annotation, "acmg", NULL_ACMG)
+        .pipe(simplify_annotations, "acmg", REPLACE_ACMG)
+        .pipe(drop_conflicting_acmg_annotations)
+        .pipe(format_to_tsv)
+        .pipe(src.write_out, FILE_OUT)
     )
-
-    # logger.info("Writing to output.")
-    # clinvar.to_csv(C.CLINVAR_SELECTED_TSV, sep="\t", index=False, header=False)
-
-    return clinvar
 
 
 if __name__ == "__main__":
     src.add_log_handlers()
     df = main()
+
+# todo [X] get transcript id (NM_)
+# todo [X] change "hgnc" to "symbol"
+# todo [X] don't drop conflicting LP/P annotations, for example
+# todo [X] check acmg simple
+# todo [X] check origin simple
+# todo [X] check n_submitters

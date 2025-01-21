@@ -4,6 +4,9 @@ import logging
 from pathlib import Path
 import sys
 
+import pandas as pd
+from sklego import pandas_utils
+
 LOG_FORMAT = logging.Formatter(
     "{asctime}|{levelname}|{module}.{funcName}|#{lineno:d}\n{message}\n",
     style="{",
@@ -73,6 +76,15 @@ def setup_logger(name="src", level=logging.DEBUG):
     return logger
 
 
+def write_out(df, *args, **kwargs):
+    kwargs.setdefault("sep", "\t")
+    kwargs.setdefault("index", False)
+
+    df.to_csv(*args, **kwargs)
+
+    return df
+
+
 # The root logger acts as a sponge for loggers from external modules:
 root_logger = setup_logger(name="")
 # add_stream_handler(root_logger, logging.DEBUG)
@@ -81,3 +93,7 @@ root_logger = setup_logger(name="")
 # Note that by default, it has no handlers. `setup_logger()` should be called after the
 # `if __name__ == "__main__":` clause in each module.
 logger = setup_logger()
+
+log_step = pandas_utils.log_step(
+    time_taken=False, shape_delta=False, print_fn=logger.info, display_args=False
+)
