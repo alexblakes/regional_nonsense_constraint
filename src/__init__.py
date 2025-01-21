@@ -51,6 +51,7 @@ def add_file_handler(logger, level):
 
 def add_log_handlers(name="src", level=logging.DEBUG, stream=True, file=True):
     logger = logging.getLogger(name)
+    logger.handlers.clear()
     if stream:
         add_stream_handler(logger, level)
     if file:
@@ -74,10 +75,9 @@ def setup_logger(name="src", level=logging.DEBUG):
 
 # The root logger acts as a sponge for loggers from external modules:
 root_logger = setup_logger(name="")
-add_stream_handler(root_logger, logging.DEBUG)
+# add_stream_handler(root_logger, logging.DEBUG)
 
 # This is the main logger for the package
-# Note that by default, it has no handlers. `setup_logger()` should be called after the 
+# Note that by default, it has no handlers. `setup_logger()` should be called after the
 # `if __name__ == "__main__":` clause in each module.
 logger = setup_logger()
-

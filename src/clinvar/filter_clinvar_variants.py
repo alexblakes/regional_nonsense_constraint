@@ -2,6 +2,7 @@
 
 Save tidied data as TSV and VCF for downstream annotation with VEP.
 """
+from collections import defaultdict
 
 import pandas as pd
 
@@ -10,28 +11,22 @@ from src import constants as C
 
 logger = src.logger
 
-_USECOLS = [
-    "Type",
-    "GeneSymbol",
-    "ClinicalSignificance",
-    "Assembly",
-    "Chromosome",
-    "PositionVCF",
-    "ReferenceAlleleVCF",
-    "AlternateAlleleVCF",
-    "ReviewStatus",
-]
-_NAMES = [
-    "type",
-    "hgnc",
-    "acmg",
-    "assembly",
-    "chr",
-    "pos",
-    "ref",
-    "alt",
-    "review",
-]
+CLINVAR_VARIANT_SUMMARY = "data/raw/variant_summary.txt"
+
+_COLUMNS = {
+    "Name": "name",
+    "GeneSymbol": "hgnc",
+    "ClinicalSignificance": "acmg",
+    "ClinSigSimple": "acmg_simple",
+    "OriginSimple": "origin_simple",
+    "Assembly": "assembly",
+    "Chromosome": "chr",
+    "PositionVCF": "pos",
+    "ReferenceAlleleVCF": "ref",
+    "AlternateAlleleVCF": "alt",
+    "ReviewStatus": "review",
+    "NumberSubmitters": "n_submitters",
+}
 _CHROMS = [
     "chr" + str(x) for x in list(range(1, 23))
 ]  # Autosomes and major contigs only
@@ -68,22 +63,27 @@ _ACMG = [
 _ACMG_BRIEF = "VUS LB B LP P".split()
 
 
-def read_clinvar_summary(path):
+def read_data(path=CLINVAR_VARIANT_SUMMARY):
     """Read ClinVar summary text file."""
 
     logger.info("Reading ClinVar variants.")
 
+    dtypes = defaultdict(lambda: "category")
+    dtypes.update(name=str,pos=int, n_submitters=int)
+
     df = pd.read_csv(
         path,
         sep="\t",
-        usecols=_USECOLS,
+        usecols=_COLUMNS.keys(),
         low_memory=False,
-        dtype={"Chromosome": str},
+        dtype=dtypes,
         na_values="na",
-    ).rename(columns={x: y for x, y in zip(_USECOLS, _NAMES)})
+        nrows=100,
+    ).rename(columns=_COLUMNS)
 
-    logger.info(f"ClinVar entries: {len(df)}")
-    logger.info(f"NaN values:\n{df.isna().sum()}")
+    logger.info(f"ClinVar entries: {len(df)}\n" f"NaN values:\n{df.isna().sum()}")
+
+    return df
 
     # Drop entries with missing data.
     df = df.dropna()
@@ -197,23 +197,23 @@ def main():
     """Run as script."""
 
     clinvar = (
-        read_clinvar_summary(C.CLINVAR_VARIANT_SUMMARY)
-        .pipe(filter_grch38)
-        .pipe(filter_major_contigs)
-        .pipe(filter_null_annotations)
-        .pipe(drop_conflicting_acmg_annotations)
-        .pipe(replace_annotations, "acmg", _ACMG, _ACMG_BRIEF)
-        .pipe(replace_annotations, "review", _REVIEW, _REVIEW_BRIEF)
-        .pipe(rationalise_gene_symbols)
-        .pipe(format_to_tsv)
+        read_data(C.CLINVAR_VARIANT_SUMMARY)
+        # .pipe(filter_grch38)
+        # .pipe(filter_major_contigs)
+        # .pipe(filter_null_annotations)
+        # .pipe(drop_conflicting_acmg_annotations)
+        # .pipe(replace_annotations, "acmg", _ACMG, _ACMG_BRIEF)
+        # .pipe(replace_annotations, "review", _REVIEW, _REVIEW_BRIEF)
+        # .pipe(rationalise_gene_symbols)
+        # .pipe(format_to_tsv)
     )
 
-    logger.info("Writing to output.")
-    clinvar.to_csv(C.CLINVAR_SELECTED_TSV, sep="\t", index=False, header=False)
+    # logger.info("Writing to output.")
+    # clinvar.to_csv(C.CLINVAR_SELECTED_TSV, sep="\t", index=False, header=False)
 
     return clinvar
 
 
 if __name__ == "__main__":
     src.add_log_handlers()
-    main()
+    df = main()
