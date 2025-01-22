@@ -4,12 +4,14 @@
 SHELL = bash
 
 all : data/interim/clinvar_parsed.tsv \
+      data/interim/mane_select_transcript_ids.tsv \
 	  data/interim/clinvar_variants_selected.tsv \
-      data/interim/clinvar_variants_selected.vcf \
-	  data/interim/clinvar_variants_annotated.vcf \
+      data/interim/clinvar_variants_selected.vcf.gz \
+	  data/interim/clinvar_variants_annotated.vcf.gz \
 	  data/interim/clinvar_variants_vep.vcf \
 	  data/interim/clinvar_variants_vep_tidy.tsv \
 	  data/interim/clinvar_variants_constraint.tsv \
+
 
 # Parse ClinVar summary text file
 data/interim/clinvar_parsed.tsv : data/raw/variant_summary.txt \
@@ -17,18 +19,32 @@ data/interim/clinvar_parsed.tsv : data/raw/variant_summary.txt \
 	source activate ukb
 	python3 -m src.clinvar.filter_clinvar_variants
 
-# Filter for transcript IDs of interest
-data/interim/clinvar_variants_selected.tsv : data/interim/clinvar_parsed.tsv \
+
+# Get MANE Select RefSeq and Ensembl transcript IDs
+data/interim/mane_select_transcript_ids.tsv : data/raw/MANE.GRCh38.v0.95.summary.txt.gz \
+                                              src/clinvar/get_mane_transcript_ids.py
+	source activate ukb
+	python3 -m src.clinvar.get_mane_transcript_ids
+
+
+# Filter for ClinVar variants in MANE transcripts
+data/interim/clinvar_variants_selected.tsv : data/interim/mane_select_transcript_ids.tsv \
+                                             data/interim/clinvar_parsed.tsv \
+											 src/clinvar/clinvar_variants_in_mane_transcripts.py
+	source activate ukb
+	python3 -m src.clinvar.clinvar_variants_in_mane_transcripts
+
 
 # Convert variants to VCF
-data/interim/clinvar_variants_selected.vcf \
-data/interim/clinvar_variants_annotated.vcf &: src/clinvar/to_vcf.sh \
-											   src/clinvar/annotate_vcf.sh \
-                                               data/interim/clinvar_variants_selected.tsv \
-											   data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
+data/interim/clinvar_variants_selected.vcf.gz \
+data/interim/clinvar_variants_annotated.vcf.gz &: src/clinvar/to_vcf.sh \
+											      src/clinvar/annotate_vcf.sh \
+                                                  data/interim/clinvar_variants_selected.tsv \
+											      data/raw/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
 	source activate vep
 	bash src/clinvar/to_vcf.sh
 	bash src/clinvar/annotate_vcf.sh
+
 
 # Annotate with VEP
 data/interim/clinvar_variants_vep.vcf : data/interim/clinvar_variants_annotated.vcf \
@@ -37,6 +53,7 @@ data/interim/clinvar_variants_vep.vcf : data/interim/clinvar_variants_annotated.
 	bash src/clinvar/vep.sh
 	# Takes ~30 minutes to run
 
+
 # Tidy VEP output
 data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.vcf \
                                              data/final/nmd_annotations_simple.tsv.gz \
@@ -44,6 +61,7 @@ data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.v
 											 src/clinvar/tidy_vep.sh
 	source activate vep
 	bash src/clinvar/tidy_vep.sh
+
 
 # Annotate with constraint
 data/interim/clinvar_variants_constraint.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
