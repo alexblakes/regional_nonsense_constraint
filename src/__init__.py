@@ -4,11 +4,10 @@ import logging
 from pathlib import Path
 import sys
 
-import pandas as pd
 from sklego import pandas_utils
 
 LOG_FORMAT = logging.Formatter(
-    "{asctime}|{levelname}|{module}.{funcName}|#{lineno:d}\n{message}\n",
+    ">> {asctime}|{levelname}|{module}.{funcName}|#{lineno:d}\n{message}\n",
     style="{",
     datefmt="%d-%m-%y %H:%M:%S",
 )

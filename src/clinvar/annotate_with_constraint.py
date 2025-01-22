@@ -1,72 +1,44 @@
 """Add constraint annotation to ClinVar variants."""
 
-
-
 import pandas as pd
 
 import src
-from src import constants as C
 
-
-_CLINVAR = "data/interim/clinvar_variants_vep_tidy.tsv"
-_CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
-_FILE_OUT = "data/interim/clinvar_variants_constraint.tsv"
+CLINVAR = "data/interim/clinvar_variants_vep.tsv.gz"
+CONSTRAINT = "data/final/regional_nonsense_constraint.tsv"
+FILE_OUT = "data/interim/clinvar_variants_constraint.tsv.gz"
 
 logger = src.logger
 
 
-def read_clinvar(path):
-    clinvar = pd.read_csv(
+@src.log_step
+def read_clinvar(path=CLINVAR):
+    return pd.read_csv(
         path,
         sep="\t",
         header=None,
-        names=["chr", "pos", "enst", "ref", "alt", "csq", "region", "acmg"],
-    ).drop_duplicates()
-
-    logger.info(f"ClinVar variants: {len(clinvar)}")
-    logger.info(
-        f"Duplicated on chr/pos/ref/alt/enst: "
-        f"{clinvar.duplicated(['chr','pos','ref','alt','enst']).sum()}"
+        names="chr pos ref alt symbol enst csq region acmg review".split(),
+        na_values=".",
     )
-    logger.info(f"NaNs:\n{clinvar.isna().sum()}")
-
-    return clinvar
 
 
+@src.log_step
 def read_constraint(path):
-    constraint = pd.read_csv(
-        path,
-        sep="\t",
-        usecols=["enst", "region", "constraint"],
-    )
+    return pd.read_csv(path, sep="\t", usecols=["enst", "region", "constraint"])
 
-    logger.info(f"Regions in constraint annotation: {len(constraint)}")
-    logger.info(
-        f"Duplicated on enst/region: "
-        f'{constraint.duplicated(["enst","region"]).sum()}'
-    )
-    logger.info(
-        f"Constraint annotation value counts:\n"
-        f"{constraint.constraint.value_counts(dropna=False)}"
-    )
 
-    return constraint
+def merge(left, right):
+    df = left.merge(right, how="inner", validate="many_to_one")
+    logger.info(f"Data shape: {df.shape}\n\n" f"NaN values:\n{df.isna().sum()}")
+    return df
 
 
 def main():
     """Run as script."""
-
-    clinvar = read_clinvar(_CLINVAR)
-    constraint = read_constraint(_CONSTRAINT)
-
-    df = clinvar.merge(constraint, how="inner")
-    logger.info(f"Remaining variants after merge: {len(df)}")
-
-    df.to_csv(_FILE_OUT, sep="\t", index=False)
-
-    return df
+    constraint = read_constraint(CONSTRAINT)
+    return read_clinvar(CLINVAR).pipe(merge, constraint).pipe(src.write_out, FILE_OUT)
 
 
 if __name__ == "__main__":
     src.add_log_handlers()
-    main()
+    df = main()

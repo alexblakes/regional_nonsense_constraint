@@ -8,9 +8,8 @@ all : data/interim/clinvar_parsed.tsv \
 	  data/interim/clinvar_variants_selected.tsv \
       data/interim/clinvar_variants_selected.vcf.gz \
 	  data/interim/clinvar_variants_annotated.vcf.gz \
-	  data/interim/clinvar_variants_vep.vcf \
-	  data/interim/clinvar_variants_vep_tidy.tsv \
-	  data/interim/clinvar_variants_constraint.tsv \
+	  data/interim/clinvar_variants_vep.tsv.gz \
+	  data/interim/clinvar_variants_constraint.tsv.gz \
 
 
 # Parse ClinVar summary text file
@@ -47,24 +46,16 @@ data/interim/clinvar_variants_annotated.vcf.gz &: src/clinvar/to_vcf.sh \
 
 
 # Annotate with VEP
-data/interim/clinvar_variants_vep.vcf : data/interim/clinvar_variants_annotated.vcf \
-                                        src/clinvar/vep.sh
+data/interim/clinvar_variants_vep.tsv.gz : data/interim/clinvar_variants_annotated.vcf.gz \
+                                           data/final/nmd_annotations_simple.tsv.gz \
+										   src/clinvar/vep.sh
 	source activate vep
 	bash src/clinvar/vep.sh
 	# Takes ~30 minutes to run
 
 
-# Tidy VEP output
-data/interim/clinvar_variants_vep_tidy.tsv : data/interim/clinvar_variants_vep.vcf \
-                                             data/final/nmd_annotations_simple.tsv.gz \
-											 data/manual/header_lines_nmd_annotation.txt \
-											 src/clinvar/tidy_vep.sh
-	source activate vep
-	bash src/clinvar/tidy_vep.sh
-
-
 # Annotate with constraint
-data/interim/clinvar_variants_constraint.tsv : data/interim/clinvar_variants_vep_tidy.tsv \
+data/interim/clinvar_variants_constraint.tsv.gz : data/interim/clinvar_variants_vep.tsv.gz \
                                                data/final/regional_nonsense_constraint.tsv \
 											   src/clinvar/annotate_with_constraint.py
 	source activate ukb
