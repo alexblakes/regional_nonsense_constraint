@@ -76,11 +76,13 @@ def setup_logger(name="src", level=logging.DEBUG):
     return logger
 
 
-def write_out(df, *args, **kwargs):
+def write_out(df, path, *args, **kwargs):
     kwargs.setdefault("sep", "\t")
     kwargs.setdefault("index", False)
 
-    df.to_csv(*args, **kwargs)
+    logger.info(f"Writing to {path}")
+
+    df.to_csv(path, *args, **kwargs)
 
     return df
 
