@@ -77,12 +77,13 @@ def vertical_bars(series, ax=None, **kwargs):
     return ax
 
 
-def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", **kwargs):
+def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", yerrs=None, **kwargs):
     assert type(data) == pd.Series, "Data must be a pandas series"
     assert data.index.nlevels == 2, "Data must have a multiindex with two levels"
+    if not yerrs is None:
+        assert all(yerrs.index == data.index), "xerrs must have the same index as data"
 
-    if not ax:
-        ax = plt.gca()
+    ax = ax or plt.gca()
 
     bar_labels = data.index.get_level_values(bar_grouping).unique()
 
@@ -93,6 +94,9 @@ def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", **kwargs):
         n_bars = len(bar_labels)
         bar_width = 1 / (n_bars + 1)
         offset = bar_width * i
+
+        if not yerrs is None:
+            kwargs.update(yerr = yerrs.xs(label, level=bar_grouping))
 
         bars = ax.bar(
             x=x_position + offset,
@@ -111,4 +115,11 @@ def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", **kwargs):
 
     return ax
 
+def vertical_grouped_bars_test(data, bar_grouping, ax=None, yerr_column=None, **kwargs):
+    if not isinstance(data, (pd.DataFrame, pd.Series)):
+        raise TypeError("Data must be Pandas DataFrame or Series")
+    if data.index.nlevels != 2:
+        raise ValueError("Data must have a multiindex with exactly two levels")
+
+    ax = ax or plt.gca()
 

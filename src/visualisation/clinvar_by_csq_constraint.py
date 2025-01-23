@@ -6,6 +6,7 @@ import seaborn as sns
 
 import src
 from src import constants as C
+from src import statistics_for_plots as sp
 from src import visualisation as vis
 
 FILE_IN = "data/statistics/clinvar_by_csq_constraint.tsv"
@@ -20,11 +21,23 @@ def read_data(path=FILE_IN):
     return pd.read_csv(path, sep="\t", index_col=index_cols)
 
 
-def customise_plot(ax=None, title=None, legend=False):
+def customise_plot(
+    ax=None, title=None, legend=False, x_tick_append=None
+):
     if not ax:
         ax = plt.gca()
 
     ax.tick_params(labelbottom=True)
+
+    # Add variant counts to xticklabels
+    if x_tick_append:
+        old_xticklabels = [x.get_text() for x in ax.get_xticklabels()]
+        new_xticklabels = [
+            "".join([x, "\n", "N=", z]) for x, z in zip(old_xticklabels, x_tick_append)
+        ]
+
+        ax.set_xticks(ax.get_xticks(), new_xticklabels)
+
     ax.set_ylabel("Proportion of PTVs in ClinVar")
 
     ax.set_title(title)
@@ -46,7 +59,7 @@ def main():
     sns.set_palette([sns.color_palette()[n] for n in [1, 0, -1]])
 
     fig, axs = plt.subplots(
-        4, 1, figsize=(10 * C.CM, 25 * C.CM), layout="constrained", sharey=True
+        2, 2, figsize=(12 * C.CM, 10 * C.CM), layout="constrained", sharey=True
     )
 
     axs = axs.flatten()
@@ -56,9 +69,11 @@ def main():
     for ax, csq, legend in zip(axs, csqs, legends):
         data = clinvar.xs(csq, level="csq")
         vis.vertical_grouped_bars(
-            data["proportion"], ax, bar_grouping="constraint", yerr=data["err95"]
+            data["proportion"], ax, bar_grouping="constraint", yerrs=data["err95"]
         )
-        customise_plot(ax, csq, legend)
+
+        variant_counts = data.xs("Constrained", level="constraint")["total"].astype(str).to_list()
+        customise_plot(ax, csq, legend, x_tick_append=variant_counts)
 
     plt.savefig(PNG, dpi=600)
     plt.savefig(SVG)
