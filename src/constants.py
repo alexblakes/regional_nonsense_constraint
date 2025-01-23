@@ -8,8 +8,8 @@ NMD_REGION_LABELS = ["NMD target", "Start proximal", "Long exon", "Distal"]
 NMD_REGIONS_DICT = {
     "nmd_target": "NMD target",
     "start_proximal": "Start proximal",
-    "long_exon":"Long exon",
-    "distal_nmd":"Distal",
+    "long_exon": "Long exon",
+    "distal_nmd": "Distal",
 }
 REGIONS = [
     "transcript",
@@ -25,7 +25,16 @@ REGION_LABELS = [
     "Long exon",
     "Distal",
 ]
-CSQS = ["synonymous_variant","missense_variant","stop_gained"]
+CSQS = ["synonymous_variant", "missense_variant", "stop_gained"]
+CSQ_LABELS = {
+    "synonymous_variant": "Synonymous",
+    "missense_variant": "Missense",
+    "stop_gained": "Nonsense",
+    "frameshift_variant": "Frameshift",
+}
+CONSTRAINT_LABELS = {
+    x: x.capitalize() for x in "constrained indeterminate unconstrained".split()
+}
 MAPS_CONSEQUENCES = [
     "synonymous_variant",
     "missense_variant",
