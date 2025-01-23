@@ -42,17 +42,14 @@ def sort_labels(df):
         .pipe(sp.sort_column, "csq", C.CSQ_LABELS)
         .pipe(sp.sort_column, "acmg", ACMG_ORDER)
         .pipe(sp.sort_column, "constraint", C.CONSTRAINT_LABELS)
-        .sort_values(["csq","acmg","constraint"])
+        .sort_values(["csq", "acmg", "constraint"])
     )
 
 
 def main():
     """Run as script."""
     return (
-        read_data()
-        .pipe(get_statistics)
-        .pipe(sort_labels)
-        .pipe(src.write_out, FILE_OUT)
+        read_data().pipe(get_statistics).pipe(sort_labels).pipe(src.write_out, FILE_OUT)
     )
 
 

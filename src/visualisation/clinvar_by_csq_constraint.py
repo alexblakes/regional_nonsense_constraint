@@ -1,0 +1,72 @@
+"""Plot ACMG classification by consequence and constraint."""
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+
+import src
+from src import constants as C
+from src import visualisation as vis
+
+FILE_IN = "data/statistics/clinvar_by_csq_constraint.tsv"
+PNG = "data/plots/clinvar/clinvar_acmg_by_csq_and_constraint.png"
+SVG = "data/plots/clinvar/clinvar_acmg_by_csq_and_constraint.svg"
+
+logger = src.logger
+
+
+def read_data(path=FILE_IN):
+    index_cols = ["csq", "constraint", "acmg"]
+    return pd.read_csv(path, sep="\t", index_col=index_cols)
+
+
+def customise_plot(ax=None, title=None, legend=False):
+    if not ax:
+        ax = plt.gca()
+
+    ax.tick_params(labelbottom=True)
+    ax.set_ylabel("Proportion of PTVs in ClinVar")
+
+    ax.set_title(title)
+
+    if legend:
+        ax.legend(loc="upper left")
+
+    return ax
+
+
+def main():
+    """Run as script."""
+
+    # Load data
+    clinvar = read_data(FILE_IN)
+
+    # Set plotting defaults
+    plt.style.use([C.STYLE_DEFAULT, C.COLOR_REGIONS])
+    sns.set_palette([sns.color_palette()[n] for n in [1, 0, -1]])
+
+    fig, axs = plt.subplots(
+        4, 1, figsize=(10 * C.CM, 25 * C.CM), layout="constrained", sharey=True
+    )
+
+    axs = axs.flatten()
+    csqs = C.CSQ_LABELS.values()
+    legends = [1, 1, 1, 1]
+
+    for ax, csq, legend in zip(axs, csqs, legends):
+        data = clinvar.xs(csq, level="csq")
+        vis.vertical_grouped_bars(
+            data["proportion"], ax, bar_grouping="constraint", yerr=data["err95"]
+        )
+        customise_plot(ax, csq, legend)
+
+    plt.savefig(PNG, dpi=600)
+    plt.savefig(SVG)
+    plt.close("all")
+
+    return clinvar
+
+
+if __name__ == "__main__":
+    src.add_log_handlers()
+    df = main()
