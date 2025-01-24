@@ -17,7 +17,7 @@ def read_clinvar(path=CLINVAR):
         path,
         sep="\t",
         header=None,
-        names="chr pos ref alt symbol enst csq region acmg review".split(),
+        names="chr pos ref alt symbol ensg enst csq region acmg review".split(),
         na_values=".",
     )
 
