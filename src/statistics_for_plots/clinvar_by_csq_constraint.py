@@ -13,8 +13,6 @@ import src
 from src import statistics_for_plots as sp
 from src import constants as C
 
-# FILE_IN = "data/interim/clinvar_variants_constraint.tsv.gz"
-# FILE_OUT = "data/statistics/clinvar_by_csq_constraint.tsv"
 ACMG_ORDER = ["P/LP", "VUS", "B/LB"]
 
 logger = src.logger
