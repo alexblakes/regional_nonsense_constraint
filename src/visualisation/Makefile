@@ -9,6 +9,7 @@ all : data/plots/regions/regions_cds_proportions.png \
 	  data/plots/clinvar/clinvar_ptvs_ascertainment.png \
 	  data/plots/clinvar/clinvar_acmg_by_region_and_constraint.png \
 	  data/plots/orthogonal_metrics/phylop_alphamis_pext.png \
+	  data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_morbid_dominant.png \
 	  data/plots/orthogonal_metrics/cadd.png \
 	  data/plots/maps/maps.png \
 
@@ -29,6 +30,18 @@ data/plots/clinvar/clinvar_vus_by_region.png : data/statistics/clinvar_vus_by_re
                                                src/visualisation/clinvar_proportion_vus_by_region.py
 	source activate ukb
 	python3 -m src.visualisation.clinvar_proportion_vus_by_region
+
+# Plot proportion of ClinVar variants in constrained regions, by consequence and ACMG classification
+data/plots/clinvar/clinvar_acmg_by_csq_and_constraint.png : data/statistics/clinvar_by_csq_constraint.tsv \
+                                                            src/visualisation/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.visualisation.clinvar_by_csq_constraint data/statistics/clinvar_by_csq_constraint.tsv data/plots/clinvar/clinvar_acmg_by_csq_and_constraint.png
+
+# Plot proportion of ClinVar variants in constrained regions, by consequence and ACMG classification, for dominant disease genes only
+data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_morbid_dominant.png : data/statistics/clinvar_by_csq_constraint_morbid_dominant.tsv \
+                                                                            src/visualisation/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.visualisation.clinvar_by_csq_constraint data/statistics/clinvar_by_csq_constraint_morbid_dominant.tsv data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_morbid_dominant.png
 
 # Plot PTV ascertainment per region
 data/plots/clinvar/clinvar_ptvs_ascertainment.png : data/statistics/clinvar_ptv_ascertainment.tsv \

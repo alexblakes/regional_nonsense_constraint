@@ -9,6 +9,8 @@ all : data/statistics/regions_cds_proportions.tsv \
       data/statistics/clinvar_vus_by_region.tsv \
 	  data/statistics/clinvar_ptv_ascertainment.tsv \
 	  data/statistics/clinvar_acmg_by_region_and_constraint.tsv \
+	  data/statistics/clinvar_by_csq_constraint.tsv \
+	  data/statistics/clinvar_by_csq_constraint_morbid_dominant.tsv \
 	  data/statistics/orthogonal_metrics.tsv.gz \
 	  data/statistics/orthogonal_metrics_cadd.tsv.gz \
 	  data/statistics/maps.tsv \
@@ -49,6 +51,18 @@ data/statistics/clinvar_acmg_by_region_and_constraint.tsv : data/interim/clinvar
                                                             src/statistics_for_plots/clinvar_acmg_by_region_and_constraint.py
 	source activate ukb
 	python3 -m src.statistics_for_plots.clinvar_acmg_by_region_and_constraint
+
+# Get proportion constrained for ClinVar variants split by consequence and ACMG class.
+data/statistics/clinvar_by_csq_constraint.tsv : data/interim/clinvar_variants_constraint.tsv.gz \
+                                                src/statistics_for_plots/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.statistics_for_plots.clinvar_by_csq_constraint data/interim/clinvar_variants_constraint.tsv.gz data/statistics/clinvar_by_csq_constraint.tsv
+
+# Get proportion constrained for ClinVar variants split by consequence and ACMG class, for variants in morbid dominant genes only
+data/statistics/clinvar_by_csq_constraint_morbid_dominant.tsv : data/interim/clinvar_variants_constraint_in_morbid_dominant_genes.tsv.gz \
+                                                                src/statistics_for_plots/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.statistics_for_plots.clinvar_by_csq_constraint data/interim/clinvar_variants_constraint_in_morbid_dominant_genes.tsv.gz data/statistics/clinvar_by_csq_constraint_morbid_dominant.tsv
 
 # Get phyloP, AlphaMissense, and pext scores
 data/statistics/orthogonal_metrics.tsv.gz : data/interim/cds_sites_phylop_pext_missense.tsv \
