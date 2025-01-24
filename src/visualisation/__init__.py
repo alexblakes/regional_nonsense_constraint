@@ -77,49 +77,81 @@ def vertical_bars(series, ax=None, **kwargs):
     return ax
 
 
-def vertical_grouped_bars(data, ax=None, bar_grouping="acmg", yerrs=None, **kwargs):
-    assert type(data) == pd.Series, "Data must be a pandas series"
-    assert data.index.nlevels == 2, "Data must have a multiindex with two levels"
-    if not yerrs is None:
-        assert all(yerrs.index == data.index), "xerrs must have the same index as data"
+def vertical_grouped_bars(data, *, bar_group, ax=None, **kwargs):
+    """Plot a vertical grouped bar plot."""
+
+    if not isinstance(data, (pd.Series)):
+        raise TypeError("Data must be a Pandas Series")
+    if data.index.nlevels != 2:
+        raise ValueError("Data must have a multiindex with exactly two levels")
 
     ax = ax or plt.gca()
 
-    bar_labels = data.index.get_level_values(bar_grouping).unique()
+    bar_labels = data.index.get_level_values(bar_group).unique()
 
     for i, label in enumerate(bar_labels):
-        data_subset = data.xs(label, level=bar_grouping)
+        data_subset = data.xs(label, level=bar_group)
         n_clusters = len(data_subset)
-        x_position = np.arange(n_clusters)
+        left_bar_positions = np.arange(n_clusters)
         n_bars = len(bar_labels)
         bar_width = 1 / (n_bars + 1)
         offset = bar_width * i
 
-        if not yerrs is None:
-            kwargs.update(yerr = yerrs.xs(label, level=bar_grouping))
-
         bars = ax.bar(
-            x=x_position + offset,
+            x=left_bar_positions + offset,
             height=data_subset,
             width=bar_width,
             label=label,
             **kwargs,
         )
 
-        # Place xticks centrally below the bar grouping...
-        ax.set_xticks(x_position + bar_width, labels=data_subset.index)
-        # ...But turn off xticklabels by default.
-        # To turn on elsewhere, use:
-        #   ax.tick_params(labelbottom=True)
-        ax.tick_params(labelbottom=False)
+        # Place xticks centrally below the bar grouping
+        ax.set_xticks(left_bar_positions + bar_width, labels=data_subset.index)
+
+        ax.tick_params(labelbottom=False)  # Turn on: `ax.tick_params(labelbottom=True)`
 
     return ax
 
-def vertical_grouped_bars_test(data, bar_grouping, ax=None, yerr_column=None, **kwargs):
-    if not isinstance(data, (pd.DataFrame, pd.Series)):
-        raise TypeError("Data must be Pandas DataFrame or Series")
+
+def vertical_grouped_bars_with_errorbars(
+    data, *, data_column, yerr_column, bar_group, ax=None, **kwargs
+):
+    """Plot a vertical grouped bar plot with vertical error bars."""
+
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Data must be Pandas DataFrame")
     if data.index.nlevels != 2:
         raise ValueError("Data must have a multiindex with exactly two levels")
 
     ax = ax or plt.gca()
 
+    bar_labels = data.index.get_level_values(bar_group).unique()
+
+    for i, label in enumerate(bar_labels):
+        data_subset = data.xs(label, level=bar_group)
+        data_values = data_subset.loc[:, data_column]
+        yerr_values = data_subset.loc[:, yerr_column]
+        n_clusters = len(data_subset)
+        left_bar_positions = np.arange(n_clusters)
+        n_bars = len(bar_labels)
+        bar_width = 1 / (n_bars + 1)
+        offset = bar_width * i
+
+        bars = ax.bar(
+            x=left_bar_positions + offset,
+            height=data_values,
+            width=bar_width,
+            label=label,
+            yerr=yerr_values,  # Nope!
+            **kwargs,
+        )
+
+        # Place xticks centrally below the bar grouping
+        ax.set_xticks(left_bar_positions + bar_width, labels=data_subset.index)
+
+        ax.tick_params(labelbottom=False)  # Turn on: `ax.tick_params(labelbottom=True)`
+
+    return ax
+
+
+# def vertical_grouped_bars_test(data, bar_grouping, ax=None, yerr_column=None, **kwargs):

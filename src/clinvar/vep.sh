@@ -24,7 +24,7 @@ vep \
     --minimal \
     --symbol \
     --canonical \
-    --fields "Consequence,Feature,SYMBOL,CANONICAL" \
+    --fields "Consequence,Gene,Feature,SYMBOL,CANONICAL" \
     --output_file - \
 | bcftools +split-vep --duplicate --columns - \
 | bcftools view -i 'CANONICAL="YES"' \
@@ -34,13 +34,13 @@ vep \
 | bcftools annotate \
     --remove INFO/CSQ,INFO/CANONICAL,INFO/clinvar_enst,INFO/Feature \
 | bcftools annotate -a $NMD -c CHROM,POS,~ID,REGION -h $HEADER \
-| bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%SYMBOL\t%ID\t%Consequence\t%REGION\t%ACMG\t%REVIEW' \
+| bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%SYMBOL\t%Gene\t%ID\t%Consequence\t%REGION\t%ACMG\t%REVIEW' \
 | awk -F "\t" -v OFS="\t" \
     '{ \
-        if($7 ~ /synonymous/) $7 = "synonymous_variant"; \
-        if($7 ~ /missense/) $7 = "missense_variant"; \
-        if($7 ~ /stop_gained/) $7 = "stop_gained"; \
-        if($7 ~ /frameshift/) $7 = "frameshift_variant"; \
+        if($8 ~ /synonymous/) $8 = "synonymous_variant"; \
+        if($8 ~ /missense/) $8 = "missense_variant"; \
+        if($8 ~ /stop_gained/) $8 = "stop_gained"; \
+        if($8 ~ /frameshift/) $8 = "frameshift_variant"; \
         $1=$1; \
         print $0 \
     }' \

@@ -21,13 +21,11 @@ def read_data(path=FILE_IN):
     return pd.read_csv(path, sep="\t", index_col=index_cols)
 
 
-def customise_plot(
-    ax=None, title=None, legend=False, x_tick_append=None
-):
+def customise_plot(ax=None, legend=False, x_tick_append=None, *args, **kwargs):
     if not ax:
         ax = plt.gca()
 
-    ax.tick_params(labelbottom=True)
+    ax.tick_params(labelbottom=True, labelleft=True)
 
     # Add variant counts to xticklabels
     if x_tick_append:
@@ -38,9 +36,7 @@ def customise_plot(
 
         ax.set_xticks(ax.get_xticks(), new_xticklabels)
 
-    ax.set_ylabel("Proportion of PTVs in ClinVar")
-
-    ax.set_title(title)
+    ax.set(*args, **kwargs)
 
     if legend:
         ax.legend(loc="upper left")
@@ -68,12 +64,24 @@ def main():
 
     for ax, csq, legend in zip(axs, csqs, legends):
         data = clinvar.xs(csq, level="csq")
-        vis.vertical_grouped_bars(
-            data["proportion"], ax, bar_grouping="constraint", yerrs=data["err95"]
+        vis.vertical_grouped_bars_with_errorbars(
+            data=data,
+            data_column="proportion",
+            yerr_column="err95",
+            bar_group="constraint", 
+            ax=ax,
         )
 
-        variant_counts = data.xs("Constrained", level="constraint")["total"].astype(str).to_list()
-        customise_plot(ax, csq, legend, x_tick_append=variant_counts)
+        variant_counts = (
+            data.xs("Constrained", level="constraint")["total"].astype(str).to_list()
+        )
+        customise_plot(
+            ax,
+            legend,
+            x_tick_append=variant_counts,
+            title=csq,
+            ylabel="Proportion of variants in ClinVar",
+        )
 
     plt.savefig(PNG, dpi=600)
     plt.savefig(SVG)
