@@ -10,8 +10,8 @@ all : data/interim/clinvar_parsed.tsv \
 	  data/interim/clinvar_variants_annotated.vcf.gz \
 	  data/interim/clinvar_variants_vep.tsv.gz \
 	  data/interim/clinvar_variants_constraint.tsv.gz \
-	  data/interim/clinvar_variants_constraint_in_morbid_dominant_genes.tsv.gz
-
+	  data/interim/clinvar_variants_in_dominant_genes.tsv.gz \
+	  data/interim/clinvar_variants_in_recessive_genes.tsv.gz
 
 # Parse ClinVar summary text file
 data/interim/clinvar_parsed.tsv : data/raw/variant_summary.txt \
@@ -63,9 +63,9 @@ data/interim/clinvar_variants_constraint.tsv.gz : data/interim/clinvar_variants_
 	python3 -m src.clinvar.annotate_with_constraint
 
 # Filter for variants in morbid AD genes
-data/interim/clinvar_variants_constraint_in_morbid_dominant_genes.tsv.gz : data/interim/clinvar_variants_constraint.tsv.gz \
-                                                                           data/interim/genemap2_simple.tsv \
-																		   src/clinvar/filter_for_dominant_morbid_genes.py
+data/interim/clinvar_variants_in_dominant_genes.tsv.gz \
+data/interim/clinvar_variants_in_recessive_genes.tsv.gz &: data/interim/clinvar_variants_constraint.tsv.gz \
+                                                          data/interim/genemap2_simple.tsv \
+														  src/clinvar/filter_for_morbid_genes.py
 	source activate ukb
-	python3 -m src.clinvar.filter_for_dominant_morbid_genes
-
+	python3 -m src.clinvar.filter_for_morbid_genes

@@ -1,6 +1,7 @@
 """Plot ACMG classification by consequence and constraint."""
 
 import argparse
+import itertools
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -29,7 +30,10 @@ def customise_plot(ax=None, legend=False, x_tick_append=None, *args, **kwargs):
     if x_tick_append:
         old_xticklabels = [x.get_text() for x in ax.get_xticklabels()]
         new_xticklabels = [
-            "".join([x, "\n", "N=", z]) for x, z in zip(old_xticklabels, x_tick_append)
+            "".join([x, "\n", "N=", z])
+            for x, z in itertools.zip_longest(
+                old_xticklabels, x_tick_append, fillvalue="0"
+            )
         ]
 
         ax.set_xticks(ax.get_xticks(), new_xticklabels)
@@ -37,7 +41,8 @@ def customise_plot(ax=None, legend=False, x_tick_append=None, *args, **kwargs):
     ax.set(*args, **kwargs)
 
     if legend:
-        ax.legend(loc="upper left")
+        ax.legend()
+        # ax.legend(loc="upper left")
 
     return ax
 
@@ -83,9 +88,13 @@ def main():
             ax=ax,
         )
 
+        # variant_counts = (
+        #     data.xs("Unconstrained", level="constraint")["total"].astype(str).to_list()
+        # )
         variant_counts = (
-            data.xs("Constrained", level="constraint")["total"].astype(str).to_list()
+            data.groupby(level="acmg", sort=False)["count"].sum().astype(str).to_list()
         )
+
         customise_plot(
             ax,
             legend,
@@ -93,7 +102,7 @@ def main():
             title=csq,
             ylabel="Proportion of variants in ClinVar",
         )
-    
+
     for ax, text in zip(axs, "abcd"):
         vis.panel_label(ax, text)
 
