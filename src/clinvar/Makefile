@@ -11,7 +11,9 @@ all : data/interim/clinvar_parsed.tsv \
 	  data/interim/clinvar_variants_vep.tsv.gz \
 	  data/interim/clinvar_variants_constraint.tsv.gz \
 	  data/interim/clinvar_variants_in_dominant_genes.tsv.gz \
-	  data/interim/clinvar_variants_in_recessive_genes.tsv.gz
+	  data/interim/clinvar_variants_in_recessive_genes.tsv.gz \
+	  data/interim/clinvar_unexpected_variants_by_acmg_and_constraint.tsv \
+	  data/interim/clinvar_unexpected_variants_by_acmg_and_constraint_sample.tsv
 
 # Parse ClinVar summary text file
 data/interim/clinvar_parsed.tsv : data/raw/variant_summary.txt \
@@ -69,3 +71,10 @@ data/interim/clinvar_variants_in_recessive_genes.tsv.gz &: data/interim/clinvar_
 														  src/clinvar/filter_for_morbid_genes.py
 	source activate ukb
 	python3 -m src.clinvar.filter_for_morbid_genes
+
+# Get unexpected variants list
+data/interim/clinvar_unexpected_variants_by_acmg_and_constraint.tsv \
+data/interim/clinvar_unexpected_variants_by_acmg_and_constraint_sample.tsv &: data/interim/clinvar_variants_in_dominant_genes.tsv.gz \
+                                                                              src/clinvar/list_unexpected_variants.py
+	source activate ukb
+	python3 -m src.clinvar.list_unexpected_variants
