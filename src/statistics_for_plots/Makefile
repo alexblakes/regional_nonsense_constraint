@@ -12,6 +12,8 @@ all : data/statistics/regions_cds_proportions.tsv \
 	  data/statistics/clinvar_by_csq_constraint.tsv \
 	  data/statistics/clinvar_by_csq_constraint_morbid_dominant.tsv \
 	  data/statistics/clinvar_by_csq_constraint_morbid_recessive.tsv \
+	  data/statistics/clinvar_by_csq_constraint_morbid_dominant_distal.tsv \
+	  data/statistics/clinvar_by_csq_constraint_morbid_recessive_distal.tsv \
 	  data/statistics/orthogonal_metrics.tsv.gz \
 	  data/statistics/orthogonal_metrics_cadd.tsv.gz \
 	  data/statistics/maps.tsv \
@@ -70,6 +72,18 @@ data/statistics/clinvar_by_csq_constraint_morbid_recessive.tsv : data/interim/cl
                                                                  src/statistics_for_plots/clinvar_by_csq_constraint.py
 	source activate ukb
 	python3 -m src.statistics_for_plots.clinvar_by_csq_constraint data/interim/clinvar_variants_in_recessive_genes.tsv.gz data/statistics/clinvar_by_csq_constraint_morbid_recessive.tsv
+
+# Get proportion constrained for ClinVar variants split by consequence and ACMG class, for variants in distal regions of dominant genes only
+data/statistics/clinvar_by_csq_constraint_morbid_dominant_distal.tsv : data/interim/clinvar_variants_in_dominant_genes_distal_nmd.tsv.gz \
+                                                                       src/statistics_for_plots/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.statistics_for_plots.clinvar_by_csq_constraint data/interim/clinvar_variants_in_dominant_genes_distal_nmd.tsv.gz data/statistics/clinvar_by_csq_constraint_morbid_dominant_distal.tsv
+
+# Get proportion constrained for ClinVar variants split by consequence and ACMG class, for variants in distal regions of recessive genes only
+data/statistics/clinvar_by_csq_constraint_morbid_recessive_distal.tsv : data/interim/clinvar_variants_in_recessive_genes_distal_nmd.tsv.gz \
+                                                                        src/statistics_for_plots/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.statistics_for_plots.clinvar_by_csq_constraint data/interim/clinvar_variants_in_recessive_genes_distal_nmd.tsv.gz data/statistics/clinvar_by_csq_constraint_morbid_recessive_distal.tsv
 
 # Get phyloP, AlphaMissense, and pext scores
 data/statistics/orthogonal_metrics.tsv.gz : data/interim/cds_sites_phylop_pext_missense.tsv \

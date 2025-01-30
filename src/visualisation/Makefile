@@ -11,6 +11,8 @@ all : data/plots/regions/regions_cds_proportions.png \
 	  data/plots/orthogonal_metrics/phylop_alphamis_pext.png \
 	  data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_dominant.png \
 	  data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_recessive.png \
+	  data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_dominant_distal.png \
+	  data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_recessive_distal.png \
 	  data/plots/orthogonal_metrics/cadd.png \
 	  data/plots/maps/maps.png \
 
@@ -49,6 +51,18 @@ data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_recessive.png : data/stati
                                                                       src/visualisation/clinvar_by_csq_constraint.py
 	source activate ukb
 	python3 -m src.visualisation.clinvar_by_csq_constraint data/statistics/clinvar_by_csq_constraint_morbid_recessive.tsv data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_recessive.png
+
+# Plot proportion of ClinVar variants in constrained regions, by consequence and ACMG classification, for distal regions in dominant disease genes only
+data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_dominant_distal.png : data/statistics/clinvar_by_csq_constraint_morbid_dominant_distal.tsv \
+                                                                            src/visualisation/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.visualisation.clinvar_by_csq_constraint data/statistics/clinvar_by_csq_constraint_morbid_dominant_distal.tsv data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_dominant_distal.png
+
+# Plot proportion of ClinVar variants in constrained regions, by consequence and ACMG classification, for distal regions in recessive disease genes only
+data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_recessive_distal.png : data/statistics/clinvar_by_csq_constraint_morbid_recessive_distal.tsv \
+                                                                             src/visualisation/clinvar_by_csq_constraint.py
+	source activate ukb
+	python3 -m src.visualisation.clinvar_by_csq_constraint data/statistics/clinvar_by_csq_constraint_morbid_recessive_distal.tsv data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_recessive_distal.png
 
 # Plot PTV ascertainment per region
 data/plots/clinvar/clinvar_ptvs_ascertainment.png : data/statistics/clinvar_ptv_ascertainment.tsv \

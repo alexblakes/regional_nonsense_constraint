@@ -88,9 +88,6 @@ def main():
             ax=ax,
         )
 
-        # variant_counts = (
-        #     data.xs("Unconstrained", level="constraint")["total"].astype(str).to_list()
-        # )
         variant_counts = (
             data.groupby(level="acmg", sort=False)["count"].sum().astype(str).to_list()
         )

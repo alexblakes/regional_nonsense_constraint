@@ -3,6 +3,16 @@
 
 SHELL = bash
 
+dominant_split_regions = clinvar_variants_in_dominant_genes_distal_nmd.tsv.gz \
+                         clinvar_variants_in_dominant_genes_long_exon.tsv.gz \
+                         clinvar_variants_in_dominant_genes_nmd_target.tsv.gz \
+                         clinvar_variants_in_dominant_genes_start_proximal.tsv.gz
+
+recessive_split_regions = clinvar_variants_in_recessive_genes_distal_nmd.tsv.gz \
+                         clinvar_variants_in_recessive_genes_long_exon.tsv.gz \
+                         clinvar_variants_in_recessive_genes_nmd_target.tsv.gz \
+                         clinvar_variants_in_recessive_genes_start_proximal.tsv.gz
+
 all : data/interim/clinvar_parsed.tsv \
       data/interim/mane_select_transcript_ids.tsv \
 	  data/interim/clinvar_variants_selected.tsv \
@@ -72,9 +82,22 @@ data/interim/clinvar_variants_in_recessive_genes.tsv.gz &: data/interim/clinvar_
 	source activate ukb
 	python3 -m src.clinvar.filter_for_morbid_genes
 
+# Split by region for dominant genes
+$(dominant_split_regions) &: data/interim/clinvar_variants_in_dominant_genes.tsv.gz \
+                             src/clinvar/split_by_region.py
+	source activate ukb
+	python3 -m src.clinvar.split_by_region data/interim/clinvar_variants_in_dominant_genes.tsv.gz
+
+# Split by region for recessive genes
+$(recessive_split_regions) &: data/interim/clinvar_variants_in_recessive_genes.tsv.gz \
+                             src/clinvar/split_by_region.py
+	source activate ukb
+	python3 -m src.clinvar.split_by_region data/interim/clinvar_variants_in_recessive_genes.tsv.gz
+
 # Get unexpected variants list
 data/interim/clinvar_unexpected_variants_by_acmg_and_constraint.tsv \
 data/interim/clinvar_unexpected_variants_by_acmg_and_constraint_sample.tsv &: data/interim/clinvar_variants_in_dominant_genes.tsv.gz \
                                                                               src/clinvar/list_unexpected_variants.py
 	source activate ukb
 	python3 -m src.clinvar.list_unexpected_variants
+
