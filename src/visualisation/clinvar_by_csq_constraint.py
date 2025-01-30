@@ -30,7 +30,7 @@ def customise_plot(ax=None, legend=False, x_tick_append=None, *args, **kwargs):
     if x_tick_append:
         old_xticklabels = [x.get_text() for x in ax.get_xticklabels()]
         new_xticklabels = [
-            "".join([x, "\n", "N=", z])
+            "".join([x, "\n", "N=", f"{z:,g}"])
             for x, z in itertools.zip_longest(
                 old_xticklabels, x_tick_append, fillvalue="0"
             )
@@ -89,7 +89,7 @@ def main():
         )
 
         variant_counts = (
-            data.groupby(level="acmg", sort=False)["count"].sum().astype(str).to_list()
+            data.groupby(level="acmg", sort=False)["count"].sum().to_list()
         )
 
         customise_plot(

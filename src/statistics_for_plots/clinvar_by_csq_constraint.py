@@ -39,6 +39,14 @@ def get_statistics(df):
         .drop("ci95lo", axis=1)
     )
 
+def show_all_groups(df):
+    """Expand the index to include all combinations of csq / acmg / constraint."""
+    df = df.reset_index().set_index(["csq","acmg","constraint"])
+    new_multiindex = pd.MultiIndex.from_product(df.index.levels)
+    df = df.reindex(new_multiindex)
+
+    return df
+
 
 def sort_labels(df):
     return (
@@ -66,6 +74,7 @@ def main():
     return (
         read_data(args.file_in)
         .pipe(get_statistics)
+        .pipe(show_all_groups)
         .pipe(sort_labels)
         .pipe(src.write_out, args.file_out)
     )
