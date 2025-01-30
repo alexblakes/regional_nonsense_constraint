@@ -64,7 +64,7 @@ data/interim/clinvar_variants_constraint.tsv.gz : data/interim/clinvar_variants_
 	source activate ukb
 	python3 -m src.clinvar.annotate_with_constraint
 
-# Filter for variants in morbid AD genes
+# Filter for variants in morbid AD / AR genes
 data/interim/clinvar_variants_in_dominant_genes.tsv.gz \
 data/interim/clinvar_variants_in_recessive_genes.tsv.gz &: data/interim/clinvar_variants_constraint.tsv.gz \
                                                           data/interim/genemap2_simple.tsv \

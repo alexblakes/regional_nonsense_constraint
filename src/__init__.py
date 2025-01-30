@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 import sys
 
+import pandas as pd
 from sklego import pandas_utils
 
 LOG_FORMAT = logging.Formatter(
@@ -84,6 +85,14 @@ def write_out(df, path, *args, **kwargs):
     df.to_csv(path, *args, **kwargs)
 
     return df
+
+
+def read_data(path, *args, **kwargs):
+    kwargs.setdefault("sep", "\t")
+
+    logger.info(f"Reading data from {path}")
+
+    return pd.read_csv(path, *args, **kwargs)
 
 
 # The root logger acts as a sponge for loggers from external modules:
