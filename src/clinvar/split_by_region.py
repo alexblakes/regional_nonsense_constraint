@@ -27,6 +27,7 @@ def main():
     df = src.read_data(args.file_in).groupby("region")
 
     for region, data in df:
+        logger.info(f"Data shape ({region}): {data.shape}")
         file_out = get_output_path(args.file_in, region)
         src.write_out(data, file_out)
 
