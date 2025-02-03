@@ -1,4 +1,4 @@
-"""Boilerplate code for most modules."""
+"""Tidy GWAS catalogue data."""
 
 import re
 
@@ -7,6 +7,7 @@ import pandas as pd
 import src
 
 FILE_IN = "data/raw/gwas_catalog_all_association_v1.0.2.tsv"
+FILE_OUT = "data/interim/gwas_catalog_tidy.tsv.gz"
 COLUMNS = {
     "DISEASE/TRAIT": "trait",
     "CHR_ID": "chrom",
@@ -17,14 +18,19 @@ COLUMNS = {
     "RISK ALLELE FREQUENCY": "af",
     "P-VALUE": "p",
 }
+
 logger = src.logger
 
 
 @src.log_step
 def read_data(path=FILE_IN):
-    df = pd.read_csv(path, sep="\t", usecols=COLUMNS, low_memory=False).rename(
-        columns=COLUMNS
-    )
+    df = pd.read_csv(
+        path,
+        sep="\t",
+        usecols=COLUMNS,
+        low_memory=False,
+        na_values={"RISK ALLELE FREQUENCY": "NR"},
+    ).rename(columns=COLUMNS)
 
     logger.info(f"Data shape: {df.shape}\n\n" f"Data info:\n{df.isna().sum()}")
 
@@ -90,6 +96,36 @@ def drop_interaction_csqs(df):
     return df
 
 
+@src.log_step
+def drop_dups_by_trait_chrom_pos_alt(df):
+    # Instances with the strongest p value are kept
+    return df.sort_values("p", ascending=True).drop_duplicates(
+        ["trait", "chrom", "pos", "alt"], keep="first"
+    )
+
+
+@src.log_step
+def drop_conflicting_csqs(df):
+    dup_variants = df.duplicated(["chrom", "pos", "alt"], keep=False)
+    dup_variants_and_csqs = df.duplicated(["chrom", "pos", "alt", "csq"], keep=False)
+
+    conflicting = dup_variants & ~dup_variants_and_csqs
+    logger.info(f"Conflicting CSQs:\n{df[conflicting]}")
+
+    return df[~conflicting]
+
+
+def log_summary_data(df):
+    logger.info(
+        f"Data shape: {df.shape}\n\n"
+        f"Unique variants: {df.drop_duplicates(['chrom','pos','alt']).shape[0]}\n\n"
+        f"Unique traits: {df.trait.nunique()}\n\n"
+        f"Consequence value counts:\n{df.csq.value_counts()}\n\n"
+        f"Deduplicated consequence value counts:\n{df.drop_duplicates(['chrom','pos','alt']).csq.value_counts()}"
+    )
+    return df
+
+
 def main():
     """Run as script."""
     return (
@@ -103,6 +139,10 @@ def main():
         .pipe(drop_non_ATCG_alt_alleles)
         .pipe(pos_to_int)
         .pipe(drop_interaction_csqs)
+        .pipe(drop_dups_by_trait_chrom_pos_alt)
+        .pipe(drop_conflicting_csqs)
+        .pipe(log_summary_data)
+        .pipe(src.write_out, FILE_OUT)
     )
 
 
