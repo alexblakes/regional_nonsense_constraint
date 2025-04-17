@@ -46,7 +46,7 @@ data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_dominant.png : data/statis
 	source activate ukb
 	python3 -m src.visualisation.clinvar_by_csq_constraint data/statistics/clinvar_by_csq_constraint_morbid_dominant.tsv data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_dominant.png
 
-# Plot proportion of ClinVar variants in constrained regions, by consequence and ACMG classification, for dominant disease genes only
+# Plot proportion of ClinVar variants in constrained regions, by consequence and ACMG classification, for recessive disease genes only
 data/plots/clinvar/clinvar_acmg_by_csq_and_constraint_recessive.png : data/statistics/clinvar_by_csq_constraint_morbid_recessive.tsv \
                                                                       src/visualisation/clinvar_by_csq_constraint.py
 	source activate ukb
