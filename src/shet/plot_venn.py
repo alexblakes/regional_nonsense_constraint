@@ -64,7 +64,7 @@ def main():
         venn_label="pLI > 0.9 or\nLOEUF < 0.6"
     elif args.target_metric == "shet":
         target_set = shet
-        venn_label="shet > 0.06"
+        venn_label='$s_{het}>0.06$'
 
     # Plot Venn diagrams
     for ax, _set, label, color in zip(axs, gene_sets, labels, colors):
@@ -90,5 +90,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = src.setup_logger(src.log_file(__file__))
+    src.add_log_handlers()
     main()
