@@ -70,11 +70,11 @@ def main():
 
     # Instantiate figure
     fig, axs = plt.subplots(
-        2, 2, figsize=(12 * C.CM, 10 * C.CM), layout="constrained", sharey=True
+        1, 2, figsize=(12 * C.CM, 5 * C.CM), layout="constrained", sharey=True
     )
 
     axs = axs.flatten()
-    csqs = C.CSQ_LABELS.values()
+    csqs = C.CSQ_LABELS["stop_gained"], C.CSQ_LABELS["frameshift_variant"] #C.CSQ_LABELS.values()
     legends = [1, 1, 1, 1]
 
     # Plot individual axes
@@ -100,7 +100,7 @@ def main():
             ylabel="Proportion of variants in ClinVar",
         )
 
-    for ax, text in zip(axs, "abcd"):
+    for ax, text in zip(axs, "ab"):
         vis.panel_label(ax, text)
 
     # Save plots
