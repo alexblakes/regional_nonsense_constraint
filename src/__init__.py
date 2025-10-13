@@ -5,7 +5,10 @@ from pathlib import Path
 import sys
 
 import pandas as pd
+import pandas_checks as pdc
 from sklego import pandas_utils
+
+pdc.set_format(precision=4, use_emojis=False)
 
 LOG_FORMAT = logging.Formatter(
     ">> {asctime}|{levelname}|{module}.{funcName}|#{lineno:d}\n{message}\n",
@@ -107,3 +110,7 @@ logger = setup_logger()
 log_step = pandas_utils.log_step(
     time_taken=False, shape_delta=False, print_fn=logger.info, display_args=False
 )
+
+def flatten_columns(df):
+    df.columns = ["_".join(str(x) for x in tuple) for tuple in df.columns.to_flat_index()]
+    return df

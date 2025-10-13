@@ -1,6 +1,12 @@
+#!/usr/bin/env bash
 # Library code sourced into bash scripts.
 
-MyLog() {
-	# Timestamp a message. Send it to $LOGFILE and stderr.
-	echo -e $(date +"%y-%m-%dT%T") "${@}" "\n" | tee -a $FILE_LOG 1>&2
-}
+function _log() {
+	local program
+	local now
+	program=${0##*/}
+	now=$(date '+%Y-%m-%d %H:%M:%S.%3N')
+
+	< /dev/null : # Ignore stdin
+	echo -e "[${now}] (${program})" "$@"
+} >&2
