@@ -12,11 +12,9 @@ import pandas as pd
 import src
 
 FILE_IN = "data/interim/nmd_regions_pfam_intersect.tsv"
-
+FILE_OUT = "data/final/pfam_domains_in_nmd_regions.tsv"
 
 # %%
-
-
 def keep_autosomal_loci(df):
     return df.loc[lambda x: ~x["chrom"].isin(["chrX", "chrY", "chrM"])]
 
@@ -53,12 +51,36 @@ def get_largest_domain_name(df):
 
 
 def get_region_sizes(df):
-    return df.assign(
-        exon_region_size=lambda x: x["end"] - x["start"],
-        region_size=lambda x: x.groupby(["enst", "region"])[
-            "exon_region_size"
-        ].transform("sum"),
+    return (
+        df.drop_duplicates(["enst", "region", "start", "end"])
+        .check.nrows(check_name="Rows after dropping duplicate exon/region pairs")
+        .assign(
+            exon_region_size=lambda x: x["end"] - x["start"],
+            region_size=lambda x: x.groupby(["enst", "region"])[
+                "exon_region_size"
+            ].transform("sum"),
+        )
     )
+
+
+def choose_one_domain_per_region(df):
+    """Keep regions without a constraint annotation."""
+    return (
+        df.groupby(["enst", "region", "constraint"], dropna=False)
+        .agg(
+            domain=("domain_with_greatest_overlap", "first"),
+            overlap=("greatest_domain_overlap", "first"),
+            region_size=("region_size", "first"),
+        )
+        .reset_index()
+        .check.nrows(check_name="Rows after choosing one domain per region")
+    )
+
+
+def get_proportion_overlap(df):
+    return df.assign(
+        proportion_overlap=lambda x: x["overlap"] / x["region_size"]
+    ).check.assert_data(lambda x: (x["proportion_overlap"] <= 1).all())
 
 
 def main():
@@ -82,20 +104,13 @@ def main():
         .pipe(keep_autosomal_loci)
         .pipe(get_largest_domain_size)
         .pipe(get_largest_domain_name)
-        .drop_duplicates(["enst", "region", "start", "end"])
         .pipe(get_region_sizes)
-        .groupby(["enst", "region", "constraint"])
-        .agg(
-            domain=("domain_with_greatest_overlap", "first"),
-            overlap=("greatest_domain_overlap", "first"),
-            region_size=("region_size", "first"),
-        ).reset_index()
-        .check.function(lambda x: x.loc[x["overlap"]> x["region_size"]])
-        .check.head(30)
+        .pipe(choose_one_domain_per_region)
+        .pipe(get_proportion_overlap)
+        .check.write(FILE_OUT, index=False)
+        .check.head(5)
     )
 
 
 if __name__ == "__main__":
     df = main()
-
-# %%

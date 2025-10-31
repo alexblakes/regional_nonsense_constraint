@@ -4,7 +4,7 @@ set -eu
 
 source src/utils.sh #_log
 
-FILE_PFAM="data/interim/pfam_domains.bed"
+FILE_PFAM="data/interim/pfam_domains_merged.bed"
 FILE_NMD_REGIONS="data/interim/nmd_regions_constraint.bed"
 FILE_OUT="data/interim/nmd_regions_pfam_intersect.tsv"
 
