@@ -5,14 +5,18 @@
 		roulette \
 		snv_annotation \
 		constraint \
+		constraint_bed \
 		maps \
 		clinvar \
 		orthogonal_metrics \
+		conservation \
+		pfam_domains \
 		omim \
+		shet \
 		protein_paint \
+		statistics_for_paper \
 		statistics_for_plots \
 		visualisation \
-		figures \
 		all \
 
 SHELL = /bin/bash
@@ -74,16 +78,20 @@ visualisation :
 figures :
 
 all : downloads \
-	  regions \
-	  snvs \
-	  roulette \
-	  snv_annotation \
-	  constraint \
-	  maps \
-	  clinvar \
-	  orthogonal_metrics \
-	  omim \
-	  protein_paint \
-	  statistics_for_plots \
-	  visualisation \
-	  figures \
+      regions \
+      snvs \
+      roulette \
+      snv_annotation \
+      constraint \
+      constraint_bed \
+      maps \
+      clinvar \
+      orthogonal_metrics \
+      conservation \
+      pfam_domains \
+      omim \
+      shet \
+      protein_paint \
+      statistics_for_paper \
+      statistics_for_plots \
+      visualisation \

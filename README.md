@@ -7,12 +7,14 @@ Please cite our preprint:
 Blakes, A. J. M., Whiffin, N., Johnson, C. A., Ellingford, J. & Banka, S. [Regional nonsense constraint offers clinical and biological insights into rare genetic disorders](https://doi.org/10.1101/2024.10.10.24315185). 2024.10.10.24315185 (2024).
 
 ## Workflow
-Our workflow is organised into multiple experiments, each with its own directory under `src`. The order in which these experiments were run is defined in the `Makefile` in the root directory.
+Our workflow is organised into multiple experiments, each with its own directory under `src`. 
 
-The order in which scripts and modules were run for each experiment is defined in the `Makefile` in the directory of that experiment, for example `src/omim/Makefile`.
+The order in which these experiments were run is defined in the `Makefile` in the root directory.
+
+The order in which scripts and modules were run *within each experiment* is defined in the `Makefile` in the directory of that experiment, for example `src/protein_domains/Makefile`.
 
 ## Dependencies
-Our software dependencies are defined in .yml files under the `env` directory. Dependencies and virtual environments were managed with Conda. For each step of the analysis, the necessary conda environment is defined in the Makefiles described above. If no Conda environment is given, the default environment used was `env/ukb.yml`.
+Our software dependencies are defined in .yml files under the `env` directory. Dependencies and virtual environments were managed with Conda. For each step of the analysis, the necessary conda environment is defined in the Makefiles described above. The default environment used was `env/ukb.yml`.
 
 ## Data
 Key data resources are described in our README at `data/raw/_README.md`.  
@@ -24,3 +26,6 @@ Our analysis of *de novo* variation was performed in trio sequencing data from t
 Data from the 100KGP and the GMS was accessed through the [National Genomic Research Library](https://www.genomicsengland.co.uk/blog/genomics-101-what-is-the-national-genomic-research-library). Access to the NGRL is available to registered academics with approved projects, as described [here](https://www.genomicsengland.co.uk/join-us).
 
 ## Key modules
+- OE95 statistics are calculated within the `src/constraint/observed_variants_counts_and_oe_stats.py` module
+- MAPS statistics are calculated within the `src/constraint/maps.py` module
+- A BED file containing regions and constraint annotations is produced by the `src/constrained_regions_bed/annotate_with_constraint.py` module
