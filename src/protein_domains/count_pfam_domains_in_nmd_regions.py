@@ -14,6 +14,7 @@ import src
 FILE_IN = "data/interim/nmd_regions_pfam_intersect.tsv"
 FILE_OUT = "data/final/pfam_domains_in_nmd_regions.tsv"
 
+
 # %%
 def keep_autosomal_loci(df):
     return df.loc[lambda x: ~x["chrom"].isin(["chrX", "chrY", "chrM"])]
@@ -83,6 +84,10 @@ def get_proportion_overlap(df):
     ).check.assert_data(lambda x: (x["proportion_overlap"] <= 1).all())
 
 
+def assign_any_overlap(df):
+    return df.assign(any_overlap=lambda x: x["proportion_overlap"] > 0)
+
+
 def main():
     return (
         pd.read_csv(
@@ -107,6 +112,7 @@ def main():
         .pipe(get_region_sizes)
         .pipe(choose_one_domain_per_region)
         .pipe(get_proportion_overlap)
+        .pipe(assign_any_overlap)
         .check.write(FILE_OUT, index=False)
         .check.head(5)
     )

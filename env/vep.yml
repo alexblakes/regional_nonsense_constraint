@@ -9,7 +9,7 @@ dependencies:
   - anndata=0.8.0
   - anyio=3.7.1
   - argtable2=2.13
-  - bcftools=1.20
+  - bcftools=1.21
   - bedtools=2.31.1
   - binutils_impl_linux-64=2.39
   - binutils_linux-64=2.39
@@ -30,7 +30,7 @@ dependencies:
   - colorama=0.4.6
   - consan=1.2
   - cryptography=38.0.2
-  - curl=8.7.1
+  - curl=8.8.0
   - cycler=0.11.0
   - dca=0.3.4
   - dendropy=4.6.1
@@ -65,7 +65,7 @@ dependencies:
   - harfbuzz=5.3.0
   - hdf5=1.12.2
   - hpack=4.0.0
-  - htslib=1.20
+  - htslib=1.21
   - httpcore=0.17.3
   - hyperframe=6.0.1
   - hyperopt=0.2.7
@@ -89,19 +89,20 @@ dependencies:
   - libblas=3.9.0
   - libcblas=3.9.0
   - libcups=2.3.3
-  - libcurl=8.7.1
+  - libcurl=8.8.0
   - libdb=6.2.32
-  - libdeflate=1.19
+  - libdeflate=1.23
   - libedit=3.1.20191231
   - libev=4.33
   - libexpat=2.5.0
   - libffi=3.4.2
+  - libgcc=14.2.0
   - libgcc-devel_linux-64=10.4.0
-  - libgcc-ng=13.2.0
+  - libgcc-ng=14.2.0
   - libgfortran-ng=13.2.0
   - libgfortran5=13.2.0
   - libglib=2.78.1
-  - libgomp=13.2.0
+  - libgomp=14.2.0
   - libhwloc=2.8.0
   - libiconv=1.17
   - libidn2=2.3.4
@@ -133,7 +134,7 @@ dependencies:
   - mysql-connector-c=6.1.11
   - natsort=8.4.0
   - ncbi-vdb=3.0.8
-  - ncurses=6.4
+  - ncurses=6.5
   - networkx=2.7
   - nomkl=1.0
   - numba=0.56.3
@@ -142,7 +143,7 @@ dependencies:
   - olefile=0.46
   - openjdk=17.0.3
   - openjpeg=2.4.0
-  - openssl=3.3.1
+  - openssl=3.4.1
   - ossuuid=1.6.2
   - packaging=23.2
   - paml=4.10.6
@@ -293,6 +294,7 @@ dependencies:
   - pyyaml=6.0
   - readline=8.2
   - ruby=2.1.7
+  - samtools=1.21
   - sap=1.1.3
   - scanpy=1.7.2
   - scikit-learn=1.0.2
@@ -347,5 +349,5 @@ dependencies:
   - yaml=0.2.5
   - zipp=3.15.0
   - zlib=1.2.13
-  - zstd=1.5.5
+  - zstd=1.5.6
 prefix: /mnt/iusers01/bk01/m40482ab/miniforge3/envs/vep
