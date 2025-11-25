@@ -10,6 +10,6 @@ notebooks
 src/scratch
 src/gene_enrichment
 src/gwas
+src/paralogs
 
 # Explicitly include
-!notebooks/11_conservation.ipynb

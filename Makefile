@@ -50,6 +50,9 @@ orthogonal_metrics :
 conservation :
 	make -f src/conservation/Makefile all
 
+pfam_domains :
+	make -f src/protein_domains/Makefile all
+
 omim :
 	make -f src/omim/Makefile all
 
@@ -58,6 +61,9 @@ shet :
 
 protein_paint :
 	make -f src/protein_paint/Makefile all
+
+statistics_for_paper :
+	make -f src/statistics_for_paper/Makefile all
 
 statistics_for_plots :
 	make -f src/statistics_for_plots/Makefile all
