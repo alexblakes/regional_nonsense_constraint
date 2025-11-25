@@ -1,5 +1,5 @@
 # Regional nonsense constraint
-A public repository containing analysis workflow for regional nonsense constraint annotations for protein-coding genes.
+A public repository describing the workflow to produce regional nonsense constraint annotations for protein-coding genes.
 
 ## Citation
 Please cite our preprint:

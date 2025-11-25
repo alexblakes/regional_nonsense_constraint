@@ -35,6 +35,9 @@ snv_annotation :
 constraint :
 	make -f src/constraint/Makefile all
 
+constraint_bed :
+	make -f src/constrained_regions_bed/Makefile all
+
 maps :
 	make -f src/maps/Makefile all
 
@@ -43,6 +46,9 @@ clinvar :
 
 orthogonal_metrics :
 	make -f src/orthogonal_metrics/Makefile all
+
+conservation :
+	make -f src/conservation/Makefile all
 
 omim :
 	make -f src/omim/Makefile all
