@@ -1,7 +1,5 @@
 """Find paralogous genes with strongly different constraint."""
 
-
-
 import pandas as pd
 
 import src

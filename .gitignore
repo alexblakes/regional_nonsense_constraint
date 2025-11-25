@@ -3,7 +3,13 @@
 .virtual_documents
 .vscode
 *__pycache__*
-src/scratch
+
+# Private files or directories
 docs
 notebooks
+src/scratch
 src/gene_enrichment
+src/gwas
+
+# Explicitly include
+!notebooks/11_conservation.ipynb
