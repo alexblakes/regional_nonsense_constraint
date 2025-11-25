@@ -1,19 +1,15 @@
 """MAPS calculation."""
 
 # Imports
-
 import numpy as np
 from numpy.polynomial import Polynomial as P
 import pandas as pd
 
-from src import setup_logger
+import src
 from src import constants as C
 
-# Module constants
 
-
-# Logging
-logger = setup_logger(Path(__file__).stem)
+logger = src.logger
 
 
 # Functions
@@ -79,19 +75,19 @@ def combine_non_cpg_and_cpg_data(non_cpg, cpg):
     weighted_mean = lambda x: np.average(x, weights=joint.loc[x.index, "n_obs"])
 
     joint = joint.groupby("csq").agg(
-        mu = ("mu", weighted_mean),
-        n_singletons = ("n_singletons", "sum"),
-        n_obs = ("n_obs", "sum"),
-        ps = ("ps", weighted_mean),
-        ps_pred = ("ps_pred", weighted_mean),
-        maps = ("maps", weighted_mean),
+        mu=("mu", weighted_mean),
+        n_singletons=("n_singletons", "sum"),
+        n_obs=("n_obs", "sum"),
+        ps=("ps", weighted_mean),
+        ps_pred=("ps_pred", weighted_mean),
+        maps=("maps", weighted_mean),
     )
 
     joint["se"] = np.sqrt((joint["ps"] * (1 - joint["ps"])) / joint["n_obs"])
     joint["ci95"] = 1.96 * joint["se"]
 
     logger.info(f"MAPS scores:\n{joint.maps}")
-    
+
     return joint
 
 
@@ -127,4 +123,5 @@ def main():
 
 
 if __name__ == "__main__":
+    src.add_log_handlers()
     joint = main()

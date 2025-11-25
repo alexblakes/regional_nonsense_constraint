@@ -28,4 +28,3 @@ Data from the 100KGP and the GMS was accessed through the [National Genomic Rese
 ## Key modules
 - OE95 statistics are calculated within the `src/constraint/observed_variants_counts_and_oe_stats.py` module
 - MAPS statistics are calculated within the `src/constraint/maps.py` module
-- A BED file containing regions and constraint annotations is produced by the `src/constrained_regions_bed/annotate_with_constraint.py` module
