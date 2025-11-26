@@ -21,9 +21,7 @@ Key data resources are described in our README at `data/raw/_README.md`.
 
 Much of our analysis depends on the gnomAD v4.1 sequencing resources, available for [download here](https://gnomad.broadinstitute.org/data).
 
-Our analysis of *de novo* variation was performed in trio sequencing data from the 100,000 Genomes Project (100KGP), the UK Genomic Medicine Service (GMS), and the [Deciphering Developmental Disorders](https://www.ddduk.org/) study.
-
-Data from the 100KGP and the GMS was accessed through the [National Genomic Research Library](https://www.genomicsengland.co.uk/blog/genomics-101-what-is-the-national-genomic-research-library). Access to the NGRL is available to registered academics with approved projects, as described [here](https://www.genomicsengland.co.uk/join-us).
+See also our [companion repository](https://github.com/alexblakes/gel_nmd_dnms/) describing our analysis of _de novo_ variants in the Genomics England protected research environment.
 
 ## Key modules
 - OE95 statistics are calculated within the `src/constraint/observed_variants_counts_and_oe_stats.py` module
